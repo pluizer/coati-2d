@@ -1,0 +1,12 @@
+/batcher.o
+/coati.so
+/input.o
+/misc.o
+/node.o
+/shader.o
+/sprite-batcher.o
+/sprite.o
+/texture.o
+/tilemap.o
+/trans.o
+/window.o

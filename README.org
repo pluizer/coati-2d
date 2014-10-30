@@ -1,0 +1,20 @@
+A simple, small and fast 2D game programming library for Chicken Scheme.
+- Version: Not finished at all.0
+- Author: Richard van Roy (pluizer)
+- Project: [[https://github.com/pluizer/coati]]
+- License: [[http://opensource.org/licenses/MIT][MIT]]
+
+* Dependencies
+
+glfw3
+opengl-glew
+gl-utils
+gl-math
+soil
+chunk-vector
+2d-primitives
+
+* Run example
+
+: make
+: csi example.scm
