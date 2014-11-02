@@ -19,15 +19,18 @@
 		   4)
    (list)))
 
+(define (%vertex-data trans)
+  (polygon+
+   (polygon:rotate(rect->polygon (rect:create 0 1 0 1))
+		  (trans:rotation trans)
+		  (trans:origin trans))
+   (trans:position trans)))
+
 (define (sprite-batcher:push! sprite-batcher sprite trans)
   (let* ((id (batcher:push!
 	      (sprite-batcher-batcher sprite-batcher)
 	      ;; Vertex data
-	      (polygon+
-	       (polygon:rotate(rect->polygon (rect:create 0 1 0 1))
-			      (trans:rotation trans)
-			      (trans:origin trans))
-	       (trans:position trans))
+	      (%vertex-data trans)
 	      ;; Coord data
 	      (sprite:rectangle sprite)
 	      ;; Colour (white)
@@ -37,6 +40,23 @@
      (cons (cons id sprite)		 
 	   (sprite-batcher-batch-id+sprite sprite-batcher)))
     id))
+
+(define (sprite-batcher:change! sprite-batcher id trans)
+  (let ((batcher (sprite-batcher-batcher sprite-batcher)))
+    (batcher:change! batcher 
+		     id
+		     ;; Vertex data
+		     'vertex (%vertex-data trans))))
+
+(define (sprite-batcher:update! sprite-batcher)
+  (let ((batcher (sprite-batcher-batcher sprite-batcher)))
+    (for-each (lambda (pair)
+		(let ((id (car pair))
+		      (sprite (cdr pair)))
+		  (when (sprite:new-frame? sprite)
+			(batcher:change! batcher id
+					 'coord (sprite:rectangle sprite)))))
+	      (sprite-batcher-batch-id+sprite sprite-batcher))))
 
 (define (sprite-batcher:remove! sprite-batcher id)
   (batcher:remove! (sprite-batcher-batcher sprite-batcher) id)
