@@ -39,7 +39,7 @@ texture.o: texture.scm primitives.scm misc.scm
 tilemap.o: tilemap.scm primitives.scm
 	csc -c tilemap.scm -C $(CFLAGS)
 
-trans.o: trans.scm primitives.scm
+trans.o: trans.scm primitives.scm sprite.scm
 	csc -c trans.scm -C $(CFLAGS)
 
 window.o: window.scm

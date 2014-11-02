@@ -9,19 +9,15 @@
   (make-frame
    ;; Map texels to pixels.
    (let* ((w (vect:x (texture:size texture)))
-	  (h (vect:y (texture:size texture)))
-	  (r (rect:create (+ (rect:l rectangle)
-			     (/ .5 w))
-			  (- (rect:r rectangle)
-			     (/ .5 w))
-			  (+ (rect:t rectangle)
-			     (/ .5 h))
-			  (- (rect:b rectangle)
-			     (/ .5 h)))))
-     (f32vector (rect:l r) (rect:t r)
-		(rect:l r) (rect:b r)
-		(rect:r r) (rect:b r)
-		(rect:r r) (rect:t r)))))
+	  (h (vect:y (texture:size texture))))
+     (rect:create (+ (rect:l rectangle)
+		     (/ .5 w))
+		  (- (rect:r rectangle)
+		     (/ .5 w))
+		  (+ (rect:t rectangle)
+		     (/ .5 h))
+		  (- (rect:b rectangle)
+		     (/ .5 h))))))
 
 (define-record animation
   frames	;; all the animation's frames.

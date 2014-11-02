@@ -59,11 +59,10 @@
 					      1000)
 			       (trans:create (vect:create 1.5 1)))))
 
-    (sprite-batcher:change! (batcher) id colour: (f32vector 1 1 0 1
-							    1 0 0 1
-							    1 0 1 1
-							    0 1 1 1)))
-)
+    (sprite-batcher:change! (batcher) id 
+			    (trans:create (vect:create 0 0)
+					  flip-h?: #f
+					  flip-v?: #t))))
 
 (define x (make-parameter 0))
 (define y (make-parameter 0))

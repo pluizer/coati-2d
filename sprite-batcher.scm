@@ -6,11 +6,17 @@
 	       trans))
 
 (use srfi-1
-     srfi-4)
+     srfi-4
+     matchable)
 
 (define-record sprite-batcher
   batcher
-  batch-id+sprite)
+  sprite-ids)
+
+(define-record sprite-batch-id
+  batch-id
+  trans
+  sprite)
 
 (define (sprite-batcher:create)
   (make-sprite-batcher 
@@ -20,50 +26,51 @@
    (list)))
 
 (define (sprite-batcher:push! sprite-batcher sprite trans)
-  (let* ((id (batcher:push!
-	      (sprite-batcher-batcher sprite-batcher)
-	      ;; Vertex data
-	      (trans:vertex-data trans)
-	      ;; Coord data
-	      (sprite:rectangle sprite)
-	      ;; Colour (white)
-	      (make-f32vector 16 1 #t))))
-    (sprite-batcher-batch-id+sprite-set! 
-     sprite-batcher
-     (cons (cons id sprite)		 
-	   (sprite-batcher-batch-id+sprite sprite-batcher)))
-    id))
+  (let* ((sprite-id (make-sprite-batch-id 
+		     (batcher:push!
+		      (sprite-batcher-batcher sprite-batcher)
+		      ;; Vertex data
+		      (trans:vertex-data trans)
+		      ;; Coord data
+		      (trans:coord-data trans sprite)
+		      ;; Colour (white)
+		      (make-f32vector 16 1 #t))
+		     trans sprite)))
+    (sprite-batcher-sprite-ids-set! 
+     sprite-batcher 
+     (cons sprite-id (sprite-batcher-sprite-ids sprite-batcher)))
+    sprite-id))
 
-(define (sprite-batcher:change-trans! sprite-batcher id trans)
-  (let ((batcher (sprite-batcher-batcher sprite-batcher)))
-    (batcher:change! batcher 
-		     id
-		     ;; Vertex data
-		     vertex: (trans:vertex-data trans))))
 
-(define (sprite-batcher:change! sprite-batcher id #!rest attrib-name+value)
-  (let ((batcher (sprite-batcher-batcher sprite-batcher)))
-    (apply batcher:change! `(,batcher ,id ,@attrib-name+value))))
+(define (sprite-batcher:change! sprite-batcher sprite-batch-id trans)
+  (sprite-batch-id-trans-set! sprite-batch-id trans)
+  (match-let ((($ sprite-batch-id batch-id trans sprite) sprite-batch-id))
+	     (batcher:change! (sprite-batcher-batcher sprite-batcher) 
+			      batch-id
+			      ;; Vertex data
+			      vertex: (trans:vertex-data trans)
+			      coord:  (trans:coord-data trans sprite))))
 
 (define (sprite-batcher:update! sprite-batcher)
-  (let ((batcher (sprite-batcher-batcher sprite-batcher)))
-    (for-each (lambda (pair)
-		(let ((id (car pair))
-		      (sprite (cdr pair)))
-		  (when (sprite:new-frame? sprite)
-			(batcher:change! batcher id
-					 coord: (sprite:rectangle sprite)))))
-	      (sprite-batcher-batch-id+sprite sprite-batcher))))
+  (for-each
+   (lambda (sprite-id)
+     (when (sprite:new-frame? sprite)
+	   (match-let ((($ sprite-batch-id batch-id trans sprite)
+			sprite-id))
+		      (batcher:change! (sprite-batcher-batcher sprite-batcher)
+				       batch-id
+				       coord: (trans:coord-data trans sprite)))))
+   (sprite-batcher-sprite-ids sprite-batcher)))
 
 (define (sprite-batcher:remove! sprite-batcher id)
   (batcher:remove! (sprite-batcher-batcher sprite-batcher) id)
-  (sprite-batcher-batch-id+sprite-set! sprite-batcher
+  (sprite-batcher-sprite-ids-set! sprite-batcher
    (remove (lambda (x) (= (car x) id))
-	   (sprite-batcher-batch-id+sprite sprite-batcher))))
+	   (sprite-batcher-sprite-ids sprite-batcher))))
 
 (define (sprite-batcher:clear! sprite-batcher)
   (batcher:clear! (sprite-batcher-batcher sprite-batcher))
-  (sprite-batcher-batch-id+sprite-set! sprite-batcher (list)))
+  (sprite-batcher-sprite-ids-set! sprite-batcher (list)))
 
 (define (sprite-batcher:render sprite-batcher projection view)
   (batcher:render (sprite-batcher-batcher sprite-batcher) 
