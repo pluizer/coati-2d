@@ -139,7 +139,7 @@
 
       (with-texture/proc (texture)
 	(lambda ()
-	  ((tilebatcher) (vect:create (x) (y))
+	  (tilemap:render (tilebatcher) (vect:create (x) (y))
 	   9 9
 	   (lambda (c) (if (even? (coord:x c)) sprite sprite2))
 	   projection-matrix

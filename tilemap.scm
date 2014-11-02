@@ -65,7 +65,7 @@
 			(filter (lambda (x) (not (member x coords))) active-coords)
 			new))
 		     ;; Clear the previously added sprites and add the new ones
-		     ;; (Dumbly clearing everything an readding is often 
+		     ;; (Dumbly clearing everything an reading is often 
 		     ;; faster than keeping track of and deleting all unneeded
 		     ;; handles one by one.)
 		     (sprite-batcher:clear! batcher)
@@ -109,5 +109,7 @@
 			(f32vector (+ (* rx tile-size) tile-size)
 				   (+ (* ry tile-size) tile-size)
 				   0))
-		       view))
-	  )))))
+		       view)))))))
+
+(define (tilemap:render tilemap top-left width height tile-func projection view)
+  (tilemap top-left width height tile-func projection view))
