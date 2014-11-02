@@ -134,7 +134,7 @@
 	   (define-func 
 	     (lambda ()
 	       (gl::vertex-attrib-pointer location size (gl::type->gl type)
-					  #f 0 (chunk-vector->pointer data))))
+					  #f 0 (chunk-vector:>pointer data))))
 	   ;; the function used to push new data.
 	   (push-func
 	    (lambda (value)
@@ -143,11 +143,11 @@
 		(error (sprintf "~a: vector is wrong size needed size: ~a." 
 				value chunk-size)))
 	      ;; push the data.
-	      (chunk-vector-push! data value)))
+	      (chunk-vector:push! data value)))
 	   ;; the function used to remove data.
 	   (remove-func
 	    (lambda (batch-id)
-	      (chunk-vector-remove! data batch-id)))
+	      (chunk-vector:remove! data batch-id)))
 	   ;; the function used to set old data to a new value.
 	   (set-func
 	    (lambda (batch-id value)
@@ -156,7 +156,7 @@
 		(error (sprintf "~a: vector is wrong size needed size: ~a." 
 				value chunk-size)))
 	      ;; set the data
-	      (chunk-vector-set! data batch-id value))))
+	      (chunk-vector:set! data batch-id value))))
       ;; return a key value pair where the key is the attribute's name and
       ;; the value the actual attribute.
       (cons name (make-%attribute data enable-func define-func
@@ -245,5 +245,5 @@
 (define (batcher:clear! batcher)
   (batcher-length-set! batcher 0)
   (for-each (lambda (attrib)
-	      (chunk-vector-clear! (%attribute-data attrib)))
+	      (chunk-vector:clear! (%attribute-data attrib)))
 	    (map cdr (batcher-attributes batcher))))

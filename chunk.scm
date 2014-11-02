@@ -380,29 +380,29 @@ void* dv_vector_data(DV_Vector* dv)
 		      (cons vector args))))
 	   funcs)))
 
-(define (chunk-vector-remove! vector index)
+(define (chunk-vector:remove! vector index)
   (vector 'remove! index))
 
-(define (chunk-vector-push! vector value)
+(define (chunk-vector:push! vector value)
   (vector 'push! value))
 
-(define (chunk-vector-set! vector index value)
+(define (chunk-vector:set! vector index value)
   (vector 'set! index value))
 
-(define (chunk-vector-ref vector index)
+(define (chunk-vector:ref vector index)
   (vector 'ref index))
 
-(define (chunk-vector-length vector)
+(define (chunk-vector:length vector)
   (vector 'length))
 
-(define (chunk-vector->pointer vector)
+(define (chunk-vector:>pointer vector)
   (vector 'pointer))
 
-(define (chunk-vector-chunk-size vector)
+(define (chunk-vector:chunk-size vector)
   (vector 'chunk-size))
 
-(define (chunk-vector-type vector)
+(define (chunk-vector:type vector)
   (vector 'type))
 
-(define (chunk-vector-clear! vector)
+(define (chunk-vector:clear! vector)
   (vector 'clear!))
