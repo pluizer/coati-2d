@@ -11,19 +11,6 @@
      (prefix opengl-glew gl::)
      (prefix gl-math gl::))
 
-(define *all-white* (make-f32vector 16 1 #t))
-
-;; (define (tile-batcher:push! batcher tile-size sprite position)
-;;   (let ((x (vect:x position))
-;; 	(y (vect:y position)))
-;;     (batcher:push! batcher 
-;; 		   (f32vector x               y
-;; 			      x 	      (+ tile-size y)
-;; 			      (+ tile-size x) (+ tile-size y)
-;; 			      (+ tile-size x) y)
-;; 		   (sprite:rectangle sprite)
-;; 		   *all-white*)))
-
 (define (tilemap:create tile-size . new-coords-callback)
   (let ((batcher (sprite-batcher:create))
 	;; Rememer the last added coordinate and the width and height
@@ -88,11 +75,9 @@
 		     (set! active-coords coords)))))
 	     ;; Render the sprite-batch
 	     (sprite-batcher:render batcher projection view))))
-      #|
-      Function returned by ``tilemap:create``. Renders the map from
-      the ``top-left`` coordinate. (which is a vect not a coord so
-      it it can have fractions).
-      |#
+      ;; Function returned by ``tilemap:create``. Renders the map from
+      ;; the ``top-left`` coordinate. (which is a vect not a coord so
+      ;; fractions are possible).
       (lambda (top-left width height tile-func projection view)
 	(let* ((x (vect:x top-left))
 	       (y (vect:y top-left))
@@ -111,5 +96,7 @@
 				   0))
 		       view)))))))
 
+;; Renders the map from the ``top-left`` coordinate. 
+;; (which is a vect not a coord so fractions are possible).
 (define (tilemap:render tilemap top-left width height tile-func projection view)
   (tilemap top-left width height tile-func projection view))
