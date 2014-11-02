@@ -65,6 +65,10 @@
 			     rectangles))
 		       #f)))))
 
+;; Is this sprite an animation?
+(define (sprite:animated? sprite)
+  (not (sprite-frame sprite)))
+
 (define (sprite:new-frame? sprite)
   (if (sprite-animation sprite)
       (animation:new-frame? (sprite-animation sprite))
