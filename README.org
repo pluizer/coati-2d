@@ -10,8 +10,6 @@ A simple, small and fast 2D game programming library for Chicken Scheme.
 - gl-utils
 - gl-math
 - soil
-- chunk-vector
-- 2d-primitives
 
 * How to test...
 : make
