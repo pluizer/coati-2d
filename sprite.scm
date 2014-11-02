@@ -70,12 +70,12 @@
   (not (sprite-frame sprite)))
 
 (define (sprite:new-frame? sprite)
-  (if (sprite-animation sprite)
+  (if (sprite:animated? sprite)
       (animation:new-frame? (sprite-animation sprite))
       #f))
 
 (define (sprite:frame sprite)
-  (if (sprite-animation sprite)
+  (if (sprite:animated? sprite)
       (animation:frame (sprite-animation sprite))
       (sprite-frame sprite)))
 
