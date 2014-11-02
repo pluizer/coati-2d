@@ -1,6 +1,5 @@
-(declare (unit trans))
-
-(use 2d-primitives)
+(declare (unit trans)
+	 (uses primitives))
 
 (define-record trans
   position 
@@ -20,6 +19,13 @@
 	      (or rotation 0.0)
 	      flip-v?
 	      flip-h?))
+
+(define (trans:vertex-data trans)
+  (polygon+
+   (polygon:rotate(rect->polygon (rect:create 0 1 0 1))
+		  (trans:rotation trans)
+		  (trans:origin trans))
+   (trans:position trans)))
 
 (define trans:position trans-position)
 (define trans:origin   trans-origin)

@@ -1,9 +1,9 @@
 (declare (unit batcher)
-	 (uses shader
+	 (uses chunk
+	       shader
 	       misc))
 
-(use chunk-vector
-     srfi-1
+(use srfi-1
      srfi-4
      data-structures
      lolevel
@@ -205,10 +205,19 @@
 	    (map cdr (batcher-attributes batcher))))
 
 ;; Change one attribute value of a batch-id.
-(define (batcher:change! batcher batch-id attribute-name value)
-  (let ((pair (assoc attribute-name (batcher-attributes batcher))))
+;; attribute name should be a keyword describing the name of the attribute.
+;; example "vertex" becomes vertex:
+(define (batcher:change!-1 batcher batch-id attribute-name value)
+  (let ((pair (assoc (keyword->symbol attribute-name) (batcher-attributes batcher))))
     (if pair ((%attribute-set-func (cdr pair)) batch-id value)
 	(error attribute-name "no such attribute."))))
+
+(define (batcher:change! batcher batch-id #!rest name+values)
+  (for-each (lambda (pair)
+	      (batcher:change!-1 batcher batch-id
+				 (car pair)
+				 (cdr pair)))
+	    (pair name+values)))
 
 ;; Render the batch to the current framebuffer.
 ;; A value for each uniform defined in ''batcher:create''

@@ -5,7 +5,6 @@
      (prefix soil gl::)
      srfi-1
      srfi-4
-     2d-primitives
      chunk-vector
      data-structures
      srfi-69
@@ -49,12 +48,21 @@
 			(trans:create (vect:create 0 0)
 				      rotation: 23
 				      origin: (vect:create 1 1)))
-  (sprite-batcher:push! (batcher)
-			(sprite:create (texture) 
-				       (list (rect:create 0 (/ 1 3) (/ 1 2) 0)))
-			(trans:create (vect:create 1.5 1))
-			)
+  (let ((id
+	 (sprite-batcher:push! (batcher)
+			       (sprite:create (texture) 
+					      (list (rect:create 0 (/ 1 3) (/ 1 2) 0)
+						    (rect:create (/ 1 3)
+								 (* (/ 1 3) 2)
+								 (/ 1 2) 
+								 0))
+					      1000)
+			       (trans:create (vect:create 1.5 1)))))
 
+    (sprite-batcher:change! (batcher) id colour: (f32vector 1 1 0 1
+							    1 0 0 1
+							    1 0 1 1
+							    0 1 1 1)))
 )
 
 (define x (make-parameter 0))
@@ -143,6 +151,7 @@
       (fw::poll-events)
       (gl::check-error)
 
+      (sprite-batcher:update! (batcher))
 
       (set! view-matrix
 	    (gl::look-at (gl::make-point 0 0 20)

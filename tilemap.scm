@@ -1,11 +1,11 @@
 (declare (unit tilemap)
-	 (uses shader
+	 (uses primitives
+	       shader
 	       sprite-batcher
 	       texture
 	       misc))
 
-(use 2d-primitives
-     srfi-1
+(use srfi-1
      srfi-4
      data-structures
      (prefix opengl-glew gl::)

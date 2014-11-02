@@ -1,8 +1,8 @@
 (declare (unit texture)
+	 (uses primitives)
 	 (uses misc))
 
-(use 2d-primitives
-     srfi-1
+(use srfi-1
      srfi-4
      (prefix opengl-glew gl::)
      (prefix gl-utils gl::)

@@ -1,10 +1,13 @@
-OBJECTS = batcher.o input.o misc.o node.o shader.o sprite-batcher.o sprite.o texture.o tilemap.o trans.o window.o
+OBJECTS = batcher.o chunk.o input.o misc.o node.o primitives.o shader.o sprite-batcher.o sprite.o texture.o tilemap.o trans.o window.o
 CFLAGS = -Wno-cpp
 
 all: coati.so
 
-batcher.o: batcher.scm misc.scm
+batcher.o: batcher.scm chunk.scm shader.scm misc.scm
 	csc -c batcher.scm -C $(CFLAGS)
+
+chunk.o: chunk.scm
+	csc -c chunk.scm -C $(CFLAGS)
 
 coati.so: coati.scm $(OBJECTS)
 	csc -s $(OBJECTS) coati.scm -o coati.so -C $(CFLAGS)
@@ -18,22 +21,25 @@ misc.o: misc.scm
 node.o: node.scm trans.scm
 	csc -c node.scm -C $(CFLAGS)
 
+primitives.o: primitives.scm
+	csc -c primitives.scm -C $(CFLAGS)
+
 shader.o: shader.scm
 	csc -c shader.scm -C $(CFLAGS)
 
-sprite.o: sprite.scm misc.scm
+sprite.o: sprite.scm primitives.scm misc.scm
 	csc -c sprite.scm -C $(CFLAGS)
 
-sprite-batcher.o: sprite-batcher.scm shader.scm sprite.scm trans.scm
+sprite-batcher.o: sprite-batcher.scm primitives.scm shader.scm sprite.scm trans.scm
 	csc -c sprite-batcher.scm -C $(CFLAGS)
 
-texture.o: texture.scm misc.scm
+texture.o: texture.scm primitives.scm misc.scm
 	csc -c texture.scm -C $(CFLAGS)
 
-tilemap.o: tilemap.scm
+tilemap.o: tilemap.scm primitives.scm
 	csc -c tilemap.scm -C $(CFLAGS)
 
-trans.o: trans.scm 
+trans.o: trans.scm primitives.scm
 	csc -c trans.scm -C $(CFLAGS)
 
 window.o: window.scm

@@ -1,11 +1,11 @@
 (declare (unit sprite-batcher)
 	 (uses batcher
+	       primitives
 	       shader
 	       sprite
 	       trans))
 
-(use 2d-primitives
-     srfi-1
+(use srfi-1
      srfi-4)
 
 (define-record sprite-batcher
@@ -19,18 +19,11 @@
 		   4)
    (list)))
 
-(define (%vertex-data trans)
-  (polygon+
-   (polygon:rotate(rect->polygon (rect:create 0 1 0 1))
-		  (trans:rotation trans)
-		  (trans:origin trans))
-   (trans:position trans)))
-
 (define (sprite-batcher:push! sprite-batcher sprite trans)
   (let* ((id (batcher:push!
 	      (sprite-batcher-batcher sprite-batcher)
 	      ;; Vertex data
-	      (%vertex-data trans)
+	      (trans:vertex-data trans)
 	      ;; Coord data
 	      (sprite:rectangle sprite)
 	      ;; Colour (white)
@@ -41,12 +34,16 @@
 	   (sprite-batcher-batch-id+sprite sprite-batcher)))
     id))
 
-(define (sprite-batcher:change! sprite-batcher id trans)
+(define (sprite-batcher:change-trans! sprite-batcher id trans)
   (let ((batcher (sprite-batcher-batcher sprite-batcher)))
     (batcher:change! batcher 
 		     id
 		     ;; Vertex data
-		     'vertex (%vertex-data trans))))
+		     vertex: (trans:vertex-data trans))))
+
+(define (sprite-batcher:change! sprite-batcher id #!rest attrib-name+value)
+  (let ((batcher (sprite-batcher-batcher sprite-batcher)))
+    (apply batcher:change! `(,batcher ,id ,@attrib-name+value))))
 
 (define (sprite-batcher:update! sprite-batcher)
   (let ((batcher (sprite-batcher-batcher sprite-batcher)))
@@ -55,7 +52,7 @@
 		      (sprite (cdr pair)))
 		  (when (sprite:new-frame? sprite)
 			(batcher:change! batcher id
-					 'coord (sprite:rectangle sprite)))))
+					 coord: (sprite:rectangle sprite)))))
 	      (sprite-batcher-batch-id+sprite sprite-batcher))))
 
 (define (sprite-batcher:remove! sprite-batcher id)

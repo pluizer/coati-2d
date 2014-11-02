@@ -1,7 +1,6 @@
 (declare (unit sprite)
+	 (uses primitives)
 	 (uses texture))
-
-(use 2d-primitives)
 
 (define-record frame
   rectangle)

@@ -38,3 +38,12 @@
 	    (set! warned #t)
 	    (func (sprintf "fps: ~a too low!" count))))
       (func (sprintf "fps: ~a" count)))))
+
+(define (pair lst)
+  (reverse
+   (let loop ((lst lst) (r (list)))
+     (if (null? lst) r
+	 (loop (cddr lst) 
+	       (cons (cons (car lst) (cadr lst))
+		     r))))))
+
