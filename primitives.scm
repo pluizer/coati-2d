@@ -179,6 +179,16 @@
 (define (vect:normalize v)
   (vect* v (/ 1.0 (+ (vect:length v) float-min))))
 
+;; Flip the vector horizontally.
+(define (vect:flip-h v)
+  (vect:create (- (vect:x v))
+	       (vect:y v)))
+
+;; Flip the vector vertically..
+(define (vect:flip-v v)
+  (vect:create (vect:x v)
+	       (- (vect:y v))))
+
 ;; Clamp v to length len.
 (define (vect:clamp v len)
   (if (> (vect:dot v v) (sqr len))
