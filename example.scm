@@ -40,29 +40,29 @@
 
   (batcher (sprite-batcher:create))
 
-  (tilebatcher (tilemap:create 1))
+  (tilebatcher (tilemap:create))
 
   (sprite-batcher:push! (batcher)
-			(sprite:create (texture) 
-				       (list (rect:create 0 (/ 1 3) (/ 1 2) 0)))
+			(sprite:create* (texture)  3 2
+					(list 4))
 			(trans:create (vect:create 0 0)
-				      rotation: 23
-				      origin: (vect:create 1 1)))
+				      rotation: 0
+				      origin: (vect:create 0 1)))
   (let ((id
 	 (sprite-batcher:push! (batcher)
-			       (sprite:create (texture) 
-					      (list (rect:create 0 (/ 1 3) (/ 1 2) 0)
-						    (rect:create (/ 1 3)
-								 (* (/ 1 3) 2)
-								 (/ 1 2) 
-								 0))
-					      1000)
+			       (sprite:create* (texture) 3 2 (list 1))
 			       (trans:create (vect:create 1.5 1)))))
 
     (sprite-batcher:change! (batcher) id 
 			    (trans:create (vect:create 0 0)
-					  flip-h?: #f
-					  flip-v?: #t))))
+					  flip-h?: #t
+					  flip-v?: #f))
+
+    
+;    (print (frame-rectangle (%frame:create (texture) (rect:create 0 (/ 1 3) (/ 1 2) 0))))
+))
+
+
 
 (define x (make-parameter 0))
 (define y (make-parameter 0))
@@ -89,48 +89,28 @@
 )))
 
 
-(define (fps-counter:create thunk)
-  (let ((epoch (current-milliseconds))
-	(count 0))
-    (lambda ()
-      (let ((now (current-milliseconds))
-	    (ret count))
-	(set! count (+ count 1))
-	(when (> (- now epoch) 1000)
-	  (set! epoch now)
-	  (set! count 0)
-	  (thunk (+ ret 1)))))))
-
-(define (fps-warning:create min func)
-  (let ((warned #f))
-    (lambda (count)
-      (if warned
-	  (when (>= count min)
-	    (set! warned #f)
-	    (func (sprintf "fps: ~a fine again!" count)))
-	  (when (< count min)
-	    (set! warned #t)
-	    (func (sprintf "fps: ~a too low!" count))))
-      (func (sprintf "fps: ~a" count)))))
-
-(define fps (fps-counter:create (fps-warning:create 60 print)))
+(define fps (fps-counter:create (fps-warning:create 60 print print)))
 
 
-(fw::with-window (640 480 "Example" resizable: #f)
+(fw::with-window (1440 1050 "Example" resizable: #f)
     (init)
 
     (fw::swap-interval 0)
     (gl::disable gl::+depth-test+)
 
-    (define sprite  (sprite:create (texture) (list (rect:create 0 (/ 1 3) (/ 1 2) 0)
+    (define sprite  (sprite:create (texture) (list (rect:create 0 (/ 1 3) 0 (/ 1 2))
 						   (rect:create (/ 1 3)
 								(* (/ 1 3) 2)
-								(/ 1 2) 
-								0))))
-    (define sprite2 (sprite:create (texture) (list (rect:create (/ 1 3)
-								(* (/ 1 3) 2)
-								(/ 1 2) 
-								0))))
+								(/ 1 2)
+								0 ))
+				   100))
+    (define sprite2 (sprite:create* (texture)
+				    3 2
+				    (list 0)))
+
+    (define sprite3 (sprite:create* (texture)
+				    3 2
+				    (list 4)))
     (let loop ((r 0))
 ;      (gl::clear-color 1 1 1 1)
       (gl::clear gl::+color-buffer-bit+)
@@ -139,12 +119,19 @@
 
       (with-texture/proc (texture)
 	(lambda ()
-	  (tilemap:render (tilebatcher) (vect:create (x) (y))
-	   9 9
-	   (lambda (c) (if (even? (coord:x c)) sprite sprite2))
-	   projection-matrix
-	   view-matrix)  
-	  (sprite-batcher:render (batcher) projection-matrix view-matrix)))
+	  ;; (tilemap:render (tilebatcher) (vect:create (x) (y))
+	  ;;  12 12
+	  ;;  (lambda (c) 
+	  ;;    (if (and (= (coord:x c) 0)
+	  ;; 	      (= (coord:y c) 0))
+	  ;; 	 sprite
+	  ;; 	 (if (even? (coord:x c)) sprite2 sprite3)))
+	  ;;  projection-matrix
+	  ;;  view-matrix)
+
+ 
+	  (sprite-batcher:render (batcher) projection-matrix view-matrix)
+	  ))
 
       (fw::swap-buffers (fw::window))
       (fw::poll-events)

@@ -23,7 +23,7 @@
 
 (define (node:remove node)
   (for-each node:remove (node-children node))
-  ;; in case node is still refenced.
+  ;; in case node is still refenced somewhere.
   (node-parent-set! node #f)
   (node-children-set! (node-parent node)
 		      (remove (lambda (child)

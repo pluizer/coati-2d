@@ -1,4 +1,4 @@
-OBJECTS = batcher.o chunk.o input.o misc.o node.o primitives.o shader.o sprite-batcher.o sprite.o texture.o tilemap.o trans.o window.o
+OBJECTS = batcher.o chunk.o input.o misc.o node.o resources.o primitives.o shader.o sprite-batcher.o sprite.o texture.o tilemap.o trans.o window.o
 CFLAGS = -Wno-cpp
 
 all: coati.so
@@ -21,6 +21,9 @@ misc.o: misc.scm
 node.o: node.scm trans.scm
 	csc -c node.scm -C $(CFLAGS)
 
+resources.o: resources.scm trans.scm
+	csc -c resources.scm -C $(CFLAGS)
+
 primitives.o: primitives.scm
 	csc -c primitives.scm -C $(CFLAGS)
 
@@ -33,7 +36,7 @@ sprite.o: sprite.scm primitives.scm misc.scm
 sprite-batcher.o: sprite-batcher.scm primitives.scm shader.scm sprite.scm trans.scm
 	csc -c sprite-batcher.scm -C $(CFLAGS)
 
-texture.o: texture.scm primitives.scm misc.scm
+texture.o: texture.scm resources.scm misc.scm primitives.scm
 	csc -c texture.scm -C $(CFLAGS)
 
 tilemap.o: tilemap.scm primitives.scm

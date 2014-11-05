@@ -27,17 +27,17 @@
 	  (set! count 0)
 	  (thunk (+ ret 1)))))))
 
-(define (fps-warning:create min func)
+(define (fps-warning:create min func-warning #!optional func-normal)
   (let ((warned #f))
     (lambda (count)
       (if warned
 	  (when (>= count min)
 	    (set! warned #f)
-	    (func (sprintf "fps: ~a fine again!" count)))
+	    (func-warning (sprintf "fps: ~a fine again!" count)))
 	  (when (< count min)
 	    (set! warned #t)
-	    (func (sprintf "fps: ~a too low!" count))))
-      (func (sprintf "fps: ~a" count)))))
+	    (func-warning (sprintf "fps: ~a too low!" count))))
+      (if func-normal (func-normal count)))))
 
 (define (pair lst)
   (reverse

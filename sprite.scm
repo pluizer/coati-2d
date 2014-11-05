@@ -89,3 +89,30 @@
 ;; Give the rectangle that describes the current frame on the texture.
 (define sprite:rectangle 
   (o frame-rectangle sprite:frame))
+
+;; Create a sprite not by specifying the coordinates by rectangles,
+;; but by indices.
+;; |-w-|
+;; +---+---+---+ -
+;; |   |   |   | |
+;; | 0 | 1 | 2 | h
+;; |   |   |   | |
+;; +---+---+---+ -
+;; |   |   |   |
+;; | 3 | 4 | 5 |
+;; |   |   |   |
+;; +---+---+---+
+(define (sprite:create-from-indices texture tiles-w tiles-h indices
+			#!optional (interval (/ 1000 20)))
+  (let ((w (/ 1 tiles-w))
+	(h (/ 1 tiles-h)))
+    (sprite:create texture
+     (map (lambda (coord)
+	    (let ((x (vect:x coord))
+		  (y (vect:y coord)))
+	      (rect:create (* x w) (+ (* x w) w)
+			   (+ (* y h) h) (* y h))))
+	  (map (lambda (index)
+		 (vect:create (modulo index tiles-w)
+			      (floor (/ index tiles-w))))
+	       indices)))))

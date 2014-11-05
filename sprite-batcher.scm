@@ -54,12 +54,13 @@
 (define (sprite-batcher:update! sprite-batcher)
   (for-each
    (lambda (sprite-id)
-     (when (sprite:new-frame? sprite)
-	   (match-let ((($ sprite-batch-id batch-id trans sprite)
-			sprite-id))
-		      (batcher:change! (sprite-batcher-batcher sprite-batcher)
-				       batch-id
-				       coord: (trans:coord-data trans sprite)))))
+     (match-let ((($ sprite-batch-id batch-id trans sprite)
+		  sprite-id))
+		;; TODO polls sprites too much.
+		(when (sprite:animated? sprite)
+		 (batcher:change! (sprite-batcher-batcher sprite-batcher)
+				  batch-id
+				  coord: (trans:coord-data trans sprite)))))
    (sprite-batcher-sprite-ids sprite-batcher)))
 
 (define (sprite-batcher:remove! sprite-batcher id)

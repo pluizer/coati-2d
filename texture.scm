@@ -1,6 +1,7 @@
 (declare (unit texture)
-	 (uses primitives)
-	 (uses misc))
+	 (uses resources
+	       misc
+	       primitives))
 
 (use srfi-1
      srfi-4
@@ -66,7 +67,7 @@
 			  (gl::ogl-texture-height id)))))
       ;; setting linear-filter makes ogl-texture-width/height fail (return 0).
       ;; so we'll do it after calling those.
-      ;; (%texture-linear-filter id)
+      (%texture-linear-filter id)
       texture)))
 
 (define (texture:create size)
@@ -76,7 +77,7 @@
 			(vect:x size)
 			(vect:y size)
 			0 gl::+bgra+ gl::+unsigned-byte+ #f)
-	;; (%texture-linear-filter id)
+	(%texture-linear-filter id)
 	(gl::check-error))
     (make-texture id (%create-framebuffer id) size)))
 
@@ -99,3 +100,13 @@
 (define (with-target/proc target thunk)
   (gl::with-framebuffer (texture:framebuffer-id texture)
 			(thunk)))
+
+(define (resource:add-texture group-name name filename)
+  (resource:add group-name
+		name
+		(lambda ()
+		  (print "; loading texture: " filename)
+		  (texture:load filename))
+		(lambda (texture)
+		  (print "; freeing texture: " filename)
+		  (gl::delete-texture (texture-texture-id texture)))))

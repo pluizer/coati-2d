@@ -11,7 +11,7 @@
      (prefix opengl-glew gl::)
      (prefix gl-math gl::))
 
-(define (tilemap:create tile-size . new-coords-callback)
+(define (tilemap:create . new-coords-callback)
   (let ((batcher (sprite-batcher:create))
 	;; Rememer the last added coordinate and the width and height
 	;; so that the sprite-batch does not have to be repopulated
@@ -65,12 +65,10 @@
 			    (sprite-batcher:push! batcher sprite
 						  (trans:create
 						   (vect:create
-						    (* (- (coord:x tile-coord) 
-							  (coord:x coord)) 
-						       (* tile-size))
-						    (* (- (coord:y tile-coord)
-							  (coord:y coord)) 
-						       tile-size)))))))
+						    (- (coord:x tile-coord) 
+						       (coord:x coord))
+						    (- (coord:y tile-coord)
+						       (coord:y coord))))))))
 		      coords)
 		     (set! active-coords coords)))))
 	     ;; Render the sprite-batch
@@ -79,22 +77,19 @@
       ;; the ``top-left`` coordinate. (which is a vect not a coord so
       ;; fractions are possible).
       (lambda (top-left width height tile-func projection view)
+	(sprite-batcher:update! batcher)
 	(let* ((x (vect:x top-left))
 	       (y (vect:y top-left))
 	       (fx (floor x))
 	       (fy (floor y))
-	       (rx (- x fx))
-	       (ry (- y fy)))
+	       (rx (- x fx 1))
+	       (ry (- y fy 1)))
 	  
 	  (raw (coord:create (- (- fx) 1) (- (- fy) 1))
 	       (+ width 1) (+ height 1)
 	       tile-func
 	       projection
-	       (gl::m* (gl::translation
-			(f32vector (+ (* rx tile-size) tile-size)
-				   (+ (* ry tile-size) tile-size)
-				   0))
-		       view)))))))
+	       (gl::m* (gl::translation (f32vector rx ry 0)) view)))))))
 
 ;; Renders the map from the ``top-left`` coordinate. 
 ;; (which is a vect not a coord so fractions are possible).
