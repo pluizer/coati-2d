@@ -69,7 +69,8 @@
 					 rotation: .1)
 			      (ida)))
     (idc (scene-batcher:push! (s) grass (trans:create
-					 (vect:create 1 1))
+					 (vect:create 1 1)
+					 )
 			      (idb)))
 
     )
@@ -152,12 +153,6 @@
  
 ;	  (sprite-batcher:render (batcher) projection-matrix view-matrix)
 
-	  (renderer
-	   projection-matrix
-	   (gl::look-at (gl::make-point .5 .5 3)
-			(gl::make-point .6 .4 0)
-			(gl::make-point .1 1 0)))
-	  
 	  (scene-batcher:render (s) projection-matrix view-matrix)
 	  
 
@@ -167,10 +162,12 @@
 
 	  (scene-batcher:change! (s) (idb) (trans:create
 					    (vect:create 1 1)
+					    scale: (vect:create .5 .5)
 					    rotation: r))
 	  
 	  (scene-batcher:change! (s) (idc) (trans:create
 					    (vect:create 1 1)
+					    scale: (vect:create .5 .5)
 					    rotation: r))
 
 	  
