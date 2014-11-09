@@ -4,6 +4,8 @@
 	       node
 	       resources
 	       shader
+	       scene
+	       scene-batcher
 	       sprite
 	       sprite-batcher
 	       texture

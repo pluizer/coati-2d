@@ -1,5 +1,7 @@
 (declare (unit primitives))
 
+(use gl-math)
+
 #>
 #include <float.h>
 <#
@@ -180,14 +182,20 @@
   (vect* v (/ 1.0 (+ (vect:length v) float-min))))
 
 ;; Flip the vector horizontally.
-(define (vect:flip-h v)
+(define (vect:flip-v v)
   (vect:create (- (vect:x v))
 	       (vect:y v)))
 
 ;; Flip the vector vertically..
-(define (vect:flip-v v)
+(define (vect:flip-h v)
   (vect:create (vect:x v)
 	       (- (vect:y v))))
+
+;; Flip a vector.
+(define (vect:flip vertical? horzontal? vect)
+  (let* ((vect (if vertical?  (vect:flip-v vect) vect))
+	 (vect (if horzontal? (vect:flip-h vect) vect)))
+    vect))
 
 ;; Clamp v to length len.
 (define (vect:clamp v len)
@@ -226,6 +234,11 @@
   (let* ((dot (vect:dot (vect:normalize a) (vect:normalize b)))
 	 (omega (clamp dot -1.0 1.0)))
     (vect:spherical-lerp a b (/ (min angle omega) omega))))
+
+(define (vect*matrix vect matrix)
+  (let ((pos (m*vector! matrix (f32vector (vect:x vect) (vect:y vect) 0))))
+    (vect:create (f32vector-ref pos 0)
+		 (f32vector-ref pos 1))))
 
 ;;-------------------------------------------------------
 ;; Coords
@@ -695,6 +708,37 @@
 (define (bezier->vects bezier accuracy)
   (%subdivide bezier accuracy))
 
+
+(define (matrix:flip vertical? horzontal? matrix)
+  (let* ((matrix (if vertical?  (flip-y matrix) matrix))
+	 (matrix (if horzontal? (flip-x matrix) matrix)))
+    matrix))
+
+;;-------------------------------------------------------
+;; Matrix
+;;-------------------------------------------------------
+
+;; Flips the matrix.
+(define (matrix:flip vertical? horzontal? matrix)
+  (let* ((matrix (if vertical?  (flip-y matrix) matrix))
+	 (matrix (if horzontal? (flip-x matrix) matrix)))
+    matrix))
+
+;; Translate a matrix.
+(define (matrix:translate vect matrix)
+  (translate (f32vector (vect:x vect) (vect:y vect) 0)
+	     matrix))
+
+;; Rotates a matrix around the z axis.
+(define matrix:rotate rotate-z)
+
+;; Returns the identity matrix.
+(define identity-matrix mat4-identity)
+
+;; Multiplies matrices.
+(define matrix* m*)
+
+
 ;;-------------------------------------------------------
 ;; %
 ;;-------------------------------------------------------
@@ -703,7 +747,6 @@
   (if (negative? v) (+ 360 v) v))
 
 (define (%f32vector-part v size)
-  (assert (zero? (modulo (f32vector-length v) size)))
   (let loop ((r (list)) (n (f32vector-length v)))
     (if (= n 0) r
 	(loop (cons (subf32vector v (- n size) n) r)

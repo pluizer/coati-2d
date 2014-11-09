@@ -27,6 +27,17 @@
 (define texture 	(make-parameter #f))
 (define buffer  	(make-parameter #f))
 (define tilebatcher 	(make-parameter #f))
+(define bid	 	(make-parameter #f))
+(define ida	 	(make-parameter #f))
+(define idb	 	(make-parameter #f))
+(define idc	 	(make-parameter #f))
+(define s	 	(make-parameter #f))
+
+(define (sprite-name sprite)
+  (cond ((equal? (ida) sprite) 'ida)
+	((equal? (idb) sprite) 'idb)
+	((equal? (idc) sprite) 'idc)
+	(else 'root)))
 
 (define (init)
   ;; Initialise Glew
@@ -42,25 +53,31 @@
 
   (tilebatcher (tilemap:create))
 
-  (sprite-batcher:push! (batcher)
-			(sprite:create* (texture)  3 2
-					(list 4))
-			(trans:create (vect:create 0 0)
-				      rotation: 0
-				      origin: (vect:create 0 1)))
-  (let ((id
-	 (sprite-batcher:push! (batcher)
-			       (sprite:create* (texture) 3 2 (list 1))
-			       (trans:create (vect:create 1.5 1)))))
+  (s (scene-batcher:create))
 
-    (sprite-batcher:change! (batcher) id 
-			    (trans:create (vect:create 0 0)
-					  flip-h?: #t
-					  flip-v?: #f))
+  (let ((dirt  (sprite:create-from-indices (texture) 3 2 (list 0)))
+	(water (sprite:create-from-indices (texture) 3 2 (list 1)))
+	(grass (sprite:create-from-indices (texture) 3 2 (list 4))))
 
-    
-;    (print (frame-rectangle (%frame:create (texture) (rect:create 0 (/ 1 3) (/ 1 2) 0))))
-))
+
+    (ida (scene-batcher:push! (s) dirt  (trans:create
+					 (vect:create 0 0)
+					 rotation: .1)))
+
+    (idb (scene-batcher:push! (s) water (trans:create
+					 (vect:create 1 1)
+					 rotation: .1)
+			      (ida)))
+    (idc (scene-batcher:push! (s) grass (trans:create
+					 (vect:create 1 1))
+			      (idb)))
+
+    )
+
+
+  
+					;    (print (frame-rectangle (%frame:create (texture) (rect:create 0 (/ 1 3) (/ 1 2) 0))))
+  )
 
 
 
@@ -104,11 +121,11 @@
 								(/ 1 2)
 								0 ))
 				   100))
-    (define sprite2 (sprite:create* (texture)
+    (define sprite2 (sprite:create-from-indices (texture)
 				    3 2
 				    (list 0)))
 
-    (define sprite3 (sprite:create* (texture)
+    (define sprite3 (sprite:create-from-indices (texture)
 				    3 2
 				    (list 4)))
     (let loop ((r 0))
@@ -130,9 +147,25 @@
 	  ;;  view-matrix)
 
  
-	  (sprite-batcher:render (batcher) projection-matrix view-matrix)
-	  ))
+;	  (sprite-batcher:render (batcher) projection-matrix view-matrix)
 
+	  (scene-batcher:render (s) projection-matrix view-matrix)
+	  
+
+	  (scene-batcher:change! (s) (ida) (trans:create
+					    (vect:create 1 1)
+					    rotation: r))
+
+	  (scene-batcher:change! (s) (idb) (trans:create
+					    (vect:create 1 1)
+					    rotation: r))
+	  
+	  (scene-batcher:change! (s) (idc) (trans:create
+					    (vect:create 1 1)
+					    rotation: r))
+
+	  
+	  ))
       (fw::swap-buffers (fw::window))
       (fw::poll-events)
       (gl::check-error)
@@ -145,6 +178,6 @@
 			 (gl::make-point 0 1 0)))
       
       (unless (fw::window-should-close (fw::window))
-	(loop (+ r .01)))))
+	(loop (+ r .001)))))
 
 (exit)

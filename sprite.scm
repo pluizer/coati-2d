@@ -90,6 +90,13 @@
 (define sprite:rectangle 
   (o frame-rectangle sprite:frame))
 
+(define (sprite:coord-data sprite)
+  (let ((rect (sprite:rectangle sprite)))
+    (f32vector (rect:l rect) (rect:t rect)
+	       (rect:l rect) (rect:b rect)
+	       (rect:r rect) (rect:b rect)
+	       (rect:r rect) (rect:t rect))))
+
 ;; Create a sprite not by specifying the coordinates by rectangles,
 ;; but by indices.
 ;; |-w-|

@@ -2,8 +2,7 @@
 	 (uses batcher
 	       primitives
 	       shader
-	       sprite
-	       trans))
+	       sprite))
 
 (use srfi-1
      srfi-4
@@ -15,8 +14,9 @@
 
 (define-record sprite-batch-id
   batch-id
-  trans
+  matrix
   sprite)
+
 
 (define (sprite-batcher:create)
   (make-sprite-batcher 
@@ -25,42 +25,40 @@
 		   4)
    (list)))
 
-(define (sprite-batcher:push! sprite-batcher sprite trans)
+(define (sprite-batcher:push! sprite-batcher sprite matrix)
   (let* ((sprite-id (make-sprite-batch-id 
 		     (batcher:push!
 		      (sprite-batcher-batcher sprite-batcher)
 		      ;; Vertex data
-		      (trans:vertex-data trans)
+		      (matrix:vertex-data matrix)
 		      ;; Coord data
-		      (trans:coord-data trans sprite)
-		      ;; Colour (white)
-		      (make-f32vector 16 1 #t))
-		     trans sprite)))
+		      (sprite:coord-data sprite))
+		     matrix sprite)))
     (sprite-batcher-sprite-ids-set! 
      sprite-batcher 
      (cons sprite-id (sprite-batcher-sprite-ids sprite-batcher)))
     sprite-id))
 
 
-(define (sprite-batcher:change! sprite-batcher sprite-batch-id trans)
-  (sprite-batch-id-trans-set! sprite-batch-id trans)
-  (match-let ((($ sprite-batch-id batch-id trans sprite) sprite-batch-id))
+(define (sprite-batcher:change! sprite-batcher sprite-batch-id matrix)
+  (sprite-batch-id-matrix-set! sprite-batch-id matrix)
+  (match-let ((($ sprite-batch-id batch-id matrix sprite) sprite-batch-id))
 	     (batcher:change! (sprite-batcher-batcher sprite-batcher) 
 			      batch-id
 			      ;; Vertex data
-			      vertex: (trans:vertex-data trans)
-			      coord:  (trans:coord-data trans sprite))))
+			      vertex: (matrix:vertex-data matrix)
+			      coord:  (sprite:coord-data sprite))))
 
 (define (sprite-batcher:update! sprite-batcher)
   (for-each
    (lambda (sprite-id)
-     (match-let ((($ sprite-batch-id batch-id trans sprite)
+     (match-let ((($ sprite-batch-id batch-id matrix sprite)
 		  sprite-id))
 		;; TODO polls sprites too much.
 		(when (sprite:animated? sprite)
 		 (batcher:change! (sprite-batcher-batcher sprite-batcher)
 				  batch-id
-				  coord: (trans:coord-data trans sprite)))))
+				  coord: (sprite:coord-data sprite)))))
    (sprite-batcher-sprite-ids sprite-batcher)))
 
 (define (sprite-batcher:remove! sprite-batcher id)
@@ -74,5 +72,16 @@
   (sprite-batcher-sprite-ids-set! sprite-batcher (list)))
 
 (define (sprite-batcher:render sprite-batcher projection view)
-  (batcher:render (sprite-batcher-batcher sprite-batcher) 
-		  projection view))
+  (when (not (null? (sprite-batcher-sprite-ids sprite-batcher)))
+   (batcher:render (sprite-batcher-batcher sprite-batcher) 
+		   projection view)))
+
+;; %
+
+(define (matrix:vertex-data matrix)
+  (apply f32vector (flatten
+    (map (lambda (vect)
+	   (let ((r (vect*matrix vect matrix)))
+	     (list (vect:x r)
+		   (vect:y r))))
+	 (polygon->vects (rect->polygon (rect:create 0 1 0 1)))))))
