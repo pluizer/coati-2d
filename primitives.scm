@@ -729,6 +729,11 @@
   (translate (f32vector (vect:x vect) (vect:y vect) 0)
 	     matrix))
 
+(define (matrix:scale vect matrix)
+  (scale-2d (vect:x vect)
+	    (vect:y vect)
+	    matrix))
+
 ;; Rotates a matrix around the z axis.
 (define matrix:rotate rotate-z)
 
