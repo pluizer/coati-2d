@@ -42,7 +42,7 @@ sprite.o: sprite.scm primitives.scm misc.scm
 sprite-batcher.o: sprite-batcher.scm primitives.scm shader.scm sprite.scm trans.scm
 	csc -c sprite-batcher.scm -C $(CFLAGS)
 
-texture.o: texture.scm resources.scm misc.scm primitives.scm
+texture.o: texture.scm sprite.scm sprite-batcher.scm resources.scm misc.scm primitives.scm 
 	csc -c texture.scm -C $(CFLAGS)
 
 tilemap.o: tilemap.scm primitives.scm

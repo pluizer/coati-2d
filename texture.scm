@@ -1,5 +1,7 @@
 (declare (unit texture)
-	 (uses resources
+	 (uses sprite
+	       sprite-batcher
+	       resources
 	       misc
 	       primitives))
 
@@ -92,6 +94,15 @@
 
 (define texture:texture-id texture-texture-id)
 (define texture:framebuffer-id texture-framebuffer-id)
+
+;; Returns a functions that renders a texture.
+(define (texture:renderer texture
+			  #!optional (rect (rect:create 0 1 0 1)))
+  (let ((sprite (sprite:create texture (list rect)))
+	(sprite-batcher (sprite-batcher:create)))
+    (sprite-batcher:push! sprite-batcher sprite (identity-matrix))
+    (lambda (projection view)
+      (sprite-batcher:render sprite-batcher projection view))))
 
 (define (with-texture/proc texture thunk)
   (gl::with-texture gl::+texture-2d+ (texture:texture-id texture)

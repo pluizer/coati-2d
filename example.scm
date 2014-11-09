@@ -128,6 +128,9 @@
     (define sprite3 (sprite:create-from-indices (texture)
 				    3 2
 				    (list 4)))
+
+    (define renderer (texture:renderer (texture)))
+    
     (let loop ((r 0))
 ;      (gl::clear-color 1 1 1 1)
       (gl::clear gl::+color-buffer-bit+)
@@ -149,6 +152,12 @@
  
 ;	  (sprite-batcher:render (batcher) projection-matrix view-matrix)
 
+	  (renderer
+	   projection-matrix
+	   (gl::look-at (gl::make-point .5 .5 3)
+			(gl::make-point .6 .4 0)
+			(gl::make-point .1 1 0)))
+	  
 	  (scene-batcher:render (s) projection-matrix view-matrix)
 	  
 
