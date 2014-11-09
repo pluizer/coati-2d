@@ -50,25 +50,28 @@
   ;; be #f.
   animation
   frame
+  size
   )
 
 ;; Create a new sprite with a list of rectangles that describe the
 ;; the sprite's frames on the texture.
 ;; Frames will updated every ''interval'' milliseconds.
 (define (sprite:create texture rectangles 
-		       #!optional (interval (/ 1000 20)))
+		       #!optional (size (vect:create 1 1))
+		       #!key (interval (/ 1000 20)))
   (let ((l (length rectangles)))
     (cond ((zero? l)
 	  (error "need at least one rectangle"))
 	 ((= l 1)
-	  (make-sprite #f (%frame:create texture (car rectangles))))
+	  (make-sprite #f (%frame:create texture (car rectangles)) size))
 	 (else 
 	  (make-sprite (%animation:create
 			interval
 			(map (lambda (rectangle)
 			       (%frame:create texture rectangle))
 			     rectangles))
-		       #f)))))
+		       #f
+		       size)))))
 
 ;; Is this sprite an animation?
 (define (sprite:animated? sprite)
@@ -90,6 +93,19 @@
 (define sprite:rectangle 
   (o frame-rectangle sprite:frame))
 
+
+(define (sprite:vertex-data sprite matrix)
+  (apply f32vector (flatten
+    (map (lambda (vect)
+	   (let ((r (vect*matrix vect matrix)))
+	     (list (vect:x r)
+		   (vect:y r))))
+	 (let* ((size (sprite-size sprite))
+		(w (vect:x size))
+		(h (vect:y size)))
+	   (polygon->vects (rect->polygon
+			    (rect:create 0 w 0 h))))))))
+
 (define (sprite:coord-data sprite)
   (let ((rect (sprite:rectangle sprite)))
     (f32vector (rect:l rect) (rect:t rect)
@@ -110,7 +126,8 @@
 ;; |   |   |   |
 ;; +---+---+---+
 (define (sprite:create-from-indices texture tiles-w tiles-h indices
-			#!optional (interval (/ 1000 20)))
+				    #!optional (size (vect:create 1 1))
+				    #!key (interval (/ 1000 20)))
   (let ((w (/ 1 tiles-w))
 	(h (/ 1 tiles-h)))
     (sprite:create texture
@@ -122,4 +139,6 @@
 	  (map (lambda (index)
 		 (vect:create (modulo index tiles-w)
 			      (floor (/ index tiles-w))))
-	       indices)))))
+	       indices))
+     size
+     interval: interval)))

@@ -30,7 +30,7 @@
 		     (batcher:push!
 		      (sprite-batcher-batcher sprite-batcher)
 		      ;; Vertex data
-		      (matrix:vertex-data matrix)
+		      (sprite:vertex-data sprite matrix)
 		      ;; Coord data
 		      (sprite:coord-data sprite))
 		     matrix sprite)))
@@ -46,7 +46,7 @@
 	     (batcher:change! (sprite-batcher-batcher sprite-batcher) 
 			      batch-id
 			      ;; Vertex data
-			      vertex: (matrix:vertex-data matrix)
+			      vertex: (sprite:vertex-data sprite matrix)
 			      coord:  (sprite:coord-data sprite))))
 
 (define (sprite-batcher:update! sprite-batcher)
@@ -78,10 +78,3 @@
 
 ;; %
 
-(define (matrix:vertex-data matrix)
-  (apply f32vector (flatten
-    (map (lambda (vect)
-	   (let ((r (vect*matrix vect matrix)))
-	     (list (vect:x r)
-		   (vect:y r))))
-	 (polygon->vects (rect->polygon (rect:create 0 1 0 1)))))))

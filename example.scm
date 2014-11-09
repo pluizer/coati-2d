@@ -55,7 +55,8 @@
 
   (s (scene-batcher:create))
 
-  (let ((dirt  (sprite:create-from-indices (texture) 3 2 (list 0)))
+  (let ((dirt  (sprite:create-from-indices (texture) 3 2 (list 0)
+					   (vect:create 1 2)))
 	(water (sprite:create-from-indices (texture) 3 2 (list 1)))
 	(grass (sprite:create-from-indices (texture) 3 2 (list 4))))
 
