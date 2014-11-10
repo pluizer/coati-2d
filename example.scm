@@ -122,7 +122,7 @@
 								(* (/ 1 3) 2)
 								(/ 1 2)
 								0 ))
-				   100))
+				   ))
     (define sprite2 (sprite:create-from-indices (texture)
 				    3 2
 				    (list 0)))
@@ -141,15 +141,15 @@
 
       (with-texture/proc (texture)
 	(lambda ()
-	  ;; (tilemap:render (tilebatcher) (vect:create (x) (y))
-	  ;;  12 12
-	  ;;  (lambda (c) 
-	  ;;    (if (and (= (coord:x c) 0)
-	  ;; 	      (= (coord:y c) 0))
-	  ;; 	 sprite
-	  ;; 	 (if (even? (coord:x c)) sprite2 sprite3)))
-	  ;;  projection-matrix
-	  ;;  view-matrix)
+	  (tilemap:render (tilebatcher) (vect:create (x) (y))
+	   12 12
+	   (lambda (c) 
+	     (if (and (= (coord:x c) 0)
+	  	      (= (coord:y c) 0))
+	  	 sprite
+	  	 (if (even? (coord:x c)) sprite2 sprite3)))
+	   projection-matrix
+	   view-matrix)
 
  
 ;	  (sprite-batcher:render (batcher) projection-matrix view-matrix)

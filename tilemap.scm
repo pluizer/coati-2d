@@ -63,12 +63,13 @@
 			  (when sprite
 			    ;; Push the tile to the batcher.
 			    (sprite-batcher:push! batcher sprite
-						  (trans:create
-						   (vect:create
-						    (- (coord:x tile-coord) 
-						       (coord:x coord))
-						    (- (coord:y tile-coord)
-						       (coord:y coord))))))))
+						  (trans->matrix
+						   (trans:create
+						    (vect:create
+						     (- (coord:x tile-coord) 
+							(coord:x coord))
+						     (- (coord:y tile-coord)
+							(coord:y coord)))))))))
 		      coords)
 		     (set! active-coords coords)))))
 	     ;; Render the sprite-batch
