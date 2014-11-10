@@ -46,7 +46,7 @@
   (gl::disable gl::+depth-test+)
   (gl::check-error)
 
-  (texture (texture:load "grid.png"))
+  (texture (texture:load "share/grid.png"))
   (buffer (texture:create (vect:create 640 480)))
 
   (batcher (sprite-batcher:create))
