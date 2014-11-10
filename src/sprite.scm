@@ -143,4 +143,4 @@
 			      (floor (/ index tiles-w))))
 	       indices))
      size
-     interval: interval)))
+     interval)))
