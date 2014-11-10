@@ -15,3 +15,13 @@ A simple, small and fast 2D game programming library for Chicken Scheme.
 * How to test...
 : make
 : csi example.scm
+
+* TODO (still a lot)
+** Optimise tile map (maybe with its own shader)
+** Particle system
+** Node bounding boxes
+** Fonts
+** Sound
+** Shape drawing
+** Event system
+** Animators
