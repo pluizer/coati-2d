@@ -122,7 +122,8 @@
 								(* (/ 1 3) 2)
 								(/ 1 2)
 								0 ))
-				   ))
+				   (vect:create 1 1)
+				   100))
     (define sprite2 (sprite:create-from-indices (texture)
 				    3 2
 				    (list 0)))

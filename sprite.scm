@@ -57,8 +57,9 @@
 ;; the sprite's frames on the texture.
 ;; Frames will updated every ''interval'' milliseconds.
 (define (sprite:create texture rectangles 
-		       #!optional (size (vect:create 1 1))
-		       #!key (interval (/ 1000 20)))
+		       #!optional
+		       (size (vect:create 1 1))
+		       (interval (/ 1000 20)))
   (let ((l (length rectangles)))
     (cond ((zero? l)
 	  (error "need at least one rectangle"))
@@ -126,8 +127,9 @@
 ;; |   |   |   |
 ;; +---+---+---+
 (define (sprite:create-from-indices texture tiles-w tiles-h indices
-				    #!optional (size (vect:create 1 1))
-				    #!key (interval (/ 1000 20)))
+				    #!optional
+				    (size (vect:create 1 1))
+				    (interval (/ 1000 20)))
   (let ((w (/ 1 tiles-w))
 	(h (/ 1 tiles-h)))
     (sprite:create texture
