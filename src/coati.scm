@@ -1,14 +1,20 @@
 (declare (uses batcher
+	       animators
+	       drawing
+	       events
+	       font
 	       input
 	       misc
 	       node
 	       resources
-	       shader
 	       scene
 	       scene-batcher
+	       shader
+	       sound
 	       sprite
 	       sprite-batcher
 	       texture
 	       tilemap
 	       trans
-	       window))
+	       window
+	       ))
