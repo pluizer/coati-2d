@@ -72,13 +72,13 @@
       (%texture-linear-filter id)
       texture)))
 
-(define (texture:create size)
+(define (texture:create size #!optional data)
   (let ((id (gl::gen-texture)))
     (gl::with-texture gl::+texture-2d+ id
 	(gl::tex-image-2d gl::+texture-2d+ 0 gl::+rgba8+ 
 			(vect:x size)
 			(vect:y size)
-			0 gl::+bgra+ gl::+unsigned-byte+ #f)
+			0 gl::+bgra+ gl::+unsigned-byte+ data)
 	(%texture-linear-filter id)
 	(gl::check-error))
     (make-texture id (%create-framebuffer id) size)))
@@ -97,7 +97,7 @@
 
 ;; Returns a functions that renders a texture.
 (define (texture:renderer texture
-			  #!optional (rect (rect:create 0 1 0 1)))
+			  #!optional (rect (rect:create 0 1 1 0)))
   (let ((sprite (sprite:create texture (list rect)))
 	(sprite-batcher (sprite-batcher:create)))
     (sprite-batcher:push! sprite-batcher sprite (identity-matrix))

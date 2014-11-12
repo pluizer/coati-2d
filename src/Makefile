@@ -1,4 +1,4 @@
-OBJECTS = animators.o batcher.o chunk.o drawing.o events.o font.o input.o misc.o node.o resources.o particles.o primitives.o scene.o scene-batcher.o shader.o sound.o sprite-batcher.o sprite.o texture.o tilemap.o trans.o window.o
+OBJECTS = animators.o batcher.o chunk.o drawing.o events.o font.o input.o misc.o node.o pixmap.o resources.o particles.o primitives.o scene.o scene-batcher.o shader.o sound.o sprite-batcher.o sprite.o texture.o tilemap.o trans.o window.o
 CFLAGS = -Wno-cpp
 
 all: coati.so
@@ -33,6 +33,9 @@ misc.o: misc.scm
 
 node.o: node.scm trans.scm
 	csc -c node.scm -C $(CFLAGS)
+
+pixmap.o: pixmap.scm primitives.scm texture.scm
+	csc -c pixmap.scm -C $(CFLAGS)
 
 resources.o: resources.scm trans.scm
 	csc -c resources.scm -C $(CFLAGS)

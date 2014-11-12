@@ -25,6 +25,7 @@
 
 (define batcher 	(make-parameter #f))
 (define texture 	(make-parameter #f))
+(define texture2	(make-parameter #f))
 (define buffer  	(make-parameter #f))
 (define tilebatcher 	(make-parameter #f))
 (define bid	 	(make-parameter #f))
@@ -47,6 +48,23 @@
   (gl::check-error)
 
   (texture (texture:load "share/grid.png"))
+  (let ((pix (pixmap:create 64 64)))
+    (pixmap:set! pix
+		 (coord:create 0 0)
+		 (rgb:create 1 0 0))
+    (pixmap:set! pix
+		 (coord:create 0 1)
+		 (rgb:create 0 1 0))
+
+    (pixmap:set! pix
+		 (coord:create 0 2)
+		 (rgb:create 0 0 1))
+
+    (texture2 (pixmap->texture pix))
+
+
+    )
+
   (buffer (texture:create (vect:create 640 480)))
 
   (batcher (sprite-batcher:create))
@@ -132,7 +150,7 @@
 				    3 2
 				    (list 4)))
 
-    (define renderer (texture:renderer (texture)))
+    (define renderer (texture:renderer (texture2)))
     
     (let loop ((r 0))
 ;      (gl::clear-color 1 1 1 1)
@@ -172,8 +190,14 @@
 					    scale: (vect:create .5 .5)
 					    rotation: r))
 
-	  
+
 	  ))
+
+      (with-texture/proc (texture2)
+	 (lambda ()
+	   (renderer projection-matrix (matrix:translate (vect:create -1 0)
+							 view-matrix))))
+      
       (fw::swap-buffers (fw::window))
       (fw::poll-events)
       (gl::check-error)

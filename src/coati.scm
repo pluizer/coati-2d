@@ -1,11 +1,12 @@
-(declare (uses batcher
-	       animators
+(declare (uses animators
+	       batcher
 	       drawing
 	       events
 	       font
 	       input
 	       misc
 	       node
+	       pixmap
 	       resources
 	       scene
 	       scene-batcher
