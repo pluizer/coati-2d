@@ -9,9 +9,11 @@
   height
   data)
 
+;; Gives a new pixmap.
 (define (pixmap:create width height)
   (make-pixmap width height (make-u32vector (* width height) 0 #t)))
 
+;; Converts a rgb-object to an unisgned byte.
 (define rgb->u8
   (foreign-lambda* unsigned-integer ((f32vector rgb)) "
 	unsigned int ret = 0;
@@ -23,6 +25,7 @@
 	C_return(ret);"))
 
 
+;; Sets a pixel in a pixmap to a certian colour.
 (define (pixmap:set! pixmap coord rgb)
   (u32vector-set! (pixmap-data pixmap)
 		  (+ (coord:x coord)
@@ -30,6 +33,7 @@
 			(pixmap-width pixmap)))
 		  (rgb->u8 rgb)))
 
+;; Converts a pixmap to a texture.
 (define (pixmap->texture pixmap)
   (texture:create (vect:create (pixmap-width  pixmap)
 			       (pixmap-height pixmap))
