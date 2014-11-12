@@ -1,5 +1,6 @@
 (declare (uses animators
 	       batcher
+	       blend
 	       drawing
 	       events
 	       font

@@ -24,7 +24,6 @@
 	ret = (a<<24)|(r<<16)|(g<< 8)|b;
 	C_return(ret);"))
 
-
 ;; Sets a pixel in a pixmap to a certian colour.
 (define (pixmap:set! pixmap coord rgb)
   (u32vector-set! (pixmap-data pixmap)
@@ -38,4 +37,3 @@
   (texture:create (vect:create (pixmap-width  pixmap)
 			       (pixmap-height pixmap))
 		  (make-locative (pixmap-data pixmap))))
-

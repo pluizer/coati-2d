@@ -190,7 +190,7 @@
   (let ((attribs (map cdr (batcher-attributes batcher))))
     (unless (= (length attribs)
 	       (length values))
-      (error "must have the same number of values as attributes."))
+	    (error "must have the same number of values as attributes."))
     (car
      ;; returned values should all be the same
      (map (lambda (attrib value)
