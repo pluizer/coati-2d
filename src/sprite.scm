@@ -8,16 +8,20 @@
 (define (%frame:create texture rectangle)
   (make-frame
    ;; Map texels to pixels.
-   (let* ((w (vect:x (texture:size texture)))
-	  (h (vect:y (texture:size texture))))
-     (rect:create (+ (rect:l rectangle)
-		     (/ .5 w))
-		  (- (rect:r rectangle)
-		     (/ .5 w))
-		  (+ (rect:t rectangle)
-		     (/ .5 h))
-		  (- (rect:b rectangle)
-		     (/ .5 h))))))
+   (let ((w (vect:x (texture:size texture)))
+	 (h (vect:y (texture:size texture))))
+     
+     (let ((r
+	    (rect:create (+ (rect:l rectangle)
+			    (/ .5 w))
+			 (- (rect:r rectangle)
+			    (/ .5 w))
+			 (+ (rect:t rectangle)
+			    (/ .5 h))
+			 (- (rect:b rectangle)
+			    (/ .5 h)))))
+       (print rectangle ", " r)
+       r))))
 
 (define-record animation
   frames	;; all the animation's frames.
@@ -109,10 +113,10 @@
 
 (define (sprite:coord-data sprite)
   (let ((rect (sprite:rectangle sprite)))
-    (f32vector (rect:l rect) (rect:t rect)
-	       (rect:l rect) (rect:b rect)
-	       (rect:r rect) (rect:b rect)
-	       (rect:r rect) (rect:t rect))))
+    (f32vector (rect:l rect) (rect:b rect)
+	       (rect:l rect) (rect:t rect)
+	       (rect:r rect) (rect:t rect)
+	       (rect:r rect) (rect:b rect))))
 
 ;; Create a sprite not by specifying the coordinates by rectangles,
 ;; but by indices.
