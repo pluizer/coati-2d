@@ -47,3 +47,5 @@
 	       (cons (cons (car lst) (cadr lst))
 		     r))))))
 
+(define (=? x #!optional (pred? eq?))
+  (lambda (y) (pred? x y)))
