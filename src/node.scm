@@ -55,8 +55,6 @@
      (if (null? children) (list)
 	 (cons children (map node:descendants children))))))
 
-(define node:data node-data)
-
 ;; Returns the absolute transformation matrix of a node.
 (define (node:matrix node)
   (let ((ancestors (node:ancestors node)))
