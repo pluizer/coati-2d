@@ -44,6 +44,7 @@
   ;; Initialise Glew
   (gl::init)
   (gl::enable gl::+texture-2d+)
+  (gl::enable gl::+blend+)
   (gl::disable gl::+depth-test+)
   (gl::check-error)
 
@@ -157,7 +158,7 @@
       (gl::clear gl::+color-buffer-bit+)
       (fps)
 
-
+      
       (with-texture/proc (texture)
 	(lambda ()
 	  (tilemap:render (tilebatcher) (vect:create (x) (y))
@@ -173,7 +174,9 @@
  
 ;	  (sprite-batcher:render (batcher) projection-matrix view-matrix)
 
-	  (scene-batcher:render (s) projection-matrix view-matrix)
+	  (with-blend-mode/proc 'add
+		(lambda ()
+		  (scene-batcher:render (s) projection-matrix view-matrix)))
 	  
 
 	  (scene-batcher:change! (s) (ida) (trans:create
@@ -194,9 +197,9 @@
 	  ))
 
       (with-texture/proc (texture2)
-	 (lambda ()
-	   (renderer projection-matrix (matrix:translate (vect:create -1 0)
-							 view-matrix))))
+			 (lambda ()
+			   (renderer projection-matrix (matrix:translate (vect:create -1 0)
+									 view-matrix))))
       
       (fw::swap-buffers (fw::window))
       (fw::poll-events)

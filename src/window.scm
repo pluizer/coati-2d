@@ -16,6 +16,7 @@
 		   (fw::make-context-current (fw::window))
 		   (gl::init)
 		   (gl::enable gl::+texture-2d+)
+		   (gl::enable gl::+blend+)
 		   (gl::disable gl::+depth-test+)
 		   (gl::check-error)
 		   (let loop () 
