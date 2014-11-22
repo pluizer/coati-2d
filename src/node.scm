@@ -8,16 +8,18 @@
   trans
   parent
   children
+  listener-ids
   data)
 
 (define (node:create-root)
   (make-node (trans:create (zero-vect))
 	     #f
 	     (list)
+	     (list)
 	     #f))
 
 (define (node:spawn! parent trans #!optional data)
-  (let ((node (make-node trans parent (list) data)))
+  (let ((node (make-node trans parent (list) (list) data)))
    (node-children-set! parent
 		       (cons node (node-children parent)))
    node))
@@ -26,10 +28,10 @@
   (for-each node:remove! (node-children node))
   ;; in case node is still refenced somewhere.
   (node-parent-set! node #f)
-  (node-children-set! (node-parent node)
-		      (remove (lambda (child)
-				(eq? child node))
-			      (node-children (node-parent node)))))
+  (node:remove-all-listeners! node)
+  (when (node-parent node)
+   (node-children-set! (node-parent node)
+		       (remove (=? node) (node-children (node-parent node))))))
 
 (define (node:change! node trans)
   (node-trans-set! node trans))
@@ -55,3 +57,18 @@
 	(reduce matrix* (identity-matrix)
 		(map (o trans->matrix node-trans)
 		     (cons node ancestors))))))
+
+(define (node:add-listener! node args func)
+  (node-listener-ids-set! node
+			  (cons (listen-for-event args func)
+				(node-listener-ids node))))
+
+(define (node:remove-listener! node id)
+  (listener:remove! id)
+  (node-listener-ids-set! node (remove (=? id) (node-listener-ids node))))
+
+(define (node:remove-all-listeners! node)
+  (for-each listener:remove! (node-listener-ids node))
+  (node-listener-ids-set! node (list)))
+
+

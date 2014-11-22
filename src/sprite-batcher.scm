@@ -1,5 +1,6 @@
 (declare (unit sprite-batcher)
 	 (uses batcher
+	       misc
 	       primitives
 	       shader
 	       sprite))
@@ -62,10 +63,10 @@
    (sprite-batcher-sprite-ids sprite-batcher)))
 
 (define (sprite-batcher:remove! sprite-batcher id)
-  (batcher:remove! (sprite-batcher-batcher sprite-batcher) id)
+  (batcher:remove! (sprite-batcher-batcher sprite-batcher)
+		   (sprite-batch-id-batch-id id))
   (sprite-batcher-sprite-ids-set! sprite-batcher
-   (remove (lambda (x) (= (car x) id))
-	   (sprite-batcher-sprite-ids sprite-batcher))))
+   (remove (=? id) (sprite-batcher-sprite-ids sprite-batcher))))
 
 (define (sprite-batcher:clear! sprite-batcher)
   (batcher:clear! (sprite-batcher-batcher sprite-batcher))

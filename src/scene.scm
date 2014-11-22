@@ -33,4 +33,4 @@
     (for-each (lambda (node)
 		(remove-callback node))
 	      (cons node (node:descendants node))))
-  (node:remove! node trans))
+  (node:remove! node))
