@@ -21,6 +21,7 @@
 		   (gl::check-error)
 		   (let loop () 
 		     (iter)
+		     (poll-events!)
 		     (fw::swap-buffers (fw::window))
 		     (fw::poll-events)
 		     (if (and (iter)

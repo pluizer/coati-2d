@@ -34,11 +34,6 @@
 (define idc	 	(make-parameter #f))
 (define s	 	(make-parameter #f))
 
-(define (sprite-name sprite)
-  (cond ((equal? (ida) sprite) 'ida)
-	((equal? (idb) sprite) 'idb)
-	((equal? (idc) sprite) 'idc)
-	(else 'root)))
 
 (define (init)
   ;; Initialise Glew
@@ -105,36 +100,26 @@
 (define x (make-parameter 0))
 (define y (make-parameter 0))
 
-(fw::key-callback (lambda (window key scancode action mods)
-		(cond
-		 [(and (eq? key fw::+key-escape+) (eq? action fw::+press+))
-		  (fw::set-window-should-close window #t)]
-		 ((and (eq? key fw::+key-right+)
-		       (eq? action fw::+press+))
-		  (x (+ (x) .5)))
-		 ((and (eq? key fw::+key-up+)
-		       (eq? action fw::+press+))
-		  (y (+ (y) .5)))
-		 ((and (eq? key fw::+key-left+)
-		       (eq? action fw::+press+))
-		  (x (- (x) .5)))
-		 ((and (eq? key fw::+key-down+)
-		       (eq? action fw::+press+))
-		  (y (- (y) .5)))
-
-
-
-)))
-
 
 (define fps (fps-counter:create (fps-warning:create 60 print print)))
 
 
-(fw::with-window (1440 1050 "Example" resizable: #f)
+(fw::with-window (640 480 "Example" resizable: #f)
     (init)
-
     (fw::swap-interval 0)
     (gl::disable gl::+depth-test+)
+
+    (listen-for-event '(key-down 82)
+		      (lambda (mod)
+			(when (idc)
+			      (scene-batcher:remove! (s) (idc))
+			      (idc #f))))
+
+    (listen-for-event '(key-down 256)
+		  (lambda (mod)
+		    (fw::set-window-should-close (fw::window) #t)))
+
+    
 
     (define sprite  (sprite:create (texture) (list (rect:create 0 (/ 1 3) 0 (/ 1 2))
 						   (rect:create (/ 1 3)
@@ -188,10 +173,10 @@
 					    scale: (vect:create .5 .5)
 					    rotation: r))
 	  
-	  (scene-batcher:change! (s) (idc) (trans:create
-					    (vect:create 1 1)
-					    scale: (vect:create .5 .5)
-					    rotation: r))
+	  ;; (scene-batcher:change! (s) (idc) (trans:create
+	  ;; 				    (vect:create 1 1)
+	  ;; 				    scale: (vect:create .5 .5)
+	  ;; 				    rotation: r))
 
 
 	  ))
@@ -201,6 +186,8 @@
 			   (renderer projection-matrix (matrix:translate (vect:create -1 0)
 									 view-matrix))))
       
+      (unless (null? %events) (print %events ", " %listeners))
+      (poll-events!)
       (fw::swap-buffers (fw::window))
       (fw::poll-events)
       (gl::check-error)
