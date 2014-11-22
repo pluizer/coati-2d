@@ -49,7 +49,7 @@ particles.o: particles.scm primitives.scm scene-batcher.scm
 primitives.o: primitives.scm
 	csc -c primitives.scm -C $(CFLAGS)
 
-scene.o: scene.scm node.scm
+scene.o: scene.scm node.scm trans.scm
 	csc -c scene.scm -C $(CFLAGS)
 
 scene-batcher.o: scene-batcher.scm node.scm scene.scm sprite-batcher.scm

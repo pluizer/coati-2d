@@ -83,6 +83,16 @@
 					 (vect:create 1 1)
 					 rotation: .1)
 			      (ida)))
+
+    (node:add-listener! (idb) (list 'key-down fw::+key-right+)
+			(lambda (mod)
+			  (scene-batcher:change!
+			   (s) (idb)
+			   (trans-change:create
+			    position: (vect+ (trans:position (node-trans (idb)))
+					     (vect:create .1 0))))))
+
+    
     (idc (scene-batcher:push! (s) grass (trans:create
 					 (vect:create 1 1)
 					 )
@@ -109,12 +119,11 @@
     (fw::swap-interval 0)
     (gl::disable gl::+depth-test+)
 
-    (listen-for-event '(key-down 82)
-		      (lambda (mod)
-			(when (idc)
-			      (scene-batcher:remove! (s) (idc))
-			      (idc #f))))
-
+    (node:add-listener! (idc) '(key-down 82)
+			(lambda (mod)
+			  (scene-batcher:remove! (s) (idc))
+			  #f))
+    
     (listen-for-event '(key-down 256)
 		  (lambda (mod)
 		    (fw::set-window-should-close (fw::window) #t)))
@@ -168,9 +177,7 @@
 					    (vect:create 1 1)
 					    rotation: r))
 
-	  (scene-batcher:change! (s) (idb) (trans:create
-					    (vect:create 1 1)
-					    scale: (vect:create .5 .5)
+	  (scene-batcher:change! (s) (idb) (trans-change:create
 					    rotation: r))
 	  
 	  ;; (scene-batcher:change! (s) (idc) (trans:create

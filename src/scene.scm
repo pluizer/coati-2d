@@ -1,5 +1,6 @@
 (declare (unit scene)
-	 (uses node))
+	 (uses node
+	       trans))
 
 (define-record scene
   spawn-callback	;; (lambda (node) ...)
@@ -22,11 +23,14 @@
     node))
 
 (define (scene:change! scene node trans)
-  (node:change! node trans)
-  (let ((change-callback (scene-change-callback scene)))
-    (for-each (lambda (node)
-	       (change-callback node))
-	     (cons node (node:descendants node)))))
+  (let ((trans (if (trans-change? trans)
+		   (trans-change->trans (node-trans node) trans)
+		   trans)))
+    (node:change! node trans)
+    (let ((change-callback (scene-change-callback scene)))
+      (for-each (lambda (node)
+		  (change-callback node))
+		(cons node (node:descendants node))))))
 
 (define (scene:remove! scene node)
   (let ((remove-callback (scene-remove-callback scene)))

@@ -12,6 +12,16 @@
   flip-v?
   flip-h?)
 
+(define-record trans-change
+  position
+  origin
+  rotation
+  scale
+  flip-v?
+  flip-h?)
+
+(define %not-set (gensym 'not-set))
+
 (define (trans:create position
 		      #!key
 		      origin
@@ -25,6 +35,39 @@
 	      (or scale (vect:create 1 1))
 	      flip-v?
 	      flip-h?))
+
+;; Returns a new trans-change object.
+;; A trans-change is used to change only certain slots of a trans. Create
+;; a trans-change by calling this funtion with the key names + new value
+;; of the slot you want to change in a trans.
+;; Calling ''trans-change->trans'' with the old trans will result in a new
+;; trans where or key names givin are replaced with the new value.
+(define (trans-change:create #!key
+			     position
+			     origin
+			     rotation
+			     scale
+			     (flip-v? %not-set)
+			     (flip-h? %not-set))
+  (make-trans-change position origin rotation scale flip-h? flip-v?))
+
+;; Returns a new trans from an old one using the slots specified in the given
+;; trans-change.
+(define (trans-change->trans old-trans trans-change)
+  (make-trans (or (trans-change-position trans-change)
+		  (trans-position old-trans))
+	      (or (trans-change-origin trans-change)
+		  (trans-origin old-trans))
+	      (or (trans-change-rotation trans-change)
+		  (trans-rotation old-trans))
+	      (or (trans-change-scale trans-change)
+		  (trans-scale old-trans))
+	      (if (eq? (trans-change-flip-v? trans-change) %not-set)
+		  (trans-flip-v? old-trans)
+		  (trans-change-flip-v? trans-change))
+	      (if (eq? (trans-change-flip-h? trans-change) %not-set)
+		  (trans-flip-h? old-trans)
+		  (trans-change-flip-h? trans-change))))
 
 (define trans:position trans-position)
 (define trans:origin   trans-origin)
