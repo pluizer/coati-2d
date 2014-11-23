@@ -28,7 +28,7 @@ events.o: events.scm
 font.o: font.scm
 	csc -c font.scm -C $(CFLAGS)
 
-input.o: input.scm
+input.o: input.scm primitives.scm
 	csc -c input.scm -C $(CFLAGS)
 
 misc.o: misc.scm

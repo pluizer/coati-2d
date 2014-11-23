@@ -60,5 +60,3 @@
   (set! %listeners
 	(%poll-events %events %listeners))
   (set! %events (list)))
-
-
