@@ -549,6 +549,43 @@
 		      (* (- y oy) ca))))) 
 	       (polygon->vects polygon)))))
 
+;; Returns #t if both polygons collide with each other.
+(define (polygon:collide? a b)
+
+  ;; Returns all the axes of a list of vertices.
+  (define (axes vects)
+    (map (lambda (a b)
+	   (vect:perp (vect- a b)))
+	 vects (append (cdr vects) (list (car vects)))))
+
+  ;; Projects a list of vertices onto an axis.
+  (define (project vects axis)
+    (let ((dots (sort (map (lambda (vect)
+			     (vect:dot axis vect))
+			   vects)
+		      <)))
+      (vect:create (car dots) (last dots))))
+
+  ;; Checks if two projections overlap.
+  (define (overlap? p1 p2)
+    (not (or (< (vect:y p1)
+		(vect:x p2))
+	     (< (vect:y p2)
+		(vect:x p1)))))
+
+  ;; Checks if two list of vertices collide with each other.
+  (define (collide? a b)
+    (every (lambda (vects)
+	     (every (lambda (axis)
+		      (overlap? (project a axis)
+				(project b axis)))
+		    (axes vects)))
+	   (list a b)))
+
+  (collide? (polygon->vects a)
+	    (polygon->vects b)))
+
+
 ;;-------------------------------------------------------
 ;; Colour
 ;;-------------------------------------------------------
