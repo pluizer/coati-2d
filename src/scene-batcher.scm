@@ -34,8 +34,9 @@
 (define (scene-batcher:push! scene-batcher sprite trans #!optional parent)
   (let ((parent (if parent parent (scene-root-node
 				   (scene-batcher-scene scene-batcher)))))
-   (scene:spawn! (scene-batcher-scene scene-batcher) parent trans
-		 (make-node-data sprite #f))))
+    (scene:spawn! (scene-batcher-scene scene-batcher) parent trans
+		  (sprite-size sprite)
+		  (make-node-data sprite #f))))
 
 (define (scene-batcher:remove! scene-batcher node)
   (scene:remove! (scene-batcher-scene scene-batcher) node))

@@ -17,8 +17,8 @@
 
 (define scene:root-node scene-root-node)
 
-(define (scene:spawn! scene parent trans #!optional data)
-  (let ((node (node:spawn! parent trans data)))
+(define (scene:spawn! scene parent trans size #!optional data)
+  (let ((node (node:spawn! parent trans size data)))
     ((scene-spawn-callback scene) node)
     node))
 

@@ -6,6 +6,7 @@
 
 (define-record node
   trans
+  size
   parent
   children
   listener-ids	
@@ -14,14 +15,15 @@
 ;; Creates a '''root-node''' a node without a parent.
 (define (node:create-root)
   (make-node (trans:create (zero-vect))
+	     (zero-vect)
 	     #f
 	     (list)
 	     (list)
 	     #f))
 
 ;; Spawns a new node.
-(define (node:spawn! parent trans #!optional data)
-  (let ((node (make-node trans parent (list) (list) data)))
+(define (node:spawn! parent trans size #!optional data)
+  (let ((node (make-node trans size parent (list) (list) data)))
    (node-children-set! parent
 		       (cons node (node-children parent)))
    node))
@@ -86,3 +88,5 @@
   (getter-with-setter
    node-data
    node-data-set!))
+
+(define node:size node-size)
