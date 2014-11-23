@@ -39,6 +39,7 @@
 
 ;; the unknown key
 (define key-unknown -1)
+
 ;; printable keys
 (define key-space 32)
 (define key-apostrophe 39)
@@ -90,6 +91,7 @@
 (define key-grave-accent 96)
 (define key-world-1 161)
 (define key-world-2 162)
+
 ;; function keys
 (define key-escape 256)
 (define key-enter 257)
@@ -162,11 +164,13 @@
 (define key-right-super 347)
 (define key-menu 348)
 (define key-last key-menu)
+
 ;; mod keys
 (define mod-shift #x0001)
 (define mod-control #x0002)
 (define mod-alt #x0004)
 (define mod-super #x0008)
+
 ;; mouse buttons
 (define mouse-button-1 0)
 (define mouse-button-2 1)
@@ -180,6 +184,7 @@
 (define mouse-button-left mouse-button-1)
 (define mouse-button-right mouse-button-2)
 (define mouse-button-middle mouse-button-3)
+
 ;; joystick
 (define joystick-1 0)
 (define joystick-2 1)
