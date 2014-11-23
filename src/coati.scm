@@ -1,6 +1,8 @@
 (declare (uses animators
 	       batcher
 	       blend
+	       chunk
+	       collision
 	       drawing
 	       events
 	       font
