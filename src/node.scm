@@ -9,7 +9,7 @@
   size
   parent
   children
-  listener-ids	
+  listener-ids
   data)
 
 ;; Creates a '''root-node''' a node without a parent.
@@ -90,3 +90,15 @@
    node-data-set!))
 
 (define node:size node-size)
+
+;; Returns the absolute vertices that make up this node.
+(define (node:vertices node)
+  (apply f32vector (flatten
+    (map (lambda (vect)
+	   (let ((r (vect*matrix vect (node:matrix node))))
+	     (list (vect:x r)
+		   (vect:y r))))
+	 (let* ((size (node-size node))
+		(w (vect:x size))
+		(h (vect:y size)))
+	   (polygon->vects (rect->polygon (rect:create 0 w 0 h))))))))
