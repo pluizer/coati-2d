@@ -102,6 +102,8 @@
    node-data
    node-data-set!))
 
+(define node:trans node-trans)
+
 (define node:size node-size)
 
 ;; Returns the nodes bounding box.
