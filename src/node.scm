@@ -10,6 +10,8 @@
   parent
   children
   listener-ids
+  dirty?	;; must vertices be calculted again?
+  vertices	;; cached vertices.
   data)
 
 ;; Creates a '''root-node''' a node without a parent.
@@ -19,11 +21,13 @@
 	     #f
 	     (list)
 	     (list)
+	     #t
+	     #f
 	     #f))
 
 ;; Spawns a new node.
 (define (node:spawn! parent trans size #!optional data)
-  (let ((node (make-node trans size parent (list) (list) data)))
+  (let ((node (make-node trans size parent (list) (list) #t #f data)))
    (node-children-set! parent
 		       (cons node (node-children parent)))
    node))
@@ -40,6 +44,9 @@
 
 ;; Change the transformation of a node.
 (define (node:change! node trans)
+  (for-each (lambda (node)
+	      (node-dirty?-set! node #t))
+	    (cons node (node:descendants node)))
   (node-trans-set! node trans))
 
 ;; Returns a flat list of the parent of a node (and there parent etc.).
@@ -92,14 +99,19 @@
 (define node:size node-size)
 
 ;; Returns the absolute vertices that make up this node.
-;; TODO: Cache.
 (define (node:vertices node)
-  (map (lambda (vect)
-	 (vect*matrix vect (node:matrix node)))
-       (let* ((size (node-size node))
-	      (w (vect:x size))
-	      (h (vect:y size)))
-	 (polygon->vects (rect->polygon (rect:create 0 w 0 h))))))
+  (when (or (node-dirty? node)
+	    (not (node-vertices node)))
+	(node-dirty?-set! node #f)
+	(node-vertices-set!
+	 node
+	 (map (lambda (vect)
+		(vect*matrix vect (node:matrix node)))
+	      (let* ((size (node-size node))
+		     (w (vect:x size))
+		     (h (vect:y size)))
+		(polygon->vects (rect->polygon (rect:create 0 w 0 h)))))))
+  (node-vertices node))
 
 ;; Filters ''nodes'' down those that collide with ''node''.
 (define (node:collide? node nodes)
