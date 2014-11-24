@@ -104,7 +104,9 @@
 
 (define node:size node-size)
 
+;; Returns the nodes bounding box.
 (define (node:bb node)
+  ;; Check if a new value must be calculated.
   (when (or (node-dirty? node)
 	    (not (node-bb node)))
 	(node-bb-set!
@@ -114,6 +116,7 @@
 
 ;; Returns the absolute vertices that make up this node.
 (define (node:vertices node)
+  ;; Check if a new value must be calculated.
   (when (or (node-dirty? node)
 	    (not (node-vertices node)))
 	(let ((verts (map (lambda (vect)
@@ -137,4 +140,6 @@
   (let ((a (node:vertices node)))
     (filter (lambda (b)
 	      (vects:collide? a (node:vertices b)))
+	    ;; only check nodes that have colliding bounding boxes
+	    ;; for speed.
 	    (node:bb-collide? node nodes))))
