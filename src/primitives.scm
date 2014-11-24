@@ -335,12 +335,31 @@
 	       (min (rect:b a) (rect:b b))
 	       (max (rect:t a) (rect:t b))))
 
-;; Returns a bounding box that holds both /rect/ and /v/.
-(define (rect:expand rect v)
-  (rect:create (min (rect:l rect) (vect:x v))
-	       (min (rect:r rect) (vect:x v))
-	       (max (rect:b rect) (vect:y v))
-	       (max (rect:t rect) (vect:y v))))
+;; Returns a bounding box that holds all /vects/.
+(define (rect:container vects)
+  (let* ((s-x (sort (map vect:x vects) <))
+	 (s-y (sort (map vect:y vects) <))
+	 (min-x (car s-x))
+	 (min-y (car s-y))
+	 (max-x (last s-x))
+	 (max-y (last s-y)))
+    (rect:create min-x
+		 max-x
+		 min-y
+		 max-y)))
+
+;; Returns a bounding box that holds both /rect/ and /vects/.
+(define (rect:expand rect vects)
+  (let* ((s-x (sort (map vect:x vects) <))
+	 (s-y (sort (map vect:y vects) <))
+	 (min-x (car s-x))
+	 (min-y (car s-y))
+	 (max-x (last s-x))
+	 (max-y (last s-y)))
+   (rect:create (min (rect:l rect) min-x)
+		(max (rect:r rect) max-x)
+		(min (rect:b rect) min-y)
+		(max (rect:t rect) max-y))))
 
 ;; Returns the center of a bounding box.
 (define (rect:center rect)
