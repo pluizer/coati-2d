@@ -549,8 +549,8 @@
 		      (* (- y oy) ca))))) 
 	       (polygon->vects polygon)))))
 
-;; Returns #t if both polygons collide with each other.
-(define (polygon:collide? a b)
+;; Checks if two list of vertices collide with each other.
+(define (vects:collide? a b)
 
   ;; Returns all the axes of a list of vertices.
   (define (axes vects)
@@ -573,17 +573,18 @@
 	     (< (vect:y p2)
 		(vect:x p1)))))
 
-  ;; Checks if two list of vertices collide with each other.
-  (define (collide? a b)
-    (every (lambda (vects)
-	     (every (lambda (axis)
-		      (overlap? (project a axis)
-				(project b axis)))
-		    (axes vects)))
-	   (list a b)))
 
-  (collide? (polygon->vects a)
-	    (polygon->vects b)))
+  (every (lambda (vects)
+	   (every (lambda (axis)
+		    (overlap? (project a axis)
+			      (project b axis)))
+		  (axes vects)))
+	 (list a b)))
+
+;; Returns #t if both polygons collide with each other.
+(define (polygon:collide? a b)
+  (vects:collide? (polygon->vects a)
+		  (polygon->vects b)))
 
 
 ;;-------------------------------------------------------
