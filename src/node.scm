@@ -12,6 +12,7 @@
   listener-ids
   dirty?	;; must vertices be calculted again?
   vertices	;; cached vertices.
+  bb		;; bounding-box rect.
   data)
 
 ;; Creates a '''root-node''' a node without a parent.
@@ -23,6 +24,7 @@
 	     (list)
 	     #t		;; dirty?
 	     #f		;; vertices
+	     #f		;; bb
 	     #f))
 
 ;; Spawns a new node.
@@ -30,6 +32,7 @@
   (let ((node (make-node trans size parent (list) (list)
 			 #t ;; dirty?
 			 #f ;; vertices
+			 #f ;; bb
 			 data)))
    (node-children-set! parent
 		       (cons node (node-children parent)))
@@ -101,24 +104,37 @@
 
 (define node:size node-size)
 
+(define (node:bb node)
+  (when (or (node-dirty? node)
+	    (not (node-bb node)))
+	(node-bb-set!
+	 node
+	 (rect:container (node:vertices node))))
+  (node-bb node))
+
 ;; Returns the absolute vertices that make up this node.
 (define (node:vertices node)
   (when (or (node-dirty? node)
 	    (not (node-vertices node)))
-	(node-dirty?-set! node #f)
-	(node-vertices-set!
-	 node
-	 (map (lambda (vect)
-		(vect*matrix vect (node:matrix node)))
-	      (let* ((size (node-size node))
-		     (w (vect:x size))
-		     (h (vect:y size)))
-		(polygon->vects (rect->polygon (rect:create 0 w 0 h)))))))
+	(let ((verts (map (lambda (vect)
+			    (vect*matrix vect (node:matrix node)))
+			  (let* ((size (node-size node))
+				 (w (vect:x size))
+				 (h (vect:y size)))
+			    (polygon->vects (rect->polygon (rect:create 0 w 0 h)))))))
+	  (node-dirty?-set! node #f)
+	  (node-vertices-set! node verts)))
   (node-vertices node))
+
+(define (node:bb-collide? node nodes)
+  (let ((a (node:bb node)))
+    (filter (lambda (b)
+	      (rect:intersects? a (node:bb b)))
+	    nodes)))
 
 ;; Filters ''nodes'' down those that collide with ''node''.
 (define (node:collide? node nodes)
   (let ((a (node:vertices node)))
     (filter (lambda (b)
 	      (vects:collide? a (node:vertices b)))
-	    nodes)))
+	    (node:bb-collide? node nodes))))
