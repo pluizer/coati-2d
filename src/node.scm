@@ -139,7 +139,7 @@
 (define (node:collide? node nodes)
   (let ((a (node:vertices node)))
     (filter (lambda (b)
-	      (vects:collide? a (node:vertices b)))
+	      (vects:collide? a (node:vertices b) #t))
 	    ;; only check nodes that have colliding bounding boxes
 	    ;; for speed.
 	    (node:bb-collide? node nodes))))

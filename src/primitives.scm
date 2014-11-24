@@ -568,42 +568,55 @@
 		      (* (- y oy) ca))))) 
 	       (polygon->vects polygon)))))
 
-;; Checks if two list of vertices collide with each other.
-(define (vects:collide? a b)
+;; Returns all the axes of a list of vertices.
+(define (%axes vects)
+  (map (lambda (a b)
+	 (vect:perp (vect- a b)))
+       vects (append (cdr vects) (list (car vects)))))
 
-  ;; Returns all the axes of a list of vertices.
-  (define (axes vects)
-    (map (lambda (a b)
-	   (vect:perp (vect- a b)))
-	 vects (append (cdr vects) (list (car vects)))))
+;; Returns the two non-perpendicular axis of a rectangle
+(define (%axes-rect vects)
+  (list (vect:perp (vect- (car    vects)
+			  (cadr   vects)))
+	(vect:perp (vect- (caddr  vects)
+			  (cadddr vects)))))
 
-  ;; Projects a list of vertices onto an axis.
-  (define (project vects axis)
-    (let ((dots (sort (map (lambda (vect)
-			     (vect:dot axis vect))
-			   vects)
-		      <)))
-      (vect:create (car dots) (last dots))))
+;; Projects a list of vertices onto an axis.
+(define (%project vects axis)
+  (let ((dots (sort (map (lambda (vect)
+			   (vect:dot axis vect))
+			 vects)
+		    <)))
+    (vect:create (car dots) (last dots))))
 
-  ;; Checks if two projections overlap.
-  (define (overlap? p1 p2)
-    (not (or (< (vect:y p1)
-		(vect:x p2))
-	     (< (vect:y p2)
-		(vect:x p1)))))
+;; Checks if two projections overlap.
+(define (%overlap? p1 p2)
+  (not (or (< (vect:y p1)
+	      (vect:x p2))
+	   (< (vect:y p2)
+	      (vect:x p1)))))
 
-
+;; Checks if two list of vertices, describing a convex polygon,
+;; collide with each other.
+;; If the polygon is a rectangle, pass #t to rect for a more
+;; optimised algorithm.
+(define (vects:collide? a b #!optional rect?)
   (every (lambda (vects)
 	   (every (lambda (axis)
-		    (overlap? (project a axis)
-			      (project b axis)))
-		  (axes vects)))
+		    (%overlap? (%project a axis)
+			       (%project b axis)))
+		  (if rect?
+		      (%axes-rect vects)
+		      (%axes vects))))
 	 (list a b)))
 
-;; Returns #t if both polygons collide with each other.
-(define (polygon:collide? a b)
+;; Returns #t if both convex polygons collide with each other.
+;; If the polygon is a rectangle, pass #t to rect for a more
+;; optimised algorithm.
+(define (polygon:collide? a b #!optional rect?)
   (vects:collide? (polygon->vects a)
-		  (polygon->vects b)))
+		  (polygon->vects b)
+		  rect?))
 
 
 ;;-------------------------------------------------------
