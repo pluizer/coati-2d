@@ -21,13 +21,16 @@
 	     #f
 	     (list)
 	     (list)
-	     #t
-	     #f
+	     #t		;; dirty?
+	     #f		;; vertices
 	     #f))
 
 ;; Spawns a new node.
 (define (node:spawn! parent trans size #!optional data)
-  (let ((node (make-node trans size parent (list) (list) #t #f data)))
+  (let ((node (make-node trans size parent (list) (list)
+			 #t ;; dirty?
+			 #f ;; vertices
+			 data)))
    (node-children-set! parent
 		       (cons node (node-children parent)))
    node))
