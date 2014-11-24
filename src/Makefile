@@ -37,7 +37,7 @@ input.o: input.scm primitives.scm
 misc.o: misc.scm
 	csc -c misc.scm -C $(CFLAGS)
 
-node.o: node.scm trans.scm
+node.o: node.scm primitives.scm trans.scm
 	csc -c node.scm -C $(CFLAGS)
 
 pixmap.o: pixmap.scm primitives.scm texture.scm
