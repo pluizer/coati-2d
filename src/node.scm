@@ -92,13 +92,18 @@
 (define node:size node-size)
 
 ;; Returns the absolute vertices that make up this node.
+;; TODO: Cache.
 (define (node:vertices node)
-  (apply f32vector (flatten
-    (map (lambda (vect)
-	   (let ((r (vect*matrix vect (node:matrix node))))
-	     (list (vect:x r)
-		   (vect:y r))))
-	 (let* ((size (node-size node))
-		(w (vect:x size))
-		(h (vect:y size)))
-	   (polygon->vects (rect->polygon (rect:create 0 w 0 h))))))))
+  (map (lambda (vect)
+	 (vect*matrix vect (node:matrix node)))
+       (let* ((size (node-size node))
+	      (w (vect:x size))
+	      (h (vect:y size)))
+	 (polygon->vects (rect->polygon (rect:create 0 w 0 h))))))
+
+;; Filters ''nodes'' down those that collide with ''node''.
+(define (node:collide? node nodes)
+  (let ((a (node:vertices node)))
+    (filter (lambda (b)
+	      (vects:collide? a (node:vertices b)))
+	    nodes)))
