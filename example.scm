@@ -32,6 +32,7 @@
 (define ida	 	(make-parameter #f))
 (define idb	 	(make-parameter #f))
 (define idc	 	(make-parameter #f))
+(define idd	 	(make-parameter #f))
 (define s	 	(make-parameter #f))
 
 
@@ -97,6 +98,10 @@
 					 (vect:create 1 1)
 					 )
 			      (idb)))
+    
+    (idd (scene-batcher:push! (s) grass (trans:create
+					 (vect:create 2 0)
+					 )))
 
     )
 
@@ -184,10 +189,14 @@
 	  ;; 				    (vect:create 1 1)
 	  ;; 				    scale: (vect:create .5 .5)
 	  ;; 				    rotation: r))
+	  
+	  (map (lambda (x)
+		 (node:collide? (idd) (list (ida))))
+	       (iota 1000))
 
-
+	  
 	  ))
-
+      
       (with-texture/proc (texture2)
 			 (lambda ()
 			   (renderer projection-matrix (matrix:translate (vect:create -1 0)
@@ -207,6 +216,6 @@
 			 (gl::make-point 0 1 0)))
       
       (unless (fw::window-should-close (fw::window))
-	(loop (+ r .001)))))
+	(loop (+ r .01)))))
 
 (exit)
