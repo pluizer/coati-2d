@@ -46,10 +46,10 @@
 ;;-------------------------------------------------------
 
 (define (radian->degree v)
-  (* v 57.29577951308232))
+  (* v 57.2957795))
 
 (define (degree->radian v)
-  (* v 0.017453292519943295))
+  (* v 0.0174532925))
 
 (define (flip-radian-h angle)
   (let ((v (angle->vect angle)))
