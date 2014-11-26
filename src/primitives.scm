@@ -1,7 +1,5 @@
 (declare (unit primitives))
 
-(use gl-math)
-
 #>
 #include <float.h>
 <#
@@ -48,10 +46,10 @@
 ;;-------------------------------------------------------
 
 (define (radian->degree v)
-  (* v (/ 180 pi)))
+  (* v 57.29577951308232))
 
 (define (degree->radian v)
-  (* v (/ pi 180)))
+  (* v 0.017453292519943295))
 
 (define (flip-radian-h angle)
   (let ((v (angle->vect angle)))
