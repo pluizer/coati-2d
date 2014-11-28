@@ -1,5 +1,7 @@
 (declare (unit primitives))
 
+(use gl-math)
+
 #>
 #include <float.h>
 <#
@@ -29,17 +31,17 @@
 
 (define epsilon 1e-6)
 
-(define pi (acos -1.0))
+(define pi 3.14159265)
 
-(define pi/2 (/ pi 2.0))
+(define pi/2 1.57079633)
 
-(define 2pi (* 2.0 pi))
+(define 2pi 6.283185307)
 
-(define -pi (- pi))
+(define pi (- 3.14159265))
 
-(define 360/2pi (/ 360.0 2pi))
+(define 360/2pi 57.29577951)
 
-(define 2pi/360 (/ 2pi 360.0))
+(define 2pi/360 0.017453293)
 
 ;;-------------------------------------------------------
 ;; Angle
@@ -616,7 +618,6 @@
 		  (polygon->vects b)
 		  rect?))
 
-
 ;;-------------------------------------------------------
 ;; Colour
 ;;-------------------------------------------------------
@@ -788,22 +789,28 @@
 
 ;; Flips the matrix.
 (define (matrix:flip vertical? horzontal? matrix)
-  (let* ((matrix (if vertical?  (flip-y matrix) matrix))
-	 (matrix (if horzontal? (flip-x matrix) matrix)))
-    matrix))
+  (let* ((ret (copy-mat4 matrix))
+	 (ret (if vertical?
+		  (f32vector-set! ret 0 (- (f32vector-ref ret 0)))
+		  ret))
+	 (ret (if horzontal?
+		  (f32vector-set! ret 5 (- (f32vector-ref ret 5)))
+		  ret)))
+    ret))
 
 ;; Translate a matrix.
 (define (matrix:translate vect matrix)
-  (translate (f32vector (vect:x vect) (vect:y vect) 0)
-	     matrix))
+  (m* (translation (f32vector (vect:x vect) (vect:y vect) 0))
+      matrix))
 
 (define (matrix:scale vect matrix)
-  (scale-2d (vect:x vect)
-	    (vect:y vect)
-	    matrix))
+  (m* (2d-scaling (vect:x vect)
+		  (vect:y vect))
+      matrix))
 
 ;; Rotates a matrix around the z axis.
-(define matrix:rotate rotate-z)
+(define (matrix:rotate rotation matrix)
+  (m* (z-rotation rotation) matrix))
 
 ;; Returns the identity matrix.
 (define identity-matrix mat4-identity)
