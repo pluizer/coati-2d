@@ -20,7 +20,6 @@
 			    (/ .5 h))
 			 (- (rect:b rectangle)
 			    (/ .5 h)))))
-       (print rectangle ", " r)
        r))))
 
 (define-record animation
