@@ -49,3 +49,5 @@
 
 (define (=? x #!optional (pred? eq?))
   (lambda (y) (pred? x y)))
+
+(define (null-func #!rest _) #f)

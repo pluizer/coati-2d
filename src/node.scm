@@ -1,6 +1,7 @@
 (declare (unit node)
-	 (uses trans)
-	 (uses primitives))
+	 (uses misc
+	       primitives
+	       trans))
 
 (use srfi-1)
 
@@ -13,6 +14,9 @@
   dirty?	;; must vertices be calculted again?
   vertices	;; cached vertices.
   bb		;; bounding-box rect.
+  on-spawn	;; function called when this node is spawned.
+  on-remove	;; function called when this node is removed.
+  on-change	;; function called when this node changes.
   data)
 
 ;; Creates a '''root-node''' a node without a parent.
@@ -25,21 +29,34 @@
 	     #t		;; dirty?
 	     #f		;; vertices
 	     #f		;; bb
+	     null-func
+	     null-func
+	     null-func
 	     #f))
 
 ;; Spawns a new node.
-(define (node:spawn! parent trans size #!optional data)
+(define (node:spawn! parent trans size
+		     #!key
+		     (on-spawn  null-func)
+		     (on-remove null-func)
+		     (on-change null-func)
+		     data)
   (let ((node (make-node trans size parent (list) (list)
 			 #t ;; dirty?
 			 #f ;; vertices
 			 #f ;; bb
+			 on-spawn
+			 on-remove
+			 on-change
 			 data)))
    (node-children-set! parent
 		       (cons node (node-children parent)))
+   ((node-on-spawn node) node)
    node))
 
 ;; Removes a node and all of its descendants.
 (define (node:remove! node)
+  ((node-on-remove node) node)
   (for-each node:remove! (node-children node))
   ;; in case node is still refenced somewhere.
   (node-parent-set! node #f)
@@ -50,6 +67,7 @@
 
 ;; Change the transformation of a node.
 (define (node:change! node trans)
+  ((node-on-change node) node)
   (for-each (lambda (node)
 	      (node-dirty?-set! node #t))
 	    (cons node (node:descendants node)))
