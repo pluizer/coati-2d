@@ -2,7 +2,6 @@
 	       batcher
 	       blend
 	       chunk
-	       collision
 	       drawing
 	       events
 	       font
@@ -10,7 +9,6 @@
 	       misc
 	       node
 	       pixmap
-	       resources
 	       scene
 	       scene-batcher
 	       shader

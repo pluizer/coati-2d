@@ -1,7 +1,6 @@
 (declare (unit texture)
 	 (uses sprite
 	       sprite-batcher
-	       resources
 	       misc
 	       primitives))
 
@@ -112,12 +111,4 @@
   (gl::with-framebuffer (texture:framebuffer-id texture)
 			(thunk)))
 
-(define (resource:add-texture group-name name filename)
-  (resource:add group-name
-		name
-		(lambda ()
-		  (print "; loading texture: " filename)
-		  (texture:load filename))
-		(lambda (texture)
-		  (print "; freeing texture: " filename)
-		  (gl::delete-texture (texture-texture-id texture)))))
+;; TODO: free texture
