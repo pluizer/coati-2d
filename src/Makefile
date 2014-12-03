@@ -55,7 +55,7 @@ sound.o: sound.scm
 sprite.o: sprite.scm primitives.scm misc.scm
 	csc -c sprite.scm -C $(CFLAGS)
 
-sprite-batcher.o: sprite-batcher.scm misc.scm primitives.scm shader.scm sprite.scm trans.scm
+sprite-batcher.o: sprite-batcher.scm batcher.scm blend.scm misc.scm primitives.scm shader.scm sprite.scm trans.scm
 	csc -c sprite-batcher.scm -C $(CFLAGS)
 
 texture.o: texture.scm sprite.scm sprite-batcher.scm misc.scm primitives.scm 

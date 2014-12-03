@@ -1,5 +1,6 @@
 (declare (unit sprite-batcher)
 	 (uses batcher
+	       blend
 	       misc
 	       primitives
 	       shader
@@ -87,6 +88,6 @@
 (define (sprite-batcher:render sprite-batcher projection view)
   (when (not (null? (sprite-batcher-sprite-ids sprite-batcher)))
    (batcher:render (sprite-batcher-batcher sprite-batcher) 
-		   projection view (f32vector 1 0 0 1))))
+		   projection view (%current-colour))))
 
 ;; %

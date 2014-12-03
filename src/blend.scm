@@ -3,11 +3,16 @@
 (use extras
      (prefix opengl-glew gl::))
 
-(define %blend-mode-stack '(normal))
+(define-record blend-mode
+  type colour)
 
-(define (set-blend-mode! mode)
+(define %blend-mode-stack (list (make-blend-mode
+				 'normal
+				 (f32vector 1 1 1 1))))
+
+(define (set-blend-mode! type)
   (apply gl::blend-func
-	 (case mode
+	 (case type
 	   ((normal)
 	    (list gl::+one+ gl::+zero+))
 	   ((trans)
@@ -16,12 +21,15 @@
 	    (list gl::+dst-color+ gl::+one-minus-dst-alpha+))
 	   ((one-one)
 	    (list gl::+one+ gl::+one+))
-	   (else (error (sprintf "~a, no such blend-mode" mode))))))
+	   (else (error (sprintf "~a, no such blend-type" type))))))
 
-(define (with-blend-mode/proc mode thunk)
-  (set-blend-mode! mode)
-  (set! %blend-mode-stack (cons mode %blend-mode-stack))
+(define (%current-colour)
+  (blend-mode-colour (car %blend-mode-stack)))
+
+(define (with-blend-mode/proc type colour thunk)
+  (set-blend-mode! type)
+  (set! %blend-mode-stack (cons (make-blend-mode type colour) %blend-mode-stack))
   (thunk)
   (set! %blend-mode-stack (cdr %blend-mode-stack))
-  (set-blend-mode! (car %blend-mode-stack)))
+  (set-blend-mode! (blend-mode-type (car %blend-mode-stack))))
 
