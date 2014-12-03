@@ -9,8 +9,6 @@
 	       misc
 	       node
 	       pixmap
-	       scene
-	       scene-batcher
 	       shader
 	       sound
 	       sprite

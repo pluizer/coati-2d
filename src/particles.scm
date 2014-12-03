@@ -1,5 +1,4 @@
 (declare (unit particles)
-	 (uses primitives
-	       scene-batcher))
+	 (uses primitives))
 
 ;; TODO

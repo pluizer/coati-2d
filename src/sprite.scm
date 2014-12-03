@@ -147,3 +147,5 @@
 	       indices))
      size
      interval)))
+
+(define sprite:size sprite-size)

@@ -5,58 +5,60 @@
 
 (use srfi-1)
 
-(define-record node
-  trans
+(define-record specials
   size
+  on-remove
+  on-change)
+
+(define-record node
   parent
   children
+  trans
   listener-ids
   dirty?	;; must vertices be calculted again?
   vertices	;; cached vertices.
   bb		;; bounding-box rect.
-  on-spawn	;; function called when this node is spawned.
-  on-remove	;; function called when this node is removed.
-  on-change	;; function called when this node changes.
-  data)
+  data
+  specials)
 
-;; Creates a '''root-node''' a node without a parent.
-(define (node:create-root)
-  (make-node (trans:create (zero-vect))
-	     (zero-vect)
-	     #f
-	     (list)
-	     (list)
-	     #t		;; dirty?
-	     #f		;; vertices
-	     #f		;; bb
-	     null-func
-	     null-func
-	     null-func
-	     #f))
+;; ;; Creates a '''root-node''' a node without a parent.
+;; (define (node:create-root)
+;;   (make-node (trans:create (zero-vect))
+;; 	     (zero-vect)
+;; 	     #f
+;; 	     (list)
+;; 	     (list)
+;; 	     #t		;; dirty?
+;; 	     #f		;; vertices
+;; 	     #f		;; bb
+;; 	     null-func
+;; 	     null-func
+;; 	     null-func
+;; 	     #f))
 
-;; Spawns a new node.
-(define (node:spawn! parent trans size
-		     #!key
-		     (on-spawn  null-func)
-		     (on-remove null-func)
-		     (on-change null-func)
-		     data)
-  (let ((node (make-node trans size parent (list) (list)
-			 #t ;; dirty?
-			 #f ;; vertices
-			 #f ;; bb
-			 on-spawn
-			 on-remove
-			 on-change
-			 data)))
-   (node-children-set! parent
-		       (cons node (node-children parent)))
-   ((node-on-spawn node) node)
-   node))
+;; ;; Spawns a new node.
+;; (define (node:spawn! parent trans size
+;; 		     #!key
+;; 		     (on-spawn  null-func)
+;; 		     (on-remove null-func)
+;; 		     (on-change null-func)
+;; 		     data)
+;;   (let ((node (make-node trans size parent (list) (list)
+;; 			 #t ;; dirty?
+;; 			 #f ;; vertices
+;; 			 #f ;; bb
+;; 			 on-spawn
+;; 			 on-remove
+;; 			 on-change
+;; 			 data)))
+;;    (node-children-set! parent
+;; 		       (cons node (node-children parent)))
+;;    ((node-on-spawn node) node)
+;;    node))
 
 ;; Removes a node and all of its descendants.
 (define (node:remove! node)
-  ((node-on-remove node) node)
+  ((specials-on-remove (node-specials node)) node)
   (for-each node:remove! (node-children node))
   ;; in case node is still refenced somewhere.
   (node-parent-set! node #f)
@@ -66,12 +68,16 @@
 		       (remove (=? node) (node-children (node-parent node))))))
 
 ;; Change the transformation of a node.
-(define (node:change! node trans)
-  ((node-on-change node) node)
-  (for-each (lambda (node)
-	      (node-dirty?-set! node #t))
-	    (cons node (node:descendants node)))
-  (node-trans-set! node trans))
+(define (node:change! node trans/trans-change)
+  (let ((trans (if (trans? trans/trans-change)
+		   trans/trans-change
+		   (trans-change->trans (node-trans node)
+					trans/trans-change))))
+   (for-each (lambda (node)
+	       (node-dirty?-set! node #t))
+	     (cons node (node:descendants node)))
+   (node-trans-set! node trans)
+   ((specials-on-change (node-specials node)) node trans)))
 
 ;; Returns a flat list of the parent of a node (and there parent etc.).
 (define (node:ancestors node)
@@ -122,7 +128,7 @@
 
 (define node:trans node-trans)
 
-(define node:size node-size)
+(define (node:size node) (specials-size (node-specials node)))
 
 ;; Returns the nodes bounding box.
 (define (node:bb node)
@@ -141,7 +147,7 @@
 	    (not (node-vertices node)))
 	(let ((verts (map (lambda (vect)
 			    (vect*matrix vect (node:matrix node)))
-			  (let* ((size (node-size node))
+			  (let* ((size (node:size node))
 				 (w (vect:x size))
 				 (h (vect:y size)))
 			    (polygon->vects (rect->polygon (rect:create 0 w 0 h)))))))
@@ -163,3 +169,28 @@
 	    ;; only check nodes that have colliding bounding boxes
 	    ;; for speed.
 	    (node:bb-collide? node nodes))))
+
+;; NEW node spawner
+
+(define (spawn-node! specialiser parent trans #!optional data)
+  (let ((node
+	 (make-node parent (list) trans (list) #t #f #f data #f)))
+    (node-specials-set! node (specialiser node))
+    node))
+
+(define (node:create-root)
+  (make-node #f (list) (trans:create (zero-vect)) (list) #t #f #f #f
+	     (make-specials (zero-vect) null-func null-func)))
+
+
+(define (sprite-node sprite-batcher sprite)
+  (lambda (node)
+    (let ((id (sprite-batcher:push! sprite-batcher sprite (node:matrix node))))
+     (make-specials (sprite:size sprite)
+		    ;; on remove
+		    (lambda (node)
+		      (sprite-batcher:remove! sprite-batcher id))
+		    ;; on change
+		    (lambda (node trans)
+		      (sprite-batcher:change! sprite-batcher id
+					      (node:matrix node)))))))
