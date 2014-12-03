@@ -1,7 +1,8 @@
 (declare (unit node)
 	 (uses misc
 	       primitives
-	       trans))
+	       trans
+	       sprite-batcher))
 
 (use srfi-1)
 
@@ -182,7 +183,7 @@
   (lambda (node)
     (%specials:create)))
 
-;; Node speciliser for a node that represents a rectangle. 
+;; Node speciliser for a node that represents a rectangle.
 (define (node-rect size)
   (lambda (node)
     (%specials:create size)))
