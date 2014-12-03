@@ -180,9 +180,9 @@
 ;; Node speciliser for a node that represents a simple point.
 (define (node-point)
   (lambda (node)
-    (%specials:create (zero-vect) null-func null-func)))
+    (%specials:create)))
 
 ;; Node speciliser for a node that represents a rectangle. 
 (define (node-rect size)
   (lambda (node)
-    (%specials:create size null-func null-func)))
+    (%specials:create size)))
