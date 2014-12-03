@@ -21,41 +21,6 @@
   data
   specials)
 
-;; ;; Creates a '''root-node''' a node without a parent.
-;; (define (node:create-root)
-;;   (make-node (trans:create (zero-vect))
-;; 	     (zero-vect)
-;; 	     #f
-;; 	     (list)
-;; 	     (list)
-;; 	     #t		;; dirty?
-;; 	     #f		;; vertices
-;; 	     #f		;; bb
-;; 	     null-func
-;; 	     null-func
-;; 	     null-func
-;; 	     #f))
-
-;; ;; Spawns a new node.
-;; (define (node:spawn! parent trans size
-;; 		     #!key
-;; 		     (on-spawn  null-func)
-;; 		     (on-remove null-func)
-;; 		     (on-change null-func)
-;; 		     data)
-;;   (let ((node (make-node trans size parent (list) (list)
-;; 			 #t ;; dirty?
-;; 			 #f ;; vertices
-;; 			 #f ;; bb
-;; 			 on-spawn
-;; 			 on-remove
-;; 			 on-change
-;; 			 data)))
-;;    (node-children-set! parent
-;; 		       (cons node (node-children parent)))
-;;    ((node-on-spawn node) node)
-;;    node))
-
 ;; Removes a node and all of its descendants.
 (define (node:remove! node)
   ((specials-on-remove (node-specials node)) node)
