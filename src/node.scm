@@ -158,7 +158,7 @@
 ;; Specialisers
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Node specilisers for a node that renders a sprite.
+;; Node speciliser for a node that renders a sprite.
 (define (sprite-node sprite-batcher sprite)
   (lambda (node)
     (let ((id (sprite-batcher:push! sprite-batcher sprite (node:matrix node))))
@@ -170,3 +170,13 @@
 		    (lambda (node trans)
 		      (sprite-batcher:change! sprite-batcher id
 					      (node:matrix node)))))))
+
+;; Node speciliser for a node that represents a simple point.
+(define (node-point)
+  (lambda (node)
+    (make-specials (zero-vect) null-func null-func)))
+
+;; Node speciliser for a node that represents a rectangle. 
+(define (node-rect size)
+  (lambda (node)
+    (make-specials size null-func null-func)))
