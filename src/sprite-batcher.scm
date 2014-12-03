@@ -33,7 +33,10 @@
 		      ;; Vertex data
 		      (sprite:vertex-data sprite matrix)
 		      ;; Coord data
-		      (sprite:coord-data sprite))
+		      (sprite:coord-data sprite)
+		      ;; Colour (white)
+		      (make-f32vector 16 1)
+		      )
 		     matrix sprite)))
     (sprite-batcher-sprite-ids-set! 
      sprite-batcher 
@@ -41,14 +44,23 @@
     sprite-id))
 
 
-(define (sprite-batcher:change! sprite-batcher sprite-batch-id matrix)
+(define (sprite-batcher:change! sprite-batcher sprite-batch-id matrix
+				#!optional colour)
   (sprite-batch-id-matrix-set! sprite-batch-id matrix)
   (match-let ((($ sprite-batch-id batch-id matrix sprite) sprite-batch-id))
-	     (batcher:change! (sprite-batcher-batcher sprite-batcher) 
-			      batch-id
-			      ;; Vertex data
-			      vertex: (sprite:vertex-data sprite matrix)
-			      coord:  (sprite:coord-data sprite))))
+	     (if colour
+	      (batcher:change! (sprite-batcher-batcher sprite-batcher) 
+			       batch-id
+			       ;; Vertex data
+			       vertex: (sprite:vertex-data sprite matrix)
+			       coord:  (sprite:coord-data sprite)
+			       colour: colour)
+	      (batcher:change! (sprite-batcher-batcher sprite-batcher) 
+			       batch-id
+			       ;; Vertex data
+			       vertex: (sprite:vertex-data sprite matrix)
+			       coord:  (sprite:coord-data sprite)
+			       ))))
 
 (define (sprite-batcher:update! sprite-batcher)
   (for-each

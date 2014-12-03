@@ -39,13 +39,16 @@
 #version 330
 in vec2 vertex; 
 in vec2 coord; 
-out vec2 f_coord; 
+in vec4 colour;
+out vec2 f_coord;
+out vec4 f_colour;
 uniform mat4 viewmatrix; 
 uniform mat4 projection; 
 
 void main()
 { 
 	gl_Position = projection * viewmatrix * vec4(vertex, 0, 1);
+	f_colour = colour;
 	f_coord = coord;
 }
 END
@@ -54,11 +57,12 @@ END
 #version 330
 uniform sampler2D texture; 
 in vec2 f_coord; 
+in vec4 f_colour;
 out vec4 fragment; 
 
 void main()
 { 
-	fragment = texture2D(texture, f_coord.st); 
+	fragment = texture2D(texture, f_coord.st) * f_colour; 
 }
 END
 ;; uniforms
@@ -66,4 +70,5 @@ END
   (viewmatrix (float32: 4)))
 ;; attributes
 '((vertex (float32: 2))
-  (coord  (float32: 2)))))
+  (coord  (float32: 2))
+  (colour (float32: 4)))))

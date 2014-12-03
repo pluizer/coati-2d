@@ -2,7 +2,8 @@
 	 (uses primitives
 	       sprite))
 
-(use gl-math)
+(use gl-math
+     srfi-4)
 
 (define-record trans
   position
@@ -10,7 +11,8 @@
   rotation
   scale
   flip-v?
-  flip-h?)
+  flip-h?
+  colour)
 
 (define-record trans-change
   position
@@ -18,9 +20,14 @@
   rotation
   scale
   flip-v?
-  flip-h?)
+  flip-h?
+  colour)
 
 (define %not-set (gensym 'not-set))
+
+(define (%colour-trans rgb)
+  (let ((lst (f32vector->list rgb)))
+    (apply f32vector (flatten lst lst lst lst))))
 
 (define (trans:create position
 		      #!key
@@ -28,13 +35,17 @@
 		      rotation
 		      scale
 		      flip-v?
-		      flip-h?)
+		      flip-h?
+		      colour)
   (make-trans position
 	      (or origin (zero-vect))
 	      (or rotation 0.0)
 	      (or scale (vect:create 1 1))
 	      flip-v?
-	      flip-h?))
+	      flip-h?
+	      (if colour
+		  (%colour-trans colour)
+		  (make-f32vector 16 1))))
 
 ;; Returns a new trans-change object.
 ;; A trans-change is used to change only certain slots of a trans. Create
@@ -48,8 +59,9 @@
 			     rotation
 			     scale
 			     (flip-v? %not-set)
-			     (flip-h? %not-set))
-  (make-trans-change position origin rotation scale flip-h? flip-v?))
+			     (flip-h? %not-set)
+			     colour)
+  (make-trans-change position origin rotation scale flip-h? flip-v? colour))
 
 ;; Returns a new trans from an old one using the slots specified in the given
 ;; trans-change.
@@ -67,7 +79,10 @@
 		  (trans-change-flip-v? trans-change))
 	      (if (eq? (trans-change-flip-h? trans-change) %not-set)
 		  (trans-flip-h? old-trans)
-		  (trans-change-flip-h? trans-change))))
+		  (trans-change-flip-h? trans-change))
+	      (if (trans-change-colour trans-change)
+		  (%colour-trans (trans-change-colour trans-change))
+		  (trans-colour old-trans))))
 
 (define trans:position trans-position)
 (define trans:origin   trans-origin)
@@ -75,6 +90,10 @@
 (define trans:scale    trans-scale)
 (define trans:flip-v?  trans-flip-v?)
 (define trans:flip-h?  trans-flip-h?)
+(define (trans:colour trans)
+  (subf32vector (trans-colour trans) 0 4))
+(define (trans:colour-matrix trans)
+  (trans-colour trans))
 
 (define (trans->matrix trans)
   (let* ((pos (trans-position trans))

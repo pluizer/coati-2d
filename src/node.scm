@@ -176,7 +176,9 @@
 			;; on change
 			(lambda (node trans)
 			  (sprite-batcher:change! sprite-batcher id
-						  (node:matrix node)))))))
+						  (node:matrix node)
+						  (trans:colour-matrix trans)
+						  ))))))
 
 ;; Node speciliser for a node that represents a simple point.
 (define (node-point)
