@@ -10,6 +10,12 @@
   on-remove
   on-change)
 
+(define (%specials:create #!optional
+			  (size (zero-vect))
+			  (on-remove null-func)
+			  (on-change null-func))
+  (make-specials size on-remove on-change))
+
 (define-record node
   parent
   children
@@ -162,21 +168,21 @@
 (define (sprite-node sprite-batcher sprite)
   (lambda (node)
     (let ((id (sprite-batcher:push! sprite-batcher sprite (node:matrix node))))
-     (make-specials (sprite:size sprite)
-		    ;; on remove
-		    (lambda (node)
-		      (sprite-batcher:remove! sprite-batcher id))
-		    ;; on change
-		    (lambda (node trans)
-		      (sprite-batcher:change! sprite-batcher id
-					      (node:matrix node)))))))
+      (%specials:create (sprite:size sprite)
+			;; on remove
+			(lambda (node)
+			  (sprite-batcher:remove! sprite-batcher id))
+			;; on change
+			(lambda (node trans)
+			  (sprite-batcher:change! sprite-batcher id
+						  (node:matrix node)))))))
 
 ;; Node speciliser for a node that represents a simple point.
 (define (node-point)
   (lambda (node)
-    (make-specials (zero-vect) null-func null-func)))
+    (%specials:create (zero-vect) null-func null-func)))
 
 ;; Node speciliser for a node that represents a rectangle. 
 (define (node-rect size)
   (lambda (node)
-    (make-specials size null-func null-func)))
+    (%specials:create size null-func null-func)))
