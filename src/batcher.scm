@@ -70,15 +70,21 @@
 	    ((case type
 	       ((float32:) ;; TODO other names
 		(case size
-		  ((1) (error "TODO: Uniform matrix of size 1 not implemeted yet."))
-		  ((2) gl::uniform-matrix2fv)
-		  ((3) gl::uniform-matrix3fv)
-		  ((4) gl::uniform-matrix4fv)
+		  ((vec1) gl::uniform1fv)
+		  ((vec2) gl::uniform2fv)
+		  ((vec3) gl::uniform3fv)
+		  ((vec4) gl::uniform4fv)
+		  ((mat2) (lambda (l c v)
+			    (gl::uniform-matrix2fv l c #f v)))
+		  ((mat3) (lambda (l c v)
+			    (gl::uniform-matrix3fv l c #f v)))
+		  ((mat4) (lambda (l c v)
+			    (gl::uniform-matrix4fv l c #f v)))
 		  (else (error size "incorrect size for a float uniform."))))
 	       ((int32:) ;; TODO other names
 		(error "TODO: Integer uniform: Not implemented yet."))
 	       (else (error type "illigal unirform type,  must be float/integer.")))
-	     location 1 #f value)))))
+	     location 1 value)))))
 
 ;; generic srfi-4 vector-length function.
 (define (%vector-length value)

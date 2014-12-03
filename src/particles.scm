@@ -1,4 +1,4 @@
 (declare (unit particles)
-	 (uses primitives))
-
-;; TODO
+	 (uses node
+	       primitives
+	       sprite-batcher))

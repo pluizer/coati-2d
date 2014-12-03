@@ -24,3 +24,4 @@
   (thunk)
   (set! %blend-mode-stack (cdr %blend-mode-stack))
   (set-blend-mode! (car %blend-mode-stack)))
+

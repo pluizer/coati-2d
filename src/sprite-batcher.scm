@@ -87,7 +87,6 @@
 (define (sprite-batcher:render sprite-batcher projection view)
   (when (not (null? (sprite-batcher-sprite-ids sprite-batcher)))
    (batcher:render (sprite-batcher-batcher sprite-batcher) 
-		   projection view)))
+		   projection view (f32vector 1 0 0 1))))
 
 ;; %
-

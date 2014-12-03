@@ -25,7 +25,7 @@
 		   (gl::enable gl::+texture-2d+)
 		   (gl::enable gl::+blend+)
 		   (gl::disable gl::+depth-test+)
-;		   (fw::swap-interval 0)
+		   (fw::swap-interval 0)
 		   (gl::check-error)
 		   (let ((iter (loop-func)))
 		    (let loop () 

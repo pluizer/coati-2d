@@ -43,12 +43,13 @@ in vec4 colour;
 out vec2 f_coord;
 out vec4 f_colour;
 uniform mat4 viewmatrix; 
-uniform mat4 projection; 
+uniform mat4 projection;
+uniform vec4 u_colour;
 
 void main()
 { 
 	gl_Position = projection * viewmatrix * vec4(vertex, 0, 1);
-	f_colour = colour;
+	f_colour = colour * u_colour;
 	f_coord = coord;
 }
 END
@@ -66,8 +67,9 @@ void main()
 }
 END
 ;; uniforms
-'((projection (float32: 4))
-  (viewmatrix (float32: 4)))
+'((projection (float32: mat4))
+  (viewmatrix (float32: mat4))
+  (u_colour   (float32: vec4)))
 ;; attributes
 '((vertex (float32: 2))
   (coord  (float32: 2))
