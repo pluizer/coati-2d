@@ -135,19 +135,30 @@
 	    ;; for speed.
 	    (node:bb-collide? node nodes))))
 
-;; NEW node spawner
 
+;; Spawns a new node.
 (define (spawn-node! specialiser parent trans #!optional data)
   (let ((node
 	 (make-node parent (list) trans (list) #t #f #f data #f)))
     (node-specials-set! node (specialiser node))
     node))
 
+;; Returns a root node.
 (define (node:create-root)
   (make-node #f (list) (trans:create (zero-vect)) (list) #t #f #f #f
 	     (make-specials (zero-vect) null-func null-func)))
 
+;; Returns the absolute postion of a node
+(define (node:position node)
+  (vect*matrix (trans-position (node-trans node))
+	       (node:matrix node)))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Specialisers
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Node specilisers for a node that renders a sprite.
 (define (sprite-node sprite-batcher sprite)
   (lambda (node)
     (let ((id (sprite-batcher:push! sprite-batcher sprite (node:matrix node))))
