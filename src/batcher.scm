@@ -27,9 +27,9 @@
 (define *triangle-rect-mode* 
   (index-func:create gl::+triangles+ 6
 		     (lambda (x)
-		      (+ (vector-ref (vector 0 1 2 0 2 3)
-				     (modulo x 6))
-			 (* (floor (/ x 6)) 4)))))
+		       (+ (vector-ref (vector 0 1 2 0 2 3)
+				      (modulo x 6))
+			  (* (floor (/ x 6)) 4)))))
 
 (define-record %attribute
   data		; attribute's data inside a chunk-vector

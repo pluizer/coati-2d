@@ -168,7 +168,9 @@
 ;; Node speciliser for a node that renders a sprite.
 (define (sprite-node sprite-batcher sprite)
   (lambda (node)
-    (let ((id (sprite-batcher:push! sprite-batcher sprite (node:matrix node))))
+    (let ((id (sprite-batcher:push! sprite-batcher
+				    sprite
+				    (node:matrix node))))
       (%specials:create (sprite:size sprite)
 			;; on remove
 			(lambda (node)
@@ -189,3 +191,24 @@
 (define (node-rect size)
   (lambda (node)
     (%specials:create size)))
+
+(define (node-light sprite-batcher sprite radius colour)
+  (lambda (node)
+    (spawn-node!
+     (lambda (sub)
+       (let ((id (sprite-batcher:push! sprite-batcher
+				       sprite
+				       (node:matrix sub)
+				       (rgb->colour-matrix colour)
+				       )))
+	 (%specials:create (vect:create (* radius 2) (* radius 2))
+			   (lambda (node)
+			     (sprite-batcher:remove! sprite-batcher id))
+			   (lambda (node trans)
+			     (sprite-batcher:change! sprite-batcher id
+						     (node:matrix sub)
+						     (trans:colour-matrix trans))))))
+     node (trans:create (vect:create (- radius) (- radius))
+			scale: (vect:create (* radius 2) (* radius 2))
+			colour: colour))
+    (%specials:create)))

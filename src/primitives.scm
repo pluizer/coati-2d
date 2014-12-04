@@ -700,6 +700,10 @@
 	   (<  h 360.0)) (rgb:create (+ c m) m (+ x m) a))
      (else (rgb:create m m m a)))))
 
+(define (rgb->colour-matrix rgb)
+  (let ((lst (f32vector->list rgb)))
+   (apply f32vector (flatten lst lst lst lst))))
+
 ;;-------------------------------------------------------
 ;; Bezier
 ;;-------------------------------------------------------

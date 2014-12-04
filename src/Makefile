@@ -1,5 +1,5 @@
 OBJECTS = animators.o batcher.o blend.o chunk.o drawing.o events.o font.o input.o misc.o node.o pixmap.o  particles.o primitives.o shader.o sound.o sprite-batcher.o sprite.o texture.o tilemap.o trans.o window.o
-CFLAGS = -Wno-cpp
+CFLAGS = -Wno-cpp -OS
 
 all: coati.so
 

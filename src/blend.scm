@@ -32,4 +32,3 @@
   (thunk)
   (set! %blend-mode-stack (cdr %blend-mode-stack))
   (set-blend-mode! (blend-mode-type (car %blend-mode-stack))))
-

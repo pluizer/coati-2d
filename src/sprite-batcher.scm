@@ -27,7 +27,7 @@
 		   4)
    (list)))
 
-(define (sprite-batcher:push! sprite-batcher sprite matrix)
+(define (sprite-batcher:push! sprite-batcher sprite matrix #!optional colour)
   (let* ((sprite-id (make-sprite-batch-id 
 		     (batcher:push!
 		      (sprite-batcher-batcher sprite-batcher)
@@ -36,8 +36,8 @@
 		      ;; Coord data
 		      (sprite:coord-data sprite)
 		      ;; Colour (white)
-		      (make-f32vector 16 1)
-		      )
+		      (or colour
+			  (make-f32vector 16 1)))
 		     matrix sprite)))
     (sprite-batcher-sprite-ids-set! 
      sprite-batcher 
