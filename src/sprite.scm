@@ -59,23 +59,21 @@
 ;; Create a new sprite with a list of rectangles that describe the
 ;; the sprite's frames on the texture.
 ;; Frames will updated every ''interval'' milliseconds.
-(define (sprite:create texture rectangles 
+(define (sprite:create texture
 		       #!optional
+		       (rectangles (list (rect:create 0 1 0 1))) 
 		       (size (vect:create 1 1))
 		       (interval (/ 1000 20)))
   (let ((l (length rectangles)))
-    (cond ((zero? l)
-	  (error "need at least one rectangle"))
-	 ((= l 1)
-	  (make-sprite #f (%frame:create texture (car rectangles)) size))
-	 (else 
-	  (make-sprite (%animation:create
-			interval
-			(map (lambda (rectangle)
-			       (%frame:create texture rectangle))
-			     rectangles))
-		       #f
-		       size)))))
+    (if (= l 1)
+	(make-sprite #f (%frame:create texture (car rectangles)) size)
+	(make-sprite (%animation:create
+		      interval
+		      (map (lambda (rectangle)
+			     (%frame:create texture rectangle))
+			   rectangles))
+		     #f
+		     size))))
 
 ;; Is this sprite an animation?
 (define (sprite:animated? sprite)
