@@ -98,8 +98,10 @@
    node-data
    node-data-set!))
 
+;; Returns the transformation of a node.
 (define node:trans node-trans)
 
+;; Returns the size of this a node.
 (define (node:size node) (specials-size (node-specials node)))
 
 ;; Returns the nodes bounding box.
@@ -127,6 +129,8 @@
 	  (node-vertices-set! node verts)))
   (node-vertices node))
 
+;; Filters ''nodes'' down those whose aabb (axis aligned bounding box)
+;; collide with the aabb of ''node''.
 (define (node:bb-collide? node nodes)
   (let ((a (node:bb node)))
     (filter (lambda (b)
@@ -143,14 +147,16 @@
 	    (node:bb-collide? node nodes))))
 
 
-;; Spawns a new node.
+;; Spawns a new node. ''specialiser'' sets the type type of the node.
+;; (See section: specialisers).
+;; Optionally some user-data can be given to the new node.
 (define (spawn-node! specialiser parent trans #!optional data)
   (let ((node
 	 (make-node parent (list) trans (list) #t #f #f data #f)))
     (node-specials-set! node (specialiser node))
     node))
 
-;; Returns a root node.
+;; Returns a root node. A node without a type or a parent.
 (define (node:create-root)
   (make-node #f (list) (trans:create (zero-vect)) (list) #t #f #f #f
 	     (make-specials (zero-vect) null-func null-func)))
@@ -165,7 +171,17 @@
 ;; Specialisers
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Node speciliser for a node that renders a sprite.
+;; Node specialiser for a node that represents a simple point in 2d-space.
+(define (node-point)
+  (lambda (node)
+    (%specials:create)))
+
+;; Node specialiser for a node that represents a rectangle in 2d-space.
+(define (node-rect size)
+  (lambda (node)
+    (%specials:create size)))
+
+;; A node specialiser that represents a sprite in a sprite-batcher.
 (define (sprite-node sprite-batcher sprite)
   (lambda (node)
     (let ((id (sprite-batcher:push! sprite-batcher
@@ -182,16 +198,9 @@
 						  (trans:colour-matrix trans)
 						  ))))))
 
-;; Node speciliser for a node that represents a simple point.
-(define (node-point)
-  (lambda (node)
-    (%specials:create)))
-
-;; Node speciliser for a node that represents a rectangle.
-(define (node-rect size)
-  (lambda (node)
-    (%specials:create size)))
-
+;; A node specialiser that represents a light in a sprite-batcher. This
+;; is simply a sprite of two times ''radius'' centred around the middle
+;; with a specific colour.
 (define (node-light sprite-batcher sprite radius colour)
   (lambda (node)
     (spawn-node!
