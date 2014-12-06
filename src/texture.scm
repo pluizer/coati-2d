@@ -107,8 +107,11 @@
   (gl::with-texture gl::+texture-2d+ (texture:texture-id texture)
 		    (thunk)))
 
+(define %target-is-screen? #t)
+
 (define (with-target/proc target thunk)
-  (gl::with-framebuffer (texture:framebuffer-id texture)
-			(thunk)))
+  (let ((id (texture:framebuffer-id target)))
+    (set! %target-is-screen? (= id 0))
+    (gl::with-framebuffer id (thunk))))
 
 ;; TODO: free texture

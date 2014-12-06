@@ -10,7 +10,7 @@
 				 'normal
 				 (f32vector 1 1 1 1))))
 
-(define (set-blend-mode! type)
+(define (%set-blend-mode! type)
   (apply gl::blend-func
 	 (case type
 	   ((normal)
@@ -27,8 +27,8 @@
   (blend-mode-colour (car %blend-mode-stack)))
 
 (define (with-blend-mode/proc type colour thunk)
-  (set-blend-mode! type)
+  (%set-blend-mode! type)
   (set! %blend-mode-stack (cons (make-blend-mode type colour) %blend-mode-stack))
   (thunk)
   (set! %blend-mode-stack (cdr %blend-mode-stack))
-  (set-blend-mode! (blend-mode-type (car %blend-mode-stack))))
+  (%set-blend-mode! (blend-mode-type (car %blend-mode-stack))))

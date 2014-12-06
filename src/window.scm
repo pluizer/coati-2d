@@ -18,8 +18,7 @@
   (fw::with-window (w h 
 		      title
 		      fullscreen?: fullscreen?
-		      resizable:  #f
-)
+		      resizable:  #f)
 ;		   (fw::make-context-current (fw::window))
 		   (gl::init)
 		   (gl::enable gl::+texture-2d+)

@@ -88,6 +88,10 @@
 (define (sprite-batcher:render sprite-batcher projection view)
   (when (not (null? (sprite-batcher-sprite-ids sprite-batcher)))
    (batcher:render (sprite-batcher-batcher sprite-batcher) 
-		   projection view (%current-colour))))
+		   projection (if %target-is-screen?
+				  view
+				  ;; Flip the y-axis of all framebuffer targets.
+				  (matrix:scale (vect:create 1 -1) view))
+		   (%current-colour))))
 
 ;; %

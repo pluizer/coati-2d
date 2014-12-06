@@ -781,26 +781,15 @@
 (define (bezier->vects bezier accuracy)
   (%subdivide bezier accuracy))
 
-
-(define (matrix:flip vertical? horzontal? matrix)
-  (let* ((matrix (if vertical?  (flip-y matrix) matrix))
-	 (matrix (if horzontal? (flip-x matrix) matrix)))
-    matrix))
-
 ;;-------------------------------------------------------
 ;; Matrix
 ;;-------------------------------------------------------
 
 ;; Flips the matrix.
 (define (matrix:flip vertical? horzontal? matrix)
-  (let* ((ret (copy-mat4 matrix))
-	 (ret (if vertical?
-		  (f32vector-set! ret 0 (- (f32vector-ref ret 0)))
-		  ret))
-	 (ret (if horzontal?
-		  (f32vector-set! ret 5 (- (f32vector-ref ret 5)))
-		  ret)))
-    ret))
+  (let* ((matrix (if vertical?  (flip-y matrix) matrix))
+	 (matrix (if horzontal? (flip-x matrix) matrix)))
+    matrix))
 
 ;; Translate a matrix.
 (define (matrix:translate vect matrix)
