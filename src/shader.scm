@@ -36,12 +36,12 @@
   (shader:create 
 ;; vertex source
 #<<END
-#version 330
-in vec2 vertex; 
-in vec2 coord; 
-in vec4 colour;
-out vec2 f_coord;
-out vec4 f_colour;
+#version 120
+attribute vec2 vertex; 
+attribute vec2 coord; 
+attribute vec4 colour;
+varying vec2 f_coord;
+varying vec4 f_colour;
 uniform mat4 viewmatrix; 
 uniform mat4 projection;
 uniform vec4 u_colour;
@@ -55,15 +55,15 @@ void main()
 END
 ;; fragment source
 #<<END
-#version 330
+#version 120
 uniform sampler2D texture; 
-in vec2 f_coord; 
-in vec4 f_colour;
-out vec4 fragment; 
+varying vec2 f_coord; 
+varying vec4 f_colour;
+//out vec4 fragment; 
 
 void main()
 { 
-	fragment = texture2D(texture, f_coord.st) * f_colour; 
+	gl_FragColor = texture2D(texture, f_coord.st) * f_colour; 
 }
 END
 ;; uniforms
