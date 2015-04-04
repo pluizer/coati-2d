@@ -150,7 +150,8 @@
 (define (vect->angle v)
   (atan (vect:y v) (vect:x v)))
 
-;; Uses complex number multiplication to rotate /a/ by /b/. Scaling will occur if /a/ is not a unit vector.
+;; Uses complex number multiplication to rotate /a/ by /b/.
+;; Scaling will occur if /a/ is not a unit vector.
 (define (vect:rotate a b)
   (vect:create (+ (* (vect:x a) (vect:x b))
 		  (* (vect:y a) (vect:y b)))
@@ -164,7 +165,8 @@
 	       (- (* (vect:y a) (vect:x b)
 		     (vect:x a) (vect:y b)))))
 
-;; Returns the squared length of v. Faster than cpvlength() when you only need to compare lengths.
+;; Returns the squared length of v.
+;; Faster than cpvlength() when you only need to compare lengths.
 (define (vect:length-squared v)
   (vect:dot v v))
 
@@ -211,7 +213,8 @@
 (define (vect:dist v1 v2)
   (vect:length (vect- v1 v2)))
 
-;; Returns the squared distance between v1 and v2. Faster than cpvdist() when you only need to compare distances.
+;; Returns the squared distance between v1 and v2.
+;; Faster than cpvdist() when you only need to compare distances.
 (define (vect:dist-squared v1 v2)
   (vect:length-squared (vect- v1 v2)))
 
@@ -229,7 +232,8 @@
 	  (vect+ (vect* a (* (sin (* (- 1.0 t) omega)) denom))
 		 (vect* b (* (sin (* (* t omega) denom)))))))))
 
-;; Spherical linearly interpolate between /a/ towards /b/ by no more than angle /angle/ in radians.
+;; Spherical linearly interpolate between /a/ towards /b/
+;; by no more than angle /angle/ in radians.
 (define (vect:spherical-lerp-const a b angle)
   (let* ((dot (vect:dot (vect:normalize a) (vect:normalize b)))
 	 (omega (clamp dot -1.0 1.0)))
@@ -379,7 +383,8 @@
      (- (max (rect:t a) (rect:t b))
 	(min (rect:b a) (rect:b b)))))
 
-;; Returns the fraction along the segment query the bounding box is hit. Returns /infinity/ if it doesn't hit.
+;; Returns the fraction along the segment query the bounding box is hit.
+;; Returns /infinity/ if it doesn't hit.
 (define (rect:segment-query rect a b)
 
   (let* ((idx (/ 1 (- (vect:x b) (vect:x a))))
@@ -411,7 +416,8 @@
 	      infinity))
 	infinity)))
 
-;; Return true if the bounding box intersects the line segment with ends /a/ and /b/.
+;; Return true if the bounding box intersects
+;; the line segment with ends /a/ and /b/.
 (define (rect:intersects-segment? rect a b)
   (not (= (rect:segment-query rect a b) infinity)))
 
@@ -525,7 +531,8 @@
 	  (map (lambda (v)
 		 (let loop ()
 		   (when (and (>= (length lower) 2)
-			      (<= (%cross (cadr lower) (car lower) v) 0))
+			      (<= (%cross (cadr lower)
+                                          (car lower) v) 0))
 		     (set! lower (cdr lower))
 		     (loop)))
 		 (set! lower (cons v lower)))
@@ -533,7 +540,8 @@
 	  (map (lambda (v)
 		 (let loop ()
 		   (when (and (>= (length upper) 2)
-			      (<= (%cross (cadr upper) (car upper) v) 0))
+			      (<= (%cross (cadr upper)
+                                          (car upper) v) 0))
 		     (set! upper (cdr upper))
 		     (loop)))
 		 (set! upper (cons v upper)))
@@ -552,7 +560,8 @@
   (apply polygon:create (map (lambda (v) (vect- v vect))
 			     (polygon->vects polygon))))
 
-(define (polygon:rotate polygon angle #!optional (origin (zero-vect)))
+(define (polygon:rotate polygon angle
+                        #!optional (origin (zero-vect)))
   (let ((ca (cos angle))
 	(sa (sin angle))
 	(ox (vect:x origin))
@@ -650,14 +659,17 @@
 	(let* ((v mmax)
 	       (s (/ c v)))
 	  (cond ((= mmax r)
-		 (hsv:create (%wrap-degree
-			      (* (fmod (/ (- g b) c) 6.0) 60.0)) s v a))
+		 (hsv:create
+                  (%wrap-degree
+                   (* (fmod (/ (- g b) c) 6.0) 60.0)) s v a))
 		((= mmax g)
-		 (hsv:create (%wrap-degree
-			      (* (+ (/ (- b r) c) 2.0) 60.0)) s v a))
+		 (hsv:create
+                  (%wrap-degree
+                   (* (+ (/ (- b r) c) 2.0) 60.0)) s v a))
 		(else
-		 (hsv:create (%wrap-degree
-			      (* (+ (/ (- r g) c) 4.0) 60.0)) s v a))))
+		 (hsv:create
+                  (%wrap-degree
+                   (* (+ (/ (- r g) c) 4.0) 60.0)) s v a))))
 	(hsv:create 0 0 0 a))))
 
 ;; Creates a new HSV colour
