@@ -812,18 +812,18 @@
 (define matrix* m*)
 
 ;; Returns an perspective matrix
-(define matrix:perspective perspective)
+(define perspective-matrix perspective)
 
 ;; Returns a matrix where a camera is pointing to a focus
 ;; from a certain height (z).
-(define (matrix:look-at camera-point focus-point z)
-  (look-at (make-point (vect:x focus-point)
-                       (vect:y focus-point)
-                       zoom)
-           (make-point (vect:x camera-point)
-                       (vect:y camera-point)
-                       0)
-           (make-point 0 1 0)))
+(define (look-at-matrix camera-point focus-point z)
+  (look-at (f32vector (vect:x focus-point)
+                      (vect:y focus-point)
+                      z)
+           (f32vector (vect:x camera-point)
+                      (vect:y camera-point)
+                      0)
+           (f32vector 0 1 0)))
 
 ;;-------------------------------------------------------
 ;; %
