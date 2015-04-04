@@ -823,7 +823,7 @@
            (make-point (vect:x camera-point)
                        (vect:y camera-point)
                        0)
-           (make-point 0 0 1)))
+           (make-point 0 1 0)))
 
 ;;-------------------------------------------------------
 ;; %
