@@ -811,8 +811,13 @@
 ;; Multiplies matrices.
 (define matrix* m*)
 
-;; Returns an perspective matrix
-(define perspective-matrix perspective)
+;; Returns a perspective matrix
+(define (perspective-matrix width height angle)
+  (perspective width height 0.1 100 angle))
+
+;; Returns a orthographic matrix
+(define (ortho-matrix width height)
+  (ortho width height 0.1 100))
 
 ;; Returns a matrix where a camera is pointing to a focus
 ;; from a certain height (z).
