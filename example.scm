@@ -93,7 +93,7 @@
 			   (if (and (odd? (coord:y coord))
                                     (even? (coord:x coord))) blue #f)))
 
-                (list 59 (lambda (coord)
+                (list 13 (lambda (coord)
 			   (if (and (odd? (coord:y coord))
                                     (even? (coord:x coord))) green #f)))
                 ))
@@ -180,7 +180,9 @@
       	(lambda ()
       	  (layered-map:render lmap pos
       			      projection-matrix
-      			      view-matrix)))
+      			      view-matrix)
+          (sprite-batcher:render sbatch projection-matrix view-matrix)
+))
 
 
 ;      (when (not switch) (buffer-renderer))
