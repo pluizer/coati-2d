@@ -61,7 +61,7 @@ sprite-batcher.o: sprite-batcher.scm batcher.scm blend.scm misc.scm primitives.s
 texture.o: texture.scm sprite.scm sprite-batcher.scm misc.scm primitives.scm 
 	csc -c texture.scm -C $(CFLAGS)
 
-tilemap.o: tilemap.scm primitives.scm
+tilemap.o: tilemap.scm primitives.scm helpers.scm
 	csc -c tilemap.scm -C $(CFLAGS)
 
 trans.o: trans.scm primitives.scm sprite.scm

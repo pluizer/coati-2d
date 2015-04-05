@@ -5,6 +5,8 @@
 	       texture
 	       misc))
 
+(include "helpers.scm")
+
 (use srfi-1
      srfi-4
      data-structures
@@ -77,7 +79,7 @@
       ;; Function returned by ``tilemap:create``. Renders the map from
       ;; the ``top-left`` coordinate. (which is a vect not a coord so
       ;; fractions are possible).
-      (lambda (top-left width height tile-func projection view)
+      (lambda (top-left width height tile-func projection view trans-func)
 	(sprite-batcher:update! batcher)
 	(let* ((x (vect:x top-left))
 	       (y (vect:y top-left))
@@ -90,9 +92,11 @@
 	       (+ width 1) (+ height 1)
 	       tile-func
 	       projection
-	       (matrix:translate (vect:create rx ry) view)))))))
+	       (maybe trans-func (matrix:translate (vect:create rx ry) view))))))))
 
 ;; Renders the map from the ``top-left`` coordinate. 
 ;; (which is a vect not a coord so fractions are possible).
-(define (tilemap:render tilemap top-left width height tile-func projection view)
-  (tilemap top-left width height tile-func projection view))
+(define (tilemap:render tilemap top-left width height tile-func projection view
+                        #!optional trans-func)
+
+  (tilemap top-left width height tile-func projection view trans-func))

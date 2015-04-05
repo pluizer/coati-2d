@@ -1,8 +1,9 @@
 (declare (unit texture)
-	 (uses sprite
+	 (uses misc
+               sprite
 	       sprite-batcher
-	       misc
 	       primitives))
+
 
 (use srfi-1
      srfi-4

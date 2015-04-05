@@ -1,10 +1,11 @@
 (declare (unit sprite-batcher)
 	 (uses batcher
 	       blend
-	       misc
+               misc
 	       primitives
 	       shader
 	       sprite))
+
 
 (use srfi-1
      srfi-4

@@ -1,8 +1,9 @@
 (declare (unit node)
-	 (uses misc
-	       primitives
+	 (uses primitives
 	       trans
+               misc
 	       sprite-batcher))
+
 
 (use srfi-1)
 
