@@ -36,7 +36,7 @@ static void* srealloc(void* old, size_t size)
 	void* ptr = realloc(old, size);
 	if (!ptr)
 	{
-		fprintf(stderr, "Out of memory!");
+		fprintf(stderr, "Out of memory!", old, size);
 		exit(-1);
 	}
 	return ptr;
@@ -66,7 +66,7 @@ void free_index_stack(DV_IndexStack* is)
 
 void index_stack_grow(DV_IndexStack* is)
 {
-	is->size_hint *= 2;
+	is->size_hint = (is->size_hint*2)+1;
 	is->data = srealloc(is->data, sizeof(unsigned) * is->size_hint);
 }
 
@@ -118,7 +118,7 @@ void dv_vector_free(DV_Vector* dv)
 unsigned vector_grow(DV_Vector* dv)
 {
 	unsigned old_max = dv->size_hint;
-	dv->size_hint *= 2;
+	dv->size_hint = (dv->size_hint*2)+1;
 	dv->data = srealloc(dv->data, 
 			    dv->chunk_size * dv->size_hint);
 	dv->indices = srealloc(dv->indices, sizeof(unsigned) * dv->size_hint);
