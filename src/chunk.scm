@@ -25,7 +25,7 @@ static void* smalloc(size_t size)
 	void* ptr = malloc(size);
 	if (!ptr)
 	{
-		fprintf(stderr, "Out of memory!");
+		fprintf(stderr, "chunk.scm: smalloc(%d): Out of memory!", size);
 		exit(-1);
 	}
 	return ptr;
@@ -36,7 +36,7 @@ static void* srealloc(void* old, size_t size)
 	void* ptr = realloc(old, size);
 	if (!ptr)
 	{
-		fprintf(stderr, "Out of memory!", old, size);
+		fprintf(stderr, "chunk.scm: srealloc(%d, %d): Out of memory!", old, size);
 		exit(-1);
 	}
 	return ptr;
