@@ -90,7 +90,7 @@
 	       (+ width 1) (+ height 1)
 	       tile-func
 	       projection
-	       (gl::m* (gl::translation (f32vector rx ry 0)) view)))))))
+	       (matrix:translate (vect:create rx ry) view)))))))
 
 ;; Renders the map from the ``top-left`` coordinate. 
 ;; (which is a vect not a coord so fractions are possible).
