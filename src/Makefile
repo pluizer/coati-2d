@@ -16,7 +16,7 @@ chunk.o: chunk.scm
 	csc -c chunk.scm -C $(CFLAGS)
 
 coati.so: coati.scm $(OBJECTS)
-	csc -s $(OBJECTS) coati.scm -o coati.so -C $(CFLAGS)
+	csc -sv $(OBJECTS) coati.scm -o coati.so -C $(CFLAGS)
 	mv coati.so ..
 
 drawing.o: drawing.scm
