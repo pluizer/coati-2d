@@ -1,4 +1,5 @@
-(declare (unit window))
+(declare (unit window)
+         (uses primitives))
 
 (use (prefix glfw3 fw::)
      (prefix opengl-glew gl::)
@@ -8,6 +9,9 @@
 (define %window-should-close? #f)
 (define (coati:close)
   (set! %window-should-close? #t))
+(define %window-size (vect:create 0 0))
+
+(define (window:size) %window-size)
 
 ;; Starts coati and starts the game loop with the function
 ;; '''returned''' by ''loop-func''. Getting the loop function
@@ -19,7 +23,8 @@
 		      title
 		      fullscreen?: fullscreen?
 		      resizable:  #f)
-;		   (fw::make-context-current (fw::window))
+                   (set! %window-size (let-values (((w h) (fw::get-window-size (fw::window))))
+                                        (vect:create w h)))
 		   (gl::init)
 		   (gl::enable gl::+texture-2d+)
 		   (gl::enable gl::+blend+)
@@ -38,4 +43,5 @@
 			  (loop)
 			  (begin
 			    (fw::set-window-should-close (fw::window) #t)))))))
+
 
