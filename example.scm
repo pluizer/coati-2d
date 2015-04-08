@@ -1,5 +1,6 @@
 (use matchable)
 (use (prefix gl-math gl::))
+
 (load "~/Copy/coati-2d/coati.so")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -16,43 +17,42 @@
 (define-record layered-map
   layers)
 
-(define (layered-map:create/proc #!rest layer-args)
+(define (layered-map:create/proc #!rest sizes)
+  ;; Check if the size of layers increasing.
+  (let ((sizes (map car sizes)))
+    (assert (equal? (sort sizes <) sizes)))
   (make-layered-map
-   (map (lambda (args)
-	  (apply %layer:create args)) layer-args)))
+   (map (lambda (size)
+	  (apply %layer:create size)) sizes)))
 
-(define (%calculate-layer-matrix lmap layer view)
-  (let* ((size-a (layer-size (car (layered-map-layers lmap))))
-	 (size-b (layer-size layer))
-	 (scale-delta (/ (+ size-a 1) (+ size-b 1)))
-	 (trans-delta (- (/ size-a 2)
-			 (/ size-b 2))))
-    (if (= size-a size-b) view
-	(matrix:scale (vect:create 1 1) view
-         )
-	)))
+(define (layered-map:render-jobs lmap pos camera)
+  (let ((projection (camera:projection camera))
+        (view (camera:view camera)))
+   (map (lambda (layer)
+          (let* ((size-a (layer-size (car (layered-map-layers lmap))))
+                 (size-b (layer-size layer))
+                 (scale-delta (/ (+ size-a 1) (+ size-b 1))))
+            (match-let ((($ layer size tilemap func) layer))
+              (let ((render
+                     (lambda ()
+                       (tilemap:render tilemap pos size size func camera
+                                       (lambda (m)
+                                         (matrix:scale
+                                          (vect:create scale-delta scale-delta)
+                                          m))))))
+                (lambda ()
+                  (render))))))
+        (layered-map-layers lmap))))
 
-(define (layered-map:render lmap pos projection view)
-  (for-each
-   (lambda (layer)
-
-     (let* ((size-a (layer-size (car (layered-map-layers lmap))))
-            (size-b (layer-size layer))
-            (scale-delta (/ (+ size-a 1) (+ size-b 1))))
-
-       (match-let ((($ layer size tilemap func) layer))
-         (tilemap:render tilemap
-                         pos
-                         size size
-                         func
-                         projection
-                         view
-                         (lambda (m)
-                           (matrix:scale (vect:create scale-delta scale-delta)
-                                         m))
-                         )))
-     )
-   (layered-map-layers lmap)))
+(define (parallax-view-matrices sizes background-view-matrix)
+  (let ((background-size (car sizes)))
+    (map (lambda (size)
+           (let ((delta (/ (+ background-size 1)
+                           (+ size))))
+             (matrix:scale (vect:create delta delta)))
+           
+          )))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -63,6 +63,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (game)
+  (print (window:size))
   (let* ((sbatch (sprite-batcher:create))
 	 (lbatch (sprite-batcher:create))
 	 ;; load the tilemap texture.
@@ -81,13 +82,11 @@
 	 (light (sprite:create light-texture))
 	 
 	 ;; matrices
-         (projection-matrix (perspective-matrix 1 1 20))
-         ;;(projection-matrix (gl::ortho 13 13))
-	 (view-matrix (look-at-matrix (vect:create 5 5) (vect:create 5 5) 20))
+         ;;(projection-matrix (perspective-matrix 1 1 1))
 	 (lmap (layered-map:create/proc
 
-                (list 10 (lambda (coord)
-                          (if (even? (coord:x coord)) dirt dirt)))
+                (list 4 (lambda (coord)
+                          (if (even? (coord:x coord)) dirt #f)))
 
 		(list 12 (lambda (coord)
 			   (if (and (odd? (coord:y coord))
@@ -176,14 +175,26 @@
       ;; 							  projection-matrix
       ;; 							  view-matrix)))))))
 
-      (with-texture/proc texture
-      	(lambda ()
-      	  (layered-map:render lmap pos
-      			      projection-matrix
-      			      view-matrix)
-          (sprite-batcher:render sbatch projection-matrix view-matrix)
-))
+      (let ((camera (camera:create (vect:create 2 2) 20 1 1)))
+       (match-let (((background shadow foreground)
+                    (layered-map:render-jobs lmap pos camera)))
+         (with-texture/proc texture
+                            (lambda ()
+                              (background)))
+         (with-texture/proc water-texture
+                            (lambda ()
+                              (sprite-batcher:render sbatch camera)))
+         ;; (with-texture/proc texture
+         ;;                    (lambda ()
+         ;;                      (shadow)
+         ;;                      (foreground)))
 
+         ;; (with-blend-mode/proc 'trans (rgb:create 1 1 1 .5)
+         ;;                       (lambda ()
+         ;;                        (shadow)))
+         ;;(foreground)
+         ))
+      
 
 ;      (when (not switch) (buffer-renderer))
       

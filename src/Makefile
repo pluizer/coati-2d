@@ -1,4 +1,4 @@
-OBJECTS = animators.o batcher.o blend.o chunk.o drawing.o events.o font.o input.o misc.o node.o pixmap.o  particles.o primitives.o shader.o sound.o sprite-batcher.o sprite.o texture.o tilemap.o trans.o window.o
+OBJECTS = animators.o batcher.o blend.o camera.o chunk.o drawing.o events.o font.o input.o misc.o node.o pixmap.o  particles.o primitives.o shader.o sound.o sprite-batcher.o sprite.o texture.o tilemap.o trans.o window.o
 CFLAGS = -Wno-cpp -OS -C -fPIC
 
 all: coati.so
@@ -11,6 +11,9 @@ batcher.o: batcher.scm chunk.scm shader.scm misc.scm
 
 blend.o: blend.scm
 	csc -c blend.scm -C $(CFLAGS)
+
+camera.o: camera.scm primitives.scm
+	csc -c camera.scm -C $(CFLAGS)
 
 chunk.o: chunk.scm
 	csc -c chunk.scm -C $(CFLAGS)
@@ -55,19 +58,19 @@ sound.o: sound.scm
 sprite.o: sprite.scm primitives.scm misc.scm
 	csc -c sprite.scm -C $(CFLAGS)
 
-sprite-batcher.o: sprite-batcher.scm batcher.scm blend.scm misc.scm primitives.scm shader.scm sprite.scm trans.scm
+sprite-batcher.o: sprite-batcher.scm batcher.scm blend.scm camera.scm misc.scm primitives.scm shader.scm sprite.scm trans.scm
 	csc -c sprite-batcher.scm -C $(CFLAGS)
 
 texture.o: texture.scm sprite.scm sprite-batcher.scm misc.scm primitives.scm 
 	csc -c texture.scm -C $(CFLAGS)
 
-tilemap.o: tilemap.scm primitives.scm helpers.scm
+tilemap.o: tilemap.scm camera.scm primitives.scm helpers.scm
 	csc -c tilemap.scm -C $(CFLAGS)
 
 trans.o: trans.scm primitives.scm sprite.scm
 	csc -c trans.scm -C $(CFLAGS)
 
-window.o: window.scm
+window.o: window.scm primitives.scm
 	csc -c window.scm -C $(CFLAGS)
 
 clean:

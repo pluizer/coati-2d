@@ -26,8 +26,7 @@
 		    width height
 		    ;; A function that takes a coordinate and returns a tile number.
 		    tile-func
-		    projection
-		    view)
+                    projection view)
 	     ;; If ``coord`` ``width`` ``height`` or ``tile-func`` 
 	     ;; changed we'll repopulate te sprite-batch.
 	     (when (changed? coord width height tile-func)
@@ -75,7 +74,7 @@
 		      coords)
 		     (set! active-coords coords)))))
 	     ;; Render the sprite-batch
-	     (sprite-batcher:render batcher projection view))))
+	     (sprite-batcher:render* batcher projection view))))
       ;; Function returned by ``tilemap:create``. Renders the map from
       ;; the ``top-left`` coordinate. (which is a vect not a coord so
       ;; fractions are possible).
@@ -96,6 +95,8 @@
 
 ;; Renders the map from the ``top-left`` coordinate. 
 ;; (which is a vect not a coord so fractions are possible).
-(define (tilemap:render tilemap top-left width height tile-func projection view
+(define (tilemap:render tilemap top-left width height tile-func camera
                         #!optional trans-func)
-  (tilemap top-left width height tile-func projection view trans-func))
+  (let ((projection (camera:projection camera))
+        (view (camera:view camera)))
+   (tilemap top-left width height tile-func projection view trans-func)))
