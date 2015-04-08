@@ -98,5 +98,4 @@
 ;; (which is a vect not a coord so fractions are possible).
 (define (tilemap:render tilemap top-left width height tile-func projection view
                         #!optional trans-func)
-
   (tilemap top-left width height tile-func projection view trans-func))
