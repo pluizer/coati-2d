@@ -179,8 +179,8 @@
 (define mod-mode #x4000)
 (define mod-reserved #x800)
 (define mod-ctrl (bitwise-ior mod-lctrl mod-rctrl))
-(define mod-shift (bitwise-ior mod-lshift  mod-rshift))
-(define mod-alt (bitwise-ior mod-laltmod-ralt))
+(define mod-shift (bitwise-ior mod-lshift mod-rshift))
+(define mod-alt (bitwise-ior mod-lalt mod-ralt))
 (define mod-meta (bitwise-ior mod-lmeta mod-rmeta))
 
 ;; Mouse buttons
