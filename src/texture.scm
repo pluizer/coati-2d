@@ -95,16 +95,25 @@
 (define texture:texture-id texture-texture-id)
 (define texture:framebuffer-id texture-framebuffer-id)
 
-;; Returns a functions that renders a texture.
-(define (texture:renderer texture
-			  #!optional (rect (rect:create 0 1 1 0)))
+;; Returns a texture renderer that takes a projection- and view matrix
+;; instead of a camera object.
+(define (texture:renderer* texture
+                           #!optional (rect (rect:create 0 1 1 0)))
   (let ((sprite (sprite:create texture (list rect)))
 	(sprite-batcher (sprite-batcher:create)))
     (sprite-batcher:push! sprite-batcher sprite (identity-matrix))
     (lambda (projection view)
       (with-texture/proc texture
 	(lambda ()
-	 (sprite-batcher:render sprite-batcher projection view))))))
+          (sprite-batcher:render* sprite-batcher projection view))))))
+
+;; Returns a functions that renders a texture.
+(define (texture:renderer texture
+			  #!optional (rect (rect:create 0 1 1 0)))
+  (let ((func (texture:renderer* texture rect)))
+    (lambda (camera)
+      (func (camera:projection camera)
+            (camera:view camera)))))
 
 ;; Returns a function that renders a texture fullscreen.
 (define (texture:fullscreen-renderer texture
