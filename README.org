@@ -5,7 +5,7 @@ A simple, small and fast 2D game programming library for Chicken Scheme.
 - License: [[http://opensource.org/licenses/MIT][MIT]]
 
 * Dependencies
-- glfw3
+- sdl-base
 - opengl-glew
 - gl-utils
 - gl-math
