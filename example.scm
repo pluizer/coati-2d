@@ -1,7 +1,7 @@
 (use matchable)
 (use (prefix gl-math gl::))
 
-(load "~/Copy/coati-2d/coati.so")
+(load "~/code/coati-2d/coati.so")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -49,10 +49,7 @@
     (map (lambda (size)
            (let ((delta (/ (+ background-size 1)
                            (+ size))))
-             (matrix:scale (vect:create delta delta)))
-           
-          )))
-  )
+             (matrix:scale (vect:create delta delta)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -67,11 +64,13 @@
   (let* ((sbatch (sprite-batcher:create))
 	 (lbatch (sprite-batcher:create))
 	 ;; load the tilemap texture.
-	 (texture (texture:load "/home/iisjmii/Copy/coati-2d/share/grid.png"))
+	 (texture (texture:load "/home/iisjmii/code/coati-2d/share/grid.png"))
 	 ;; water texture
-	 (water-texture (texture:load "/home/iisjmii/Copy/coati-2d/share/water.png"))
+	 (water-texture (texture:load 
+"/home/iisjmii/code/coati-2d/share/water.png"))
 	 ;; light texture
-	 (light-texture (texture:load "/home/iisjmii/Copy/coati-2d/share/light.png"))
+	 (light-texture (texture:load 
+"/home/iisjmii/code/coati-2d/share/light.png"))
 	 ;; sprites
 	 (dirt  (sprite:create-from-indices texture 3 2 (list 0)))
 	 (blue  (sprite:create-from-indices texture 3 2 (list 1)))
@@ -129,20 +128,20 @@
 			(print "Bye!")
 			(coati:close)))
 
-    (listen-for-event `(key-repeat ,key-down)
+    (listen-for-event `(key-down ,key-down)
 		      (lambda (mod)
 			(set! pos (vect+ pos (vect:create 0 .1)))))
-    (listen-for-event `(key-repeat ,key-up)
+    (listen-for-event `(key-down ,key-up)
 		      (lambda (mod)
 			(set! pos (vect- pos (vect:create 0 .1)))))
-    (listen-for-event `(key-repeat ,key-right)
+    (listen-for-event `(key-down ,key-right)
 		      (lambda (mod)
 			(set! pos (vect+ pos (vect:create .1 0)))))
-    (listen-for-event `(key-repeat ,key-left)
+    (listen-for-event `(key-down ,key-left)
 		      (lambda (mod)
 			(set! pos (vect- pos (vect:create .1 0)))))
 
-    (listen-for-event `(key-down ,key-enter)
+    (listen-for-event `(key-down ,key-return)
 		      (lambda (mod)
 			(print "Switch")
 			(set! switch (not switch))
