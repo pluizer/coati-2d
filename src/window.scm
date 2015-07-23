@@ -34,14 +34,6 @@
         (poll-input-events)
         (poll-events!)
         (sdl-gl-swap-buffers)
-        ;; (fw::poll-events)
-        ;; (if (and (iter)
-        ;;          (not %window-should-close?)
-        ;;          (not (fw::window-should-close (fw::window))))
-        ;;     (loop)
-        ;;     (begin
-        ;;       (fw::set-window-should-close (fw::window) #t)))
-        (sdl-delay 1) ;; TODO remove
-        (loop)
-        ))
-    ))
+        (when (and (iter) (not %window-should-close?))
+            (loop)
+            (sdl-delay 1))))))

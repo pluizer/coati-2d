@@ -1,6 +1,7 @@
 (declare (unit input)
 	 (uses primitives
-               misc))
+               misc
+               window))
 
 (use sdl-base
      srfi-1)
@@ -37,7 +38,8 @@
                     (sdl-event-button event)
                     (vect:create (sdl-event-x event)
                                  (sdl-event-y event))))
-       )))
+       ((= type SDL_QUIT)
+        (set! %window-should-close? #t)))))
   ;; Keyboard pressed event. These events keep firing as long a key is pressed.
   ;; Modifiers are ignored (always zero).
   (for-each (lambda (sym)
