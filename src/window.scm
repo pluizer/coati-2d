@@ -19,13 +19,13 @@
 ;; depend on Coati to be started first.
 (define (coati:start w h title fullscreen? loop-func)
   (unless (sdl-init SDL_INIT_EVERYTHING)
-    (error "Could not initialise SDL."))
+    (error "Could not initialise SDL." (sdl-get-error)))
   (let ((surface (sdl-set-video-mode w h 32
                                      (bitwise-ior SDL_DOUBLEBUF
                                                   (if fullscreen? SDL_FULLSCREEN 0)
                                                   SDL_OPENGL))))
     (unless surface
-      (error (sprintf "Could not set video mode (~sx~s:~s)" w h 32)))
+      (error (sprintf "Could not set video mode (~sx~s:~s):" w h 32) (sdl-get-error)))
     (gl::init)
     (gl::enable gl::+texture-2d+)
     (gl::enable gl::+blend+)
