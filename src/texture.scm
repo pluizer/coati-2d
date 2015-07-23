@@ -56,17 +56,23 @@
 	(gl::tex-parameteri gl::+texture-2d+ gl::+texture-mag-filter+ gl::+nearest+)
 	(gl::tex-parameteri gl::+texture-2d+ gl::+texture-min-filter+ gl::+nearest+)))
 
+(define (make-texture* texture-id framebuffer-id size)
+  (set-finalizer! (make-texture texture-id framebuffer-id size)
+                  (lambda (x)
+                    (gl::delete-texture texture-id)
+                    (gl::delete-framebuffer framebuffer-id))))
+
 (define (texture:load filename)
   (let ((id (gl::load-ogl-texture filename 
 				  gl::force-channels/rgba
 				  gl::texture-id/create-new-id 0)))
     (unless id (error (sprintf "Could not load ~a, ~a" filename (gl::last-result))))
     (let ((texture
-	   (make-texture id
-			 (%create-framebuffer id)
-			 (vect:create
-			  (gl::ogl-texture-width id)
-			  (gl::ogl-texture-height id)))))
+	   (make-texture* id
+                          (%create-framebuffer id)
+                          (vect:create
+                           (gl::ogl-texture-width id)
+                           (gl::ogl-texture-height id)))))
       ;; setting linear-filter makes ogl-texture-width/height fail (return 0).
       ;; so we'll do it after calling those.
       (%texture-linear-filter id)
@@ -81,7 +87,7 @@
 			0 gl::+bgra+ gl::+unsigned-byte+ data)
 	(%texture-linear-filter id)
 	(gl::check-error))
-    (make-texture id (%create-framebuffer id) size)))
+    (make-texture* id (%create-framebuffer id) size)))
 
 (define (texture:clear rgba)
   (gl::clear-color (rgb:r rgba)
@@ -138,4 +144,4 @@
     (set! %target-is-screen? (= id 0))
     (gl::with-framebuffer id (thunk))))
 
-;; TODO: free texture
+;; TODO: free texture, more testing needed
