@@ -18,11 +18,14 @@
 ;; in this way makes it more convinient to init objects that
 ;; depend on Coati to be started first.
 (define (coati:start w h title fullscreen? loop-func)
-  (sdl-init SDL_INIT_EVERYTHING) ;; TODO: Check error
+  (unless (sdl-init SDL_INIT_EVERYTHING)
+    (error "Could not initialise SDL."))
   (let ((surface (sdl-set-video-mode w h 32
                                      (bitwise-ior SDL_DOUBLEBUF
                                                   (if fullscreen? SDL_FULLSCREEN 0)
                                                   SDL_OPENGL))))
+    (unless surface
+      (error (sprintf "Could not set video mode (~sx~s:~s)" w h 32)))
     (gl::init)
     (gl::enable gl::+texture-2d+)
     (gl::enable gl::+blend+)
