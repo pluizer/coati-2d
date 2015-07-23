@@ -119,7 +119,11 @@
 
 	 
 	 ;; fps counter
-	 (fps (fps-counter:create print)))
+	 (fps (fps-counter:create print))
+
+         ;; font
+         (font (load-font "./share/font.ttf" 16))
+         )
 
 
     ;; Exit when escape is pressed.
