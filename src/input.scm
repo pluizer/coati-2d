@@ -9,11 +9,16 @@
     (let ((type (sdl-event-type event)))
       (cond
        ;; Keyboard events (button mod)
-       ((or (= type SDL_KEYDOWN)
-            (= type SDL_KEYUP))
-        (send-event (if (= type SDL_KEYUP) 'key-down 'key-down)
-                    (sdl-event-sym event)
-                    (sdl-event-mod event)))
+       ((= type SDL_KEYDOWN)
+        (let ((sym (sdl-event-sym event)))
+         (send-event 'key-down
+                     sym
+                     (sdl-event-mod event))))
+       ((= type SDL_KEYUP)
+        (let ((sym (sdl-event-sym event)))
+         (send-event 'key-up
+                     sym
+                     (sdl-event-mod event))))
        ;; Mouse motion event (vect)
        ((= type SDL_MOUSEMOTION)
         (send-event 'mouse-move (vect:create (sdl-event-x event)
