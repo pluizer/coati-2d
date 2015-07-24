@@ -6,6 +6,7 @@ A simple, small and fast 2D game programming library for Chicken Scheme.
 
 * Dependencies
 - sdl-base
+- sdl-ttf
 - opengl-glew
 - gl-utils
 - gl-math
