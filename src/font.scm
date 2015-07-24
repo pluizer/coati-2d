@@ -13,7 +13,12 @@
 (define (load-font filename)
   (unless (and (ttf-was-init) (zero? (ttf-init)))
     (error "Could not init sdl-ttf:" (sdl-get-error)))
-  (make-font filename (list)))
+  (set-finalizer!
+   (make-font filename (list))
+   (lambda (font)
+     (for-each (lambda (s+p)
+                 (ttf-close-font (cadr s+p)))
+               (font-size+pointer font)))))
 
 ;; Check if a the font is already loaded with this size, if so return the cached
 ;; version. Else load and cache it.
