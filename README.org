@@ -14,7 +14,7 @@ A simple, small and fast 2D game programming library for Chicken Scheme.
 - matchable
 
 * How to test...
-: chicken-install -r sdl-base sdl-ttf opengl-glew gl-utils gl-math soil matchable
+: chicken-install -s sdl-base sdl-ttf opengl-glew gl-utils gl-math soil matchable
 : cd src ; make ; cd ..
 : csi example.scm
 
