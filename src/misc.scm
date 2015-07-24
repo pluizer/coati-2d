@@ -1,5 +1,15 @@
 (declare (unit misc))
 
+(use sdl-base)
+
+(define (rgb->sdl-color colour)
+  (make-sdl-color (floor (inexact->exact
+                          (* (rgb:r colour) 255)))
+                  (floor (inexact->exact
+                          (* (rgb:g colour) 255)))
+                  (floor (inexact->exact
+                          (* (rgb:b colour) 255)))))
+
 (define (keyword->symbol k)
   (string->symbol (keyword->string k)))
 
