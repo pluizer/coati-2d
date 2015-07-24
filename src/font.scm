@@ -2,36 +2,33 @@
          (uses misc))
 
 (use srfi-1
+     srfi-4
      sdl-base
      sdl-ttf)
 
 (define-record font
   filename
-  size
-  pointer)
+  size+pointer)
 
-(define %loaded-fonts (list))
-
-
-(define (load-font filename size)
-  ;; Make sure sdl-ttf was initialised.
+(define (load-font filename)
   (unless (and (ttf-was-init) (zero? (ttf-init)))
-    (error "Could not initialise sdl-ttf:" (sdl-get-error) ;; SDL error? egg has no TTF error.
-           ))
-  ;; Load font, unless it was already loaded.
-  (let ((fonts (filter (lambda (font)
-                         (and (equal? filename (font-filename font))
-                              (= size (font-size font))))
-                       %loaded-fonts)))
-    (if (null-list? fonts)
-        (set-finalizer!
-         (let ((pointer (ttf-open-font filename size)))
-           (unless pointer
-             (error (sprintf "Could not open font ~a:" filename) (sdl-get-error)))
-           (let ((font (make-font filename size pointer)))
-             (set! %loaded-fonts (cons font %loaded-fonts))
-             font))
-         (lambda (x)
-           (ttf-close-font (font-pointer x))
-           (set! %loaded-fonts (remove (=? x equal?) %loaded-fonts))))
-        (font-pointer (car fonts)))))
+    (error "Could not init sdl-ttf:" (sdl-get-error)))
+  (make-font filename (list)))
+
+(define (%font-ptr font size)
+  (let ((tmp (filter (lambda (s+p) (= (car s+p) size)) (font-size+pointer font))))
+    (if (null-list? tmp)
+        (let ((ptr (ttf-open-font (font-filename font) size)))
+          (unless ptr (error "Could not create font:" (sdl-get-error)))
+          (font-size+pointer-set! font (cons (list size ptr)
+                                             (font-size+pointer font)))
+          ptr)
+        (cadr (car tmp)))))
+
+
+(define (string->texture string font size colour)
+  (let* ((font-ptr (%font-ptr font size))
+         (surface (ttf-render-text-blended
+                   font-ptr string (rgb->sdl-color colour))))
+    (unless surface (error "Could not render string:" (sdl-get-error)))
+    (sdl-surface->texture surface)))

@@ -122,8 +122,9 @@
 	 (fps (fps-counter:create print))
 
          ;; font
-         (font (load-font "./share/font.ttf" 16))
-         )
+         (font (load-font "./share/font.ttf"))
+         (surface (string->texture "Hallo Coati!" font 160 (rgb:create 1 1 1)))
+         (srend (texture:fullscreen-renderer surface)))
 
 
     ;; Exit when escape is pressed.
@@ -187,6 +188,9 @@
          (with-texture/proc water-texture
                             (lambda ()
                               (sprite-batcher:render sbatch camera)))
+         (with-blend-mode/proc 'trans (rgb:create 1 1 1)
+                               (lambda ()
+                                (srend)))
          ;; (with-texture/proc texture
          ;;                    (lambda ()
          ;;                      (shadow)
