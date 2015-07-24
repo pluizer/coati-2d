@@ -7,6 +7,7 @@
 
 (use srfi-1
      srfi-4
+     sdl-base
      (prefix opengl-glew gl::)
      (prefix gl-utils gl::)
      (prefix soil gl::))
@@ -61,6 +62,22 @@
                   (lambda (x)
                     (gl::delete-texture texture-id)
                     (gl::delete-framebuffer framebuffer-id))))
+
+(define (sdl-surface->texture surface)
+  (let ((id (gl::gen-texture))
+        (mode (if (= (sdl-pixel-format-bytes-per-pixel
+                      (sdl-surface-pixel-format surface)) 4)
+                  gl::+rgba+ gl::+rgb+))
+        (w (sdl-surface-width surface))
+        (h (sdl-surface-height surface)))
+    (gl::with-texture gl::+texture-2d+ id
+                      (gl::tex-image-2d gl::+texture-2d+ 0 mode
+                                        w h
+                                        0 mode gl::+unsigned-byte+
+                                        (sdl-surface-pixels surface)))
+    (let ((texture (make-texture* id (%create-framebuffer id) (vect:create w h))))
+      (%texture-linear-filter id)
+      texture)))
 
 (define (texture:load filename)
   (let ((id (gl::load-ogl-texture filename 
@@ -124,7 +141,7 @@
 ;; Returns a function that renders a texture fullscreen.
 (define (texture:fullscreen-renderer texture
 				     #!optional (rect (rect:create 0 1 1 0)))
-  (let ((renderer (texture:renderer texture rect))
+  (let ((renderer (texture:renderer* texture rect))
 	(projection (identity-matrix))
 	(view (f32vector 2 0 0 0
 			 0 2 0 0
