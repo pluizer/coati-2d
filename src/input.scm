@@ -19,8 +19,7 @@
          (send-event 'key-down
                      sym
                      (sdl-event-mod event))
-         (set! %down-keys (cons sym %down-keys))
-         (print %down-keys)))
+         (set! %down-keys (cons sym %down-keys))))
        ((= type SDL_KEYUP)
         (let ((sym (sdl-event-sym event)))
          (send-event 'key-up
