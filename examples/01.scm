@@ -1,4 +1,4 @@
-;; This example simply opens a new window, and displays a texture
+;; Renders a rotating arrow.
 
 (load "../coati.so")
 
