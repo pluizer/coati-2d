@@ -20,12 +20,14 @@
 (define (coati:start w h title fullscreen? loop-func)
   (unless (sdl-init SDL_INIT_EVERYTHING)
     (error "Could not initialise SDL." (sdl-get-error)))
+  (sdl-gl-set-attribute SDL_GL_DOUBLEBUFFER 1)
+  (sdl-gl-set-attribute SDL_GL_SWAP_CONTROL 1)
   (let ((surface (sdl-set-video-mode w h 32
-                                     (bitwise-ior SDL_DOUBLEBUF
-                                                  (if fullscreen? SDL_FULLSCREEN 0)
+                                     (bitwise-ior (if fullscreen? SDL_FULLSCREEN 0)
                                                   SDL_OPENGL))))
     (unless surface
       (error (sprintf "Could not set video mode (~sx~s:~s):" w h 32) (sdl-get-error)))
+    (set! %window-size (vect:create w h))
     (gl::init)
     (gl::enable gl::+texture-2d+)
     (gl::enable gl::+blend+)
@@ -33,10 +35,9 @@
     (gl::check-error)
     (let ((iter (loop-func)))
       (let loop () 
-        (iter)
         (poll-input-events)
         (poll-events!)
         (sdl-gl-swap-buffers)
         (when (and (iter) (not %window-should-close?))
             (loop)
-            (sdl-delay 1))))))
+            )))))

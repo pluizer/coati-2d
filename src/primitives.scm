@@ -829,7 +829,8 @@
 
 ;; Returns a orthographic matrix
 (define (ortho-matrix width height)
-  (ortho width height 0.1 100))
+  (ortho (inexact->exact (floor width))
+         (inexact->exact (floor height)) 0.1 100))
 
 ;; Returns a matrix where a camera is pointing to a focus
 ;; from a certain height (z).

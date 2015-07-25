@@ -85,13 +85,13 @@
 	 (lmap (layered-map:create/proc
 
                 (list 4 (lambda (coord)
-                          (if (even? (coord:x coord)) dirt #f)))
+                          (if (even? (coord:x coord)) dirt dirt)))
 
-		(list 12 (lambda (coord)
+		(list 6 (lambda (coord)
 			   (if (and (odd? (coord:y coord))
                                     (even? (coord:x coord))) blue #f)))
 
-                (list 13 (lambda (coord)
+                (list 8 (lambda (coord)
 			   (if (and (odd? (coord:y coord))
                                     (even? (coord:x coord))) green #f)))
                 ))
@@ -123,9 +123,10 @@
 
          ;; font
          (font (load-font "./share/font.ttf"))
-         (surface (string->texture "Hallo Coati!" font 160 (rgb:create 1 1 1)))
-         (srend (texture:fullscreen-renderer surface)))
-
+         (surface (string->texture "Hallo" font 32 (rgb:create 1 1 1)))
+         (scamera (camera:create (vect:create 0 0) 1))
+         (srend (texture:renderer surface)))
+    (print (texture:size surface))
 
     ;; Exit when escape is pressed.
     (listen-for-event `(key-down ,key-escape)
@@ -179,18 +180,23 @@
       ;; 							  projection-matrix
       ;; 							  view-matrix)))))))
 
-      (let ((camera (camera:create (vect:create 2 2) 20 1 1)))
+      (let* ((aspect (/ (vect:x (window:size))
+                        (vect:y (window:size))))
+             (camera (camera:create (vect:create 0 0) 20 aspect 1)))
        (match-let (((background shadow foreground)
                     (layered-map:render-jobs lmap pos camera)))
          (with-texture/proc texture
                             (lambda ()
-                              (background)))
+                              (background)
+                              (shadow)
+                              (foreground)
+                              ))
          (with-texture/proc water-texture
                             (lambda ()
                               (sprite-batcher:render sbatch camera)))
          (with-blend-mode/proc 'trans (rgb:create 1 1 1)
                                (lambda ()
-                                (srend)))
+                                 (srend scamera)))
          ;; (with-texture/proc texture
          ;;                    (lambda ()
          ;;                      (shadow)

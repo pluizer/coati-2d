@@ -7,7 +7,6 @@
 	       shader
 	       sprite))
 
-
 (use srfi-1
      srfi-4
      matchable)

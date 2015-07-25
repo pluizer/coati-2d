@@ -18,6 +18,7 @@
   size
   )
 
+
 (define (%framebuffer-error-string status)
   (cond
    ((= status gl::+framebuffer-undefined+)
@@ -122,13 +123,14 @@
 ;; instead of a camera object.
 (define (texture:renderer* texture
                            #!optional (rect (rect:create 0 1 1 0)))
-  (let ((sprite (sprite:create texture (list rect)))
-	(sprite-batcher (sprite-batcher:create)))
+  (let* ((size (texture:size texture))
+         (sprite (sprite:create texture (list rect) size))
+         (sprite-batcher (sprite-batcher:create)))
     (sprite-batcher:push! sprite-batcher sprite (identity-matrix))
     (lambda (projection view)
       (with-texture/proc texture
-	(lambda ()
-          (sprite-batcher:render* sprite-batcher projection view))))))
+                         (lambda ()
+                           (sprite-batcher:render* sprite-batcher projection view))))))
 
 ;; Returns a functions that renders a texture.
 (define (texture:renderer texture

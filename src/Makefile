@@ -12,7 +12,7 @@ batcher.o: batcher.scm chunk.scm shader.scm misc.scm
 blend.o: blend.scm
 	csc -c blend.scm -C $(CFLAGS)
 
-camera.o: camera.scm primitives.scm
+camera.o: camera.scm primitives.scm window.scm
 	csc -c camera.scm -C $(CFLAGS)
 
 chunk.o: chunk.scm
