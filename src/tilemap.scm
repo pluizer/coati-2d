@@ -13,8 +13,8 @@
      (prefix opengl-glew gl::)
      (prefix gl-math gl::))
 
-(define (tilemap:create . new-coords-callback)
-  (let ((batcher (sprite-batcher:create))
+(define (tilemap:create #!key new-coords-callback shader)
+  (let ((batcher (sprite-batcher:create shader))
 	;; Rememer the last added coordinate and the width and height
 	;; so that the sprite-batch does not have to be repopulated
 	;; when these values haven't changed.
@@ -48,10 +48,11 @@
 				     (length coords))))
 		     ;; Call the optional callback with the coords to be removed
 		     ;; and the coords that are being added.
- 		     (when (optional new-coords-callback)
-		       ((optional new-coords-callback) coord 
-			(filter (lambda (x) (not (member x coords))) active-coords)
-			new))
+ 		     (when new-coords-callback
+		       (new-coords-callback
+                        coord 
+                        (filter (lambda (x) (not (member x coords))) active-coords)
+                        new))
 		     ;; Clear the previously added sprites and add the new ones
 		     ;; (Dumbly clearing everything an reading is often 
 		     ;; faster than keeping track of and deleting all unneeded
