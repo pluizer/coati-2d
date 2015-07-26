@@ -21,9 +21,9 @@
   sprite)
 
 
-(define (sprite-batcher:create)
+(define (sprite-batcher:create #!optional (shader default-shader))
   (make-sprite-batcher 
-   (batcher:create default-shader
+   (batcher:create shader
 		   *triangle-rect-mode*
 		   4)
    (list)))
