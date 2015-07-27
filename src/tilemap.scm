@@ -13,7 +13,7 @@
      (prefix opengl-glew gl::)
      (prefix gl-math gl::))
 
-(define (tilemap:create #!key new-coords-callback shader)
+(define (tilemap:create #!key new-coords-callback (shader default-shader))
   (let ((batcher (sprite-batcher:create shader))
 	;; Rememer the last added coordinate and the width and height
 	;; so that the sprite-batch does not have to be repopulated
@@ -94,10 +94,9 @@
 	       projection
 	       (maybe trans-func (matrix:translate (vect:create rx ry) view))))))))
 
-;; Renders the map from the ``top-left`` coordinate. 
-;; (which is a vect not a coord so fractions are possible).
-(define (tilemap:render tilemap top-left width height tile-func camera
+;; Renders a procedural generated tilemap from the position of a camera.
+(define (tilemap:render tilemap width height tile-func camera
                         #!optional trans-func)
   (let ((projection (camera:projection camera))
         (view (camera:view camera)))
-   (tilemap top-left width height tile-func projection view trans-func)))
+   (tilemap (camera:pos camera) width height tile-func projection view trans-func)))
