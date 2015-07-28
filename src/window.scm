@@ -13,11 +13,30 @@
 
 (define (window:size) %window-size)
 
-;; Starts coati and starts the game loop with the function
-;; '''returned''' by ''loop-func''. Getting the loop function
-;; in this way makes it more convinient to init objects that
-;; depend on Coati to be started first.
-(define (coati:start w h title fullscreen? loop-func)
+(define (game-loop iter-func #!optional prev-ret)
+  (poll-input-events)
+  (poll-events!)
+  (sdl-gl-swap-buffers)
+  (let ((ret (apply iter-func prev-ret)))
+    (when (and ret (not %window-should-close?))
+      (game-loop iter-func ret))))
+
+;; Opens a windows a starts a ''game''.
+;; Game must be a function that returns:
+;; -) A function that takes any number argument -- that
+;;    reperesent its internal state -- and returns a
+;;    list of new values to that state.
+;; Additionally it can return another value, a list of
+;; values to its inital state.
+;; For example ...
+;; (coati:start 1024 768 "Example game" #f
+;;              (lambda ()
+;;                (values (lambda (position animation)
+;;                          (if player-is-in-water
+;;                              (list (update-position position) 'swimming)
+;;                              (list (update-position position) 'walking)))
+;;                        (list (vect:create 10 20) 'walking))))
+(define (coati:start w h title fullscreen? game)
   (unless (sdl-init SDL_INIT_EVERYTHING)
     (error "Could not initialise SDL." (sdl-get-error)))
   (sdl-gl-set-attribute SDL_GL_DOUBLEBUFFER 1)
@@ -33,11 +52,6 @@
     (gl::enable gl::+blend+)
     (gl::disable gl::+depth-test+)
     (gl::check-error)
-    (let ((iter (loop-func)))
-      (let loop () 
-        (poll-input-events)
-        (poll-events!)
-        (sdl-gl-swap-buffers)
-        (when (and (iter) (not %window-should-close?))
-            (loop)
-            )))))
+    (call-with-values
+        (lambda () (game))
+        (lambda (f #!optional a) (game-loop f a)))))
