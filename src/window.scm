@@ -13,11 +13,12 @@
 
 (define (window:size) %window-size)
 
-(define (game-loop iter-func #!optional prev-ret)
+(define (game-loop iter-func prev-ret)
   (poll-input-events)
   (poll-events!)
   (sdl-gl-swap-buffers)
-  (let ((ret (apply iter-func prev-ret)))
+  (let ((ret (apply iter-func (if (list? prev-ret) prev-ret
+                                  (list prev-ret)))))
     (when (and ret (not %window-should-close?))
       (game-loop iter-func ret))))
 
@@ -54,4 +55,4 @@
     (gl::check-error)
     (call-with-values
         (lambda () (game))
-        (lambda (f #!optional a) (game-loop f a)))))
+        (lambda (f #!optional (a (list))) (game-loop f a)))))
