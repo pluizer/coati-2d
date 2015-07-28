@@ -18,16 +18,18 @@
                       (lambda (#!rest args)
                         (coati:close)))
 
-    (lambda ()
-      (with-texture/proc texture
-	(lambda ()
-          (sprite-batcher:render
-           batcher
-           (camera:create (vect:create .5 .5) 1 1 1))))
+    (values
+     (lambda (rotation)
+       (with-texture/proc texture
+                          (lambda ()
+                            (sprite-batcher:render
+                             batcher
+                             (camera:create (vect:create .5 .5) 1 1 1))))
 
-      (node:change! node (trans-change:create rotation: rotation))
-      (set! rotation (+ rotation .1))
-      )))
+       (node:change! node (trans-change:create rotation: rotation))
+       (list (+ rotation .1)))
+     (list 0 ; rotation
+           ))))
 
 (coati:start 800 800 "Example - 01" #f game)
 
