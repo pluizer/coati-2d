@@ -15,8 +15,10 @@ A simple, small and fast 2D game programming library for Chicken Scheme.
 
 * How to test...
 : chicken-install -s sdl-base sdl-ttf opengl-glew gl-utils gl-math soil matchable
-: cd src ; make ; cd ..
-: csi example.scm
+: cd src ; make ; cd ../examples
+: csi 01.scm
+: csi 02.scm
+: # ... etc ...
 
 * todo (still a lot)
 - Particle system
