@@ -5,4 +5,4 @@ To install Coati first make sure all the eggs on which it depends are installed.
 Then clone this repo and tell Chicken to install it:
 : cd coati-2d
 : chicken-install -s
-`test`
+~test~
