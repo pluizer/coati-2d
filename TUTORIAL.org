@@ -25,8 +25,10 @@ To close the window when the game is done use the function ~coati:close~.
 * Textures
 
 Well that was boring! Now for something slightly less boring, getting something on screen. For that lets talk about textures.
-And any given time there are two textures active in Coati. The first one is the /target/ texture, this is the texture to which everything is rendered and defaults to the screen (which is a texture in itself). The current target texture can be set with the macro ~(with-target texture body ...)~. The other texture is the texture that is used to render /from/ and must be set with ~(with-target texture body ...)~.
-The function ~(texture:clear colour)~ clears the current target texture with the specified colour. (to create a colour use ~(rgb:create red green blue [alpha])~).
+
+At any given time there are two textures active in Coati. The first one is the /target/ texture, this is the texture to which everything is rendered and defaults to the screen (which is a texture in itself). The current target texture can be set with the macro ~(with-target texture body ...)~. The other texture is the texture that is used to render /from/ and must be set with ~(with-texture texture body ...)~.
+The function ~(texture:clear colour)~ clears the current target texture with the specified colour. To create a colour use ~(rgb:create red green blue [alpha])~.
+
 Let use change our previous game function to this ...
 : (define (game)
 :   (lambda (#!optional (i 0))
