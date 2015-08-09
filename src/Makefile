@@ -19,8 +19,10 @@ chunk.o: chunk.scm
 	csc -c chunk.scm -C $(CFLAGS)
 
 coati.so: coati.scm $(OBJECTS)
-	csc -c++ -sv $(OBJECTS) coati.scm -o coati.so -C $(CFLAGS)
+	csc -c++ -s -J $(OBJECTS) coati.scm -o coati.so -C $(CFLAGS) -C -Wno-write-strings
+	csc -s coati.import.scm
 	mv coati.so ..
+	mv coati.import.so ..
 
 drawing.o: drawing.scm
 	csc -c drawing.scm -C $(CFLAGS)

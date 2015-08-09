@@ -1,6 +1,6 @@
 ;; Renders a rotating arrow.
 
-(load "../coati.so")
+(use coati)
 
 (define (game)
 
