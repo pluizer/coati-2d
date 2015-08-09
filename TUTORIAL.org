@@ -6,7 +6,7 @@ Then clone this repo and tell Chicken to install it:
 : cd coati-2d
 : chicken-install -s
 
-* The game
+* The game loop
 
 First things first, lets include the egg:
 : (use coati)
@@ -21,6 +21,22 @@ Here Coati will call the /game loop/ a 100 times. Incrementing the variable /fra
 ... will open a non-fullscreen window with a dimension of 800x600, the title /Hello Coati/ and will start the previously defined game.
 To close the window when the game is done use the function ~coati:close~.
 : (coati:close)
+
+* Textures
+
+Well that was boring! Now for something slightly less boring, getting something on screen. For that lets talk about textures.
+And any given time there are two textures active in Coati. The first one is the /target/ texture, this is the texture to which everything is rendered and defaults to the screen (which is a texture in itself). The current target texture can be set with the macro ~(with-target texture body ...)~. The other texture is the texture that is used to render /from/ and must be set with ~(with-target texture body ...)~.
+The function ~(texture:clear colour)~ clears the current target texture with the specified colour. (to create a colour use ~(rgb:create red green blue [alpha])~).
+Let use change our previous game function to this ...
+: (define (game)
+:   (lambda (#!optional (i 0))
+:     (texture:clear (rgb:create (* 0.01 i) 0 0))
+:     (if (= i 100) #f
+:         (+ i 1))))
+Can you guess what this game function does? Exciting isn't it!
+
+
+
 
 
 
