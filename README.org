@@ -21,8 +21,9 @@ A simple, small and fast 2D game programming library for Chicken Scheme.
 : cd coati-2d
 : chicken-install -s
 : # Check out the examples
-: csi examples/01.scm
-: csi examples/02.scm
+: cd examples/
+: csi 01.scm
+: csi 02.scm
 : # ... etc ...
 
 * todo (still a lot)
