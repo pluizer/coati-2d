@@ -79,6 +79,6 @@
       (camera-pos-set! camera-1 position)
       (camera-pos-set! camera-2 position))))
 
-(coati:start 800 600 "Example - 01" #f game)
+(coati:start 800 600 "Example - 02" #f game)
 
 (exit)
