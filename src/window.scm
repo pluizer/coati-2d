@@ -20,7 +20,7 @@
   (let ((ret (apply iter-func (if (list? prev-ret) prev-ret
                                   (list prev-ret)))))
     (when (and ret (not %window-should-close?))
-      (game-loop iter-func ret))))
+        (game-loop iter-func ret))))
 
 ;; Opens a windows a starts a ''game''.
 ;; Game must be a function that returns:

@@ -23,6 +23,18 @@
                  tilemap
                  trans
                  window
-                 )))
+                 ))
+
+(define-syntax with-texture
+  (syntax-rules ()
+    ((_ texture rest ...)
+     (with-texture/proc texture (lambda () rest ...)))))
+
+(define-syntax with-target
+  (syntax-rules ()
+    ((_ texture rest ...)
+     (with-target/proc texture (lambda () rest ...)))))
+
+)
 
 
