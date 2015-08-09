@@ -16,7 +16,7 @@ A simple, small and fast 2D game programming library for Chicken Scheme.
 * How to test...
 : # Install all needed eggs
 : chicken-install -s sdl-base sdl-ttf opengl-glew gl-utils gl-math soil matchable
-: # Install coati
+: # Install Coati
 : git clone https://github.com/pluizer/coati-2d.git
 : chicken-install -s
 : # Check out the examples
