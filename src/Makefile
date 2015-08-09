@@ -1,4 +1,4 @@
-OBJECTS = animators.o batcher.o blend.o camera.o chunk.o drawing.o events.o font.o input.o misc.o node.o node-pers.o pixmap.o  particles.o primitives.o shader.o sound.o sprite-batcher.o sprite.o texture.o tilemap.o trans.o window.o
+OBJECTS = animators.o batcher.o blend.o camera.o chunk.o drawing.o events.o font.o input.o misc.o node.o node-pers.o pixmap.o  particles.o polygon-batcher.o primitives.o shader.o sound.o sprite-batcher.o sprite.o texture.o tilemap.o trans.o window.o triangulate.o
 CFLAGS = -Wno-cpp -OS -C -fPIC
 
 all: coati.so
@@ -19,7 +19,7 @@ chunk.o: chunk.scm
 	csc -c chunk.scm -C $(CFLAGS)
 
 coati.so: coati.scm $(OBJECTS)
-	csc -sv $(OBJECTS) coati.scm -o coati.so -C $(CFLAGS)
+	csc -c++ -sv $(OBJECTS) coati.scm -o coati.so -C $(CFLAGS)
 	mv coati.so ..
 
 drawing.o: drawing.scm
@@ -49,8 +49,14 @@ pixmap.o: pixmap.scm primitives.scm texture.scm
 particles.o: particles.scm primitives.scm
 	csc -c particles.scm -C $(CFLAGS)
 
-primitives.o: primitives.scm
-	csc -c primitives.scm -C $(CFLAGS)
+polygon-batcher.o: polygon-batcher.scm batcher.scm blend.scm camera.scm misc.scm primitives.scm shader.scm
+	csc -c polygon-batcher.scm -C $(CFLAGS)
+
+triangulate.o: triangulate.cc triangulate.h
+	g++ -c triangulate.cc -fPIC
+
+primitives.o: primitives.scm triangulate.cc
+	csc -c++ -c primitives.scm -C -std=c++11 -C -Wno-write-strings -C $(CFLAGS)
 
 shader.o: shader.scm
 	csc -c shader.scm -C $(CFLAGS)
@@ -61,7 +67,7 @@ sound.o: sound.scm
 sprite.o: sprite.scm primitives.scm misc.scm
 	csc -c sprite.scm -C $(CFLAGS)
 
-sprite-batcher.o: sprite-batcher.scm batcher.scm blend.scm camera.scm misc.scm primitives.scm shader.scm sprite.scm trans.scm
+sprite-batcher.o: sprite-batcher.scm batcher.scm blend.scm camera.scm misc.scm primitives.scm shader.scm sprite.scm
 	csc -c sprite-batcher.scm -C $(CFLAGS)
 
 texture.o: texture.scm sprite.scm sprite-batcher.scm misc.scm primitives.scm 

@@ -8,7 +8,10 @@
 	       input
 	       misc
 	       node
+               node-pers
 	       pixmap
+               particles
+               polygon-batcher
 	       shader
 	       sound
 	       sprite

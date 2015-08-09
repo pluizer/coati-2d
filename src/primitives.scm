@@ -4,6 +4,8 @@
 
 #>
 #include <float.h>
+#include <vector>
+#include "triangulate.h"
 <#
 
 ;;-------------------------------------------------------
@@ -467,6 +469,12 @@
        (= (f32vector-length obj) 4)))
 
 ;;-------------------------------------------------------
+;; Triangle
+;;-------------------------------------------------------
+
+(define (triangle:create a b c) (polygon:create a b c))
+
+;;-------------------------------------------------------
 ;; Polygon
 ;;-------------------------------------------------------
 
@@ -478,48 +486,48 @@
 (define (polygon->vects polygon)
   (%f32vector-part polygon 2))
 
-;; ;; Triangulates the given polygon and returns an array of vectors.
-;; (define (polygon:triangulate polygon)
-;;   (let* ((return-size (- (* (f32vector-length polygon) 3) 12))
-;; 	 (res (make-f32vector return-size)))
-;;     ((foreign-lambda* void ((f32vector polygon)
-;; 			    (f32vector res)
-;; 			    (integer polygonSize)
-;; 			    (integer returnSize)) "
-;; 	std::vector<Vector> vec;
-;; 	vec.resize(polygonSize/2);
-;; 	memcpy(vec.data(), polygon, sizeof(Vector)*(polygonSize/2));
-;; 	std::vector<Triangle> tmp = triangulate(vec);
-;; 	memcpy(res, tmp.data(), returnSize*sizeof(Vector));")
-;;      polygon res (f32vector-length polygon) return-size)
-;;     res))
+;; Triangulates the given polygon and returns an array of vectors.
+(define (polygon:triangulate polygon)
+  (let* ((return-size (- (* (f32vector-length polygon) 3) 12))
+	 (res (make-f32vector return-size)))
+    ((foreign-lambda* void ((f32vector polygon)
+			    (f32vector res)
+			    (integer polygonSize)
+			    (integer returnSize)) "
+	std::vector<Vector> vec;
+	vec.resize(polygonSize/2);
+	memcpy(vec.data(), polygon, sizeof(Vector)*(polygonSize/2));
+	std::vector<Triangle> tmp = triangulate(vec);
+	memcpy(res, tmp.data(), returnSize*sizeof(Vector));")
+     polygon res (f32vector-length polygon) return-size)
+    res))
 
-;; ;; Same as polygon-triangulate but returns a list of triangles.
-;; (define (polygon:triangulate->triangles polygon)
-;;   (%f32vector-part (polygon:triangulate polygon) 6))
+;; Same as polygon-triangulate but returns a list of triangles.
+(define (polygon:triangulate->triangles polygon)
+  (%f32vector-part (polygon:triangulate polygon) 6))
 
-;; ;; Return #t if the given polygon is convex.
-;; (define (polygon-convex? polygon)
-;;   ((foreign-lambda* bool ((f32vector polygon)
-;; 			  (unsigned-integer length)) "
-;; 	C_return( isConvex((Vector*)polygon, length) );")
-;;    polygon (f32vector-length polygon)))
+;; Return #t if the given polygon is convex.
+(define (polygon-convex? polygon)
+  ((foreign-lambda* bool ((f32vector polygon)
+			  (unsigned-integer length)) "
+	C_return( isConvex((Vector*)polygon, length) );")
+   polygon (f32vector-length polygon)))
 
-;; (define (%sort-vects vects)
-;;   (sort vects
-;; 	(lambda (a b) 
-;; 	  (or (< (vect:x a) (vect:x b))
-;; 	      (= (vect:x a) (vect:y b))))))
+(define (%sort-vects vects)
+  (sort vects
+	(lambda (a b) 
+	  (or (< (vect:x a) (vect:x b))
+	      (= (vect:x a) (vect:y b))))))
 
-;; (define (%cross o a b)
-;;   (- (* (- (vect:x a)
-;; 	   (vect:x o))
-;; 	(- (vect:y b)
-;; 	   (vect:y o)))
-;;      (* (- (vect:y a)
-;; 	   (vect:y o))
-;; 	(- (vect:x b)
-;; 	   (vect:x o)))))
+(define (%cross o a b)
+  (- (* (- (vect:x a)
+	   (vect:x o))
+	(- (vect:y b)
+	   (vect:y o)))
+     (* (- (vect:y a)
+	   (vect:y o))
+	(- (vect:x b)
+	   (vect:x o)))))
 
 ;; Returns the convex hull of a group of vertices in clockwise order.
 (define (convex-hull vects)

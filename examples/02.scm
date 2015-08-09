@@ -29,7 +29,9 @@
                                       (trans:create (vect:create 2 2)
                                                     origin: (vect:create (/ (vect:x cat-size) 2)
                                                                          (/ (vect:y cat-size) 2))
-                                                    flip-v?: #t))))
+                                                    flip-v?: #t)))
+         ;; Polygons
+         (triangle-batcher (triangle-batcher:create)))
 
     (listen-for-event `(key-pressed ,key-right)
                       (lambda (#!rest _)
@@ -38,46 +40,59 @@
     (listen-for-event `(key-pressed ,key-escape)
                       (lambda (#!rest _)
                         (coati:close)))
-    
-    
-    (lambda ()
-      (texture:clear (rgb:create 0 0 0))
-      (with-texture/proc texture-map
-                         (lambda ()
-                           ;; Render first layer
-                           (tilemap:render tilemap-1
-                                           6 6
-                                           (lambda (coord)
-                                             (if (and (zero? (coord:x coord))
-                                                      (zero? (coord:y coord)))
-                                                 water-sprite
-                                                 (if (and (even? (coord:x coord))
-                                                          (even? (coord:y coord)))
-                                                     grass-sprite
-                                                     (if (< (coord:x coord) 50) dirt-sprite water-sprite))))
-                                           camera-1)
-                           ;; Render second layer
-                           (with-blend-mode/proc 'trans (rgb:create 1 1 1)
-                                                 (lambda ()
-                                                   (tilemap:render tilemap-2
-                                                                   5 5
-                                                                   (lambda (coord)
-                                                                     (if (and (odd? (coord:x coord))
-                                                                              (odd? (coord:y coord)))
-                                                                         (if (< (coord:x coord) 50) flower-sprite dirt-sprite)
-                                                                         #f))
-                                                                   camera-2)))))
 
-      ;; Render sprites
-      (with-texture/proc cat-texture
-                         (lambda ()
-                           (with-blend-mode/proc 'trans (rgb:create 1 1 1)
-                                                 (lambda ()
-                                                   (sprite-batcher:update! sprite-batcher)
-                                                   (sprite-batcher:render sprite-batcher camera-2)))))
+    (for-each (lambda (triangle)
+                (triangle-batcher:push! triangle-batcher
+                                        triangle
+                                        (trans->matrix (trans:create (zero-vect)))))
+              (polygon:triangulate->triangles (polygon:create (vect:create 0 0)
+                                                              (vect:create 0 1)
+                                                              (vect:create 1 1)
+                                                              (vect:create 1 .2))))
+    
+    (values
+     (lambda (_)
+       (texture:clear (rgb:create 0 0 0))
+       (with-texture/proc texture-map
+                          (lambda ()
+                            ;; Render first layer
+                            (tilemap:render tilemap-1
+                                            6 6
+                                            (lambda (coord)
+                                              (if (and (zero? (coord:x coord))
+                                                       (zero? (coord:y coord)))
+                                                  water-sprite
+                                                  (if (and (even? (coord:x coord))
+                                                           (even? (coord:y coord)))
+                                                      grass-sprite
+                                                      (if (< (coord:x coord) 50) dirt-sprite water-sprite))))
+                                            camera-1)
+                            ;; Render second layer
+                            (with-blend-mode/proc 'trans (rgb:create 1 1 1)
+                                                  (lambda ()
+                                                    (tilemap:render tilemap-2
+                                                                    5 5
+                                                                    (lambda (coord)
+                                                                      (if (and (odd? (coord:x coord))
+                                                                               (odd? (coord:y coord)))
+                                                                          (if (< (coord:x coord) 50) flower-sprite dirt-sprite)
+                                                                          #f))
+                                                                    camera-2)))))
+
+       ;; Render sprites
+       (with-texture/proc cat-texture
+                          (lambda ()
+                            (with-blend-mode/proc 'trans (rgb:create 1 1 1)
+                                                  (lambda ()
+                                                    (sprite-batcher:update! sprite-batcher)
+                                                    (sprite-batcher:render sprite-batcher camera-2)))))
+       (with-blend-mode/proc 'trans (rgb:create 1 0 0 .5)
+                             (lambda ()
+                               (triangle-batcher:render triangle-batcher camera-2)))
       
-      (camera-pos-set! camera-1 position)
-      (camera-pos-set! camera-2 position))))
+       (camera-pos-set! camera-1 position)
+       (camera-pos-set! camera-2 position))
+     0)))
 
 (coati:start 800 600 "Example - 02" #f game)
 
