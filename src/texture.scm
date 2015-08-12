@@ -140,17 +140,18 @@
       (func (camera:projection camera)
             (camera:view camera)))))
 
+;; TODO
 ;; Returns a function that renders a texture fullscreen.
-(define (texture:fullscreen-renderer texture
-				     #!optional (rect (rect:create 0 1 1 0)))
-  (let ((renderer (texture:renderer* texture rect))
-	(projection (identity-matrix))
-	(view (f32vector 2 0 0 0
-			 0 2 0 0
-			 0 0 1 0
-			 -1 -1 0 1)))
-    (lambda ()
-      (renderer projection view))))
+;; (define (texture:fullscreen-renderer texture
+;; 				     #!optional (rect (rect:create 0 1 1 0)))
+;;   (let ((renderer (texture:renderer* texture rect))
+;; 	(projection (identity-matrix))
+;; 	(view (f32vector 2 0 0 0
+;; 			 0 2 0 0
+;; 			 0 0 1 0
+;; 			 -1 -1 0 1)))
+;;     (lambda ()
+;;       (renderer projection view))))
 
 (define (with-texture/proc texture thunk)
   (gl::with-texture gl::+texture-2d+ (texture:texture-id texture)
