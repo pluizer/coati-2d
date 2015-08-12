@@ -44,6 +44,9 @@
   (for-each (lambda (sym)
               (send-event 'key-pressed sym 0)) %down-keys))
 
+(define (key-down? key)
+  (member key %down-keys))
+
 ;; Keys
 (define key-unknown 0)
 (define key-backspace 8)

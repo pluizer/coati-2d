@@ -2,7 +2,32 @@
 
 (use coati)
 
-(define (game)
+
+(define (game-1)
+
+  (let* ((texture (texture:load "../share/arrow.png"))
+         (batcher (sprite-batcher:create))
+         (sprite  (sprite:create texture))
+         (root    (node:create-root))
+         (node    (spawn-node! (sprite-node batcher sprite)
+                               root (trans:create (vect:create 0 0)
+                                                  origin:
+                                                  (vect:create .5 .5)))))
+    
+   (values
+     (lambda (rot)
+       (with-camera (camera:create (vect:create .5 .5) 1 1 1)
+                    (with-texture texture
+                                  (sprite-batcher:render
+                                   batcher
+                                   )))
+       
+       (node:change! node (trans-change:create rotation: rot))
+       (if (not (key-down? key-escape)) (+ rot .1) #f))
+     1)))
+
+
+(define (game-2)
 
   (let* ((texture-map    (texture:load "../share/grid.png"))
          (dirt-sprite    (sprite:create-from-indices texture-map 3 2 (list 0)))
@@ -33,6 +58,8 @@
          ;; Polygons
          (triangle-batcher (triangle-batcher:create)))
 
+
+    
     (listen-for-event `(key-pressed ,key-right)
                       (lambda (#!rest _)
                         (set! position (vect+ position (vect:create -.1 0)))))
@@ -89,6 +116,7 @@
       (camera-pos-set! camera-1 position)
       (camera-pos-set! camera-2 position))))
 
-(coati:start 800 600 "Example - 02" #f game)
+(coati:start 800 600 "Example - 02" #f game-1)
+(coati:start 800 600 "Example - 02" #f game-2)
 
 (exit)
