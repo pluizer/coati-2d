@@ -19,10 +19,11 @@
 
     (values
      (lambda (rot)
-       (with-texture texture
-                     (sprite-batcher:render
-                      batcher
-                      (camera:create (vect:create .5 .5) 1 1 1)))
+       (with-camera (camera:create (vect:create .5 .5) 1 1 1)
+                    (with-texture texture
+                                  (sprite-batcher:render
+                                   batcher
+                                   )))
        
        (node:change! node (trans-change:create rotation: rot))
        (+ rot .1))
