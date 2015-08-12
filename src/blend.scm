@@ -26,7 +26,7 @@
 (define (%current-colour)
   (blend-mode-colour (car %blend-mode-stack)))
 
-(define (with-blend-mode/proc type colour thunk)
+(define (with-blending/proc type colour thunk)
   (%set-blend-mode! type)
   (set! %blend-mode-stack (cons (make-blend-mode type colour) %blend-mode-stack))
   (thunk)

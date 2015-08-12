@@ -27,13 +27,19 @@
 
 (define-syntax with-texture
   (syntax-rules ()
-    ((_ texture rest ...)
-     (with-texture/proc texture (lambda () rest ...)))))
+    ((_ texture body ...)
+     (with-texture/proc texture (lambda () body ...)))))
 
 (define-syntax with-target
   (syntax-rules ()
-    ((_ texture rest ...)
-     (with-target/proc texture (lambda () rest ...)))))
+    ((_ texture body ...)
+     (with-target/proc texture (lambda () body ...)))))
+
+
+(define-syntax with-blending
+  (syntax-rules ()
+    ((_ type colour body ...)
+     (with-blending/proc 'type colour (lambda () body ...)))))
 
 )
 
