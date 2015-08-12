@@ -96,8 +96,8 @@
                                    (matrix:scale (vect:create 1 -1) view))
                     (%current-colour))))
 
-(define (sprite-batcher:render sprite-batcher camera)
+(define (sprite-batcher:render sprite-batcher)
   (sprite-batcher:render* sprite-batcher
-                          (camera:projection camera)
-                          (camera:view camera)))
+                          (camera:projection (current-camera))
+                          (camera:view (current-camera))))
 ;; %

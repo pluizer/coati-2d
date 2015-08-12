@@ -95,8 +95,7 @@
 	       (maybe trans-func (matrix:translate (vect:create rx ry) view))))))))
 
 ;; Renders a procedural generated tilemap from the position of a camera.
-(define (tilemap:render tilemap width height tile-func camera
-                        #!optional trans-func)
-  (let ((projection (camera:projection camera))
-        (view (camera:view camera)))
-   (tilemap (camera:pos camera) width height tile-func projection view trans-func)))
+(define (tilemap:render tilemap width height tile-func #!optional trans-func)
+  (let ((projection (camera:projection (current-camera)))
+        (view (camera:view (current-camera))))
+   (tilemap (camera:pos (current-camera)) width height tile-func projection view trans-func)))

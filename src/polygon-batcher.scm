@@ -71,7 +71,7 @@
                                    (matrix:scale (vect:create 1 -1) view))
                     (%current-colour))))
 
-(define (triangle-batcher:render triangle-batcher camera)
+(define (triangle-batcher:render triangle-batcher)
   (triangle-batcher:render* triangle-batcher
-                          (camera:projection camera)
-                          (camera:view camera)))
+                          (camera:projection (current-camera))
+                          (camera:view (current-camera))))

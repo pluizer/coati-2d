@@ -35,11 +35,15 @@
     ((_ texture body ...)
      (with-target/proc texture (lambda () body ...)))))
 
-
 (define-syntax with-blending
   (syntax-rules ()
     ((_ type colour body ...)
      (with-blending/proc 'type colour (lambda () body ...)))))
+
+(define-syntax with-camera
+  (syntax-rules ()
+    ((_ camera body ...)
+     (with-camera/proc camera (lambda () body ...)))))
 
 )
 

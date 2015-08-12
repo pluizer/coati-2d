@@ -136,9 +136,9 @@
 (define (texture:renderer texture
 			  #!optional (rect (rect:create 0 1 1 0)))
   (let ((func (texture:renderer* texture rect)))
-    (lambda (camera)
-      (func (camera:projection camera)
-            (camera:view camera)))))
+    (lambda ()
+      (func (camera:projection (current-camera))
+            (camera:view (current-camera))))))
 
 ;; TODO
 ;; Returns a function that renders a texture fullscreen.
