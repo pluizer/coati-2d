@@ -22,7 +22,7 @@ Here Coati will call the /game loop/ a 100 times. Incrementing the variable /fra
 To close the window when the game is done use the function ~coati:close~.
 : (coati:close)
 
-* Textures
+* Textures intro
 
 Well that was boring! Now for something slightly less boring, getting something on screen. For that lets talk about textures.
 
@@ -37,6 +37,14 @@ Let use change our previous game function to this ...
 :         (+ i 1))))
 Can you guess what this game function does? Exciting isn't it!
 
+Let us see if we can top that by loading a texture using the function ~(texture:load filename)~. The most simple way of displaying a texture is making a rendering function from it using ~(texture:renderer texture [rect])~ calling the function returned by this will render the texture to screen it to screen. Let's try:
+: (define (game)
+:   (let* ((texture  (texture:load "./share/grid.png"))
+:          (renderer (texture:renderer grid-texture)))
+:    (lambda (#!optional (i 0))
+:      (grid-renderer)
+:      (if (= i 100) #f
+:          (+ i 1)))))
 
 
 
