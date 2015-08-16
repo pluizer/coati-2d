@@ -42,9 +42,9 @@ Let us see if we can top that by loading a texture using the function ~(texture:
 Let's try:
 : (define (game)
 :   (let* ((texture  (texture:load "./share/grid.png"))
-:          (renderer (texture:renderer grid-texture)))
+:          (renderer (texture:renderer texture)))
 :    (lambda (#!optional (i 0))
-:      (grid-renderer)
+:      (renderer)
 :      (if (= i 100) #f
 :          (+ i 1)))))
 
