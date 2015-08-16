@@ -37,7 +37,9 @@ Let use change our previous game function to this ...
 :         (+ i 1))))
 Can you guess what this game function does? Exciting isn't it!
 
-Let us see if we can top that by loading a texture using the function ~(texture:load filename)~. The most simple way of displaying a texture is making a rendering function from it using ~(texture:renderer texture [rect])~ calling the function returned by this will render the texture to screen it to screen. Let's try:
+Let us see if we can top that by loading a texture using the function ~(texture:load filename)~. The most simple way of displaying a texture is making a rendering function from it using ~(texture:renderer texture [rect])~ calling the function returned by this will render the texture (or part of it) to the current active texture (the screen by default). 
+
+Let's try:
 : (define (game)
 :   (let* ((texture  (texture:load "./share/grid.png"))
 :          (renderer (texture:renderer grid-texture)))
@@ -45,6 +47,7 @@ Let us see if we can top that by loading a texture using the function ~(texture:
 :      (grid-renderer)
 :      (if (= i 100) #f
 :          (+ i 1)))))
+
 
 
 
