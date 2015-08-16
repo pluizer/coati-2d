@@ -24,15 +24,17 @@ To close the window when the game is done use the function ~(coati:close)~.
 
 Put this all together and give it a try:
 
-: (use coati)
-:
-: (define (game)
-:   (lambda (#!optional (frames 0))
-:     (if (= frames 100) #f
-:         (+ frames 1))))
-:
-: (coati:start 800 600 "Hello Coati" #f game)
-: (coati:close)
+#+BEGIN_SRC scheme
+(use coati)
+
+(define (game)
+ (lambda (#!optional (frames 0))
+   (if (= frames 100) #f
+       (+ frames 1))))
+
+(coati:start 800 600 "Hello Coati" #f game)
+(coati:close)
+#+END_SRC
 
 * Textures intro
 
