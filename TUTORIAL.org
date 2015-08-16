@@ -19,7 +19,19 @@ Here is a small example of a /game/:
 Here Coati will call the /game loop/ a 100 times. Incrementing the variable /frames/ each time. To start this game the function ~coati:start~ is used. It takes 5 arguments; the /width/, /height/ and title of the window, a boolean to decide whether to make the window /fullscreen/ and the /game/ function. So for example ...
 : (coati:start 800 600 "Hello Coati" #f game)
 ... will open a non-fullscreen window with a dimension of 800x600, the title /Hello Coati/ and will start the previously defined game.
-To close the window when the game is done use the function ~coati:close~.
+To close the window when the game is done use the function ~(coati:close)~.
+: (coati:close)
+
+Put this all together and give it a try:
+
+: (use coati)
+:
+: (define (game)
+:   (lambda (#!optional (frames 0))
+:     (if (= frames 100) #f
+:         (+ frames 1))))
+:
+: (coati:start 800 600 "Hello Coati" #f game)
 : (coati:close)
 
 * Textures intro
