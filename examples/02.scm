@@ -16,7 +16,7 @@
     
    (values
      (lambda (rot)
-       (with-camera (camera:create (vect:create .5 .5) 1 1 1)
+       (with-camera (camera:create (vect:create .5 .5) 1 (vect:create 1 1))
                     (with-texture texture
                                   (sprite-batcher:render
                                    batcher
@@ -38,8 +38,8 @@
          (tilemap-1      (tilemap:create))
          (tilemap-2      (tilemap:create))
          ;;
-         (camera-1       (camera:create (vect:create 3.0 3.0) 1  6 6))
-         (camera-2       (camera:create (vect:create 2.5 2.5) 1  5 5))
+         (camera-1       (camera:create (vect:create 3.0 3.0) 1  (vect:create 6 6)))
+         (camera-2       (camera:create (vect:create 2.5 2.5) 1  (vect:create 5 5)))
          ;;
          (position       (vect:create 0 0))
 

@@ -3,46 +3,51 @@
                misc
                window))
 
-(use sdl-base
+(use sdl2
+     sdl2-raw
      srfi-1)
 
 (define %down-keys (list))
 
+;; (define (poll-input-events)
+;;   (let ((event (make-sdl-event)))
+;;     (sdl-poll-event! event)
+;;     (let ((type (sdl-event-type event)))
+;;       (cond
+;;        ;; Keyboard events (button mod)
+;;        ((= type SDL_KEYDOWN)
+;;         (let ((sym (sdl-event-sym event)))
+;;          (send-event 'key-down
+;;                      sym
+;;                      (sdl-event-mod event))
+;;          (set! %down-keys (cons sym %down-keys))))
+;;        ((= type SDL_KEYUP)
+;;         (let ((sym (sdl-event-sym event)))
+;;          (send-event 'key-up
+;;                      sym
+;;                      (sdl-event-mod event))
+;;          (set! %down-keys (remove (=? sym) %down-keys))))
+;;        ;; Mouse motion event (vect)
+;;        ((= type SDL_MOUSEMOTION)
+;;         (send-event 'mouse-move (vect:create (sdl-event-x event)
+;;                                              (sdl-event-y event))))
+;;        ;; Mouse press event (button vect)
+;;        ((or (= type SDL_MOUSEBUTTONDOWN)
+;;             (= type SDL_MOUSEBUTTONUP))
+;;         (send-event (if (= type SDL_MOUSEBUTTONDOWN) 'button-down 'button-up)
+;;                     (sdl-event-button event)
+;;                     (vect:create (sdl-event-x event)
+;;                                  (sdl-event-y event))))
+;;        ((= type SDL_QUIT)
+;;         (set! %window-should-close? #t)))))
+;;   ;; Keyboard pressed event. These events keep firing as long a key is pressed.
+;;   ;; Modifiers are ignored (always zero).
+;;   (for-each (lambda (sym)
+;;               (send-event 'key-pressed sym 0)) %down-keys))
+
 (define (poll-input-events)
-  (let ((event (make-sdl-event)))
-    (sdl-poll-event! event)
-    (let ((type (sdl-event-type event)))
-      (cond
-       ;; Keyboard events (button mod)
-       ((= type SDL_KEYDOWN)
-        (let ((sym (sdl-event-sym event)))
-         (send-event 'key-down
-                     sym
-                     (sdl-event-mod event))
-         (set! %down-keys (cons sym %down-keys))))
-       ((= type SDL_KEYUP)
-        (let ((sym (sdl-event-sym event)))
-         (send-event 'key-up
-                     sym
-                     (sdl-event-mod event))
-         (set! %down-keys (remove (=? sym) %down-keys))))
-       ;; Mouse motion event (vect)
-       ((= type SDL_MOUSEMOTION)
-        (send-event 'mouse-move (vect:create (sdl-event-x event)
-                                             (sdl-event-y event))))
-       ;; Mouse press event (button vect)
-       ((or (= type SDL_MOUSEBUTTONDOWN)
-            (= type SDL_MOUSEBUTTONUP))
-        (send-event (if (= type SDL_MOUSEBUTTONDOWN) 'button-down 'button-up)
-                    (sdl-event-button event)
-                    (vect:create (sdl-event-x event)
-                                 (sdl-event-y event))))
-       ((= type SDL_QUIT)
-        (set! %window-should-close? #t)))))
-  ;; Keyboard pressed event. These events keep firing as long a key is pressed.
-  ;; Modifiers are ignored (always zero).
-  (for-each (lambda (sym)
-              (send-event 'key-pressed sym 0)) %down-keys))
+  (let ((event (sdl-poll-event)))
+    (when event (print event))))
 
 (define (key-down? key)
   (member key %down-keys))

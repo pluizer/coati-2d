@@ -27,7 +27,5 @@
 
 (define (with-camera/proc camera thunk)
   (set! %camera-stack (cons camera %camera-stack))
-  (set! %current-camera camera)
   (thunk)
-  (set! %camera-stack (cdr %camera-stack))
-  (set! %current-camera (car %camera-stack)))
+  (set! %camera-stack (cdr %camera-stack)))
