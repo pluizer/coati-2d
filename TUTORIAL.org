@@ -42,7 +42,7 @@ Put this all together and give it a try:
 (coati:close)
 #+END_SRC
 
-* Textures intro
+* Textures
 
 Well that was boring! Now for something slightly less boring, getting something on screen. For that lets talk about textures.
 
@@ -71,6 +71,10 @@ Let's try:
      (if (= i 100) #f
          (+ i 1)))))
 #+END_SRC
+
+* Sprites
+
+Rendering textures using a renderer might be okay for just a few textures but gets terribly inefficient after I while. To render many textures to screen it is best to use a /sprites/ in combination with a /sprite-batcher/. A /sprite-batcher/ collects multiple /sprites/ and renders them all in one go. To create a sprite-batcher use the function ~(sprite-batcher:create)~, to create a sprite use the function ~(sprite:create texture 
 
 
 
