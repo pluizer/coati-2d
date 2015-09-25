@@ -1,5 +1,5 @@
 A simple, small and fast 2D game programming library for Chicken Scheme.
-- Version: Getting there.0
+- Version: 0.3
 - Author: Richard van Roy (pluizer)
 - Project: [[https://github.com/pluizer/coati]]
 - License: [[http://opensource.org/licenses/MIT][MIT]]
