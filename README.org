@@ -26,6 +26,8 @@ A simple, small and fast 2D game programming library for Chicken Scheme.
 : csi 02.scm
 : # ... etc ...
 
+See [[https://github.com/pluizer/coati-2d/blob/master/TUTORIAL.org][TUTORIAL.org]] for more detailed info.
+
 * todo
 - Particle system
 - Sound
