@@ -1,4 +1,4 @@
-A simple, small and fast 2D game programming library for Chicken Scheme.
+A simple to use fast 2D game programming library for Chicken Scheme.
 - Version: 0.3
 - Author: Richard van Roy (pluizer)
 - Project: [[https://github.com/pluizer/coati]]
