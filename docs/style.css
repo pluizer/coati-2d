@@ -33,7 +33,7 @@ footer {
 }
 
 .code {
-    background:url(box.svg);
+    background:url(code.svg);
     background-size: 100% 100%;
     padding: 10px;
     font-family: Consolas, monospace;
