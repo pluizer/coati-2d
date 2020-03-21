@@ -1,10 +1,9 @@
 (declare (unit input)
-	 (uses primitives
+         (uses primitives
                misc
                window))
 
-(use sdl-base
-     srfi-1)
+(import (chicken bitwise))
 
 (define %down-keys (list))
 

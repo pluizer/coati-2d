@@ -1,7 +1,7 @@
 (declare (unit shader))
 
-(use (prefix opengl-glew gl::)
-     (prefix gl-utils gl::))
+(import (prefix epoxy gl::)
+        (prefix gl-utils gl::))
 
 (define-record shader
   vertex-source fragment-source

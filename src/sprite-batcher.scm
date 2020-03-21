@@ -1,15 +1,15 @@
 (declare (unit sprite-batcher)
-	 (uses batcher
-	       blend
+         (uses batcher
+               blend
                camera
                misc
-	       primitives
-	       shader
-	       sprite))
+               primitives
+               shader
+               sprite))
 
-(use srfi-1
-     srfi-4
-     matchable)
+(import srfi-1
+        srfi-4
+        matchable)
 
 (define-record sprite-batcher
   batcher

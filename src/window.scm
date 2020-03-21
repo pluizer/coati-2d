@@ -1,10 +1,10 @@
 (declare (unit window)
          (uses primitives))
 
-(use (prefix opengl-glew gl::)
-     (prefix gl-utils gl::)
-     sdl-base
-     srfi-18)
+(import (prefix epoxy gl::)
+        (prefix gl-utils gl::)
+        sdl-base
+        srfi-18)
 
 (define %window-should-close? #f)
 (define (coati:close)
@@ -48,7 +48,6 @@
     (unless surface
       (error (sprintf "Could not set video mode (~sx~s:~s):" w h 32) (sdl-get-error)))
     (set! %window-size (vect:create w h))
-    (gl::init)
     (gl::enable gl::+texture-2d+)
     (gl::enable gl::+blend+)
     (gl::disable gl::+depth-test+)

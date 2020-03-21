@@ -1,9 +1,9 @@
 (declare (unit trans)
-	 (uses primitives
-	       sprite))
+         (uses primitives
+               sprite))
 
-(use gl-math
-     srfi-4)
+(import gl-math
+        srfi-4)
 
 (define-record trans
   position

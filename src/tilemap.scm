@@ -1,17 +1,17 @@
 (declare (unit tilemap)
-	 (uses primitives
-	       shader
-	       sprite-batcher
-	       texture
-	       misc))
+         (uses primitives
+               shader
+               sprite-batcher
+               texture
+               misc))
 
 (include "helpers.scm")
 
-(use srfi-1
-     srfi-4
-     data-structures
-     (prefix opengl-glew gl::)
-     (prefix gl-math gl::))
+(import srfi-1
+        srfi-4
+        (prefix epoxy gl::)
+        (prefix gl-math gl::))
+
 
 (define (tilemap:create #!key new-coords-callback (shader default-shader))
   (let ((batcher (sprite-batcher:create shader))

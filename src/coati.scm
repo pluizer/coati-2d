@@ -1,6 +1,8 @@
 (module coati
     *
-  (import chicken scheme foreign)
+  (import scheme
+          (chicken base)
+          (chicken foreign))
   (declare (uses animators
                  batcher
                  blend
@@ -22,8 +24,7 @@
                  texture
                  tilemap
                  trans
-                 window
-                 ))
+                 window))
 
 (define-syntax with-texture
   (syntax-rules ()
@@ -46,5 +47,3 @@
      (with-camera/proc camera (lambda () body ...)))))
 
 )
-
-

@@ -1,7 +1,6 @@
 (declare (unit events))
 
-(use srfi-1
-     data-structures)
+(import srfi-1)
 
 (define %events (list))
 (define %listeners (list))

@@ -1,23 +1,21 @@
 (declare (unit texture)
-	 (uses misc
+         (uses misc
                sprite
-	       sprite-batcher
-	       primitives))
+               sprite-batcher
+               primitives))
 
-
-(use srfi-1
-     srfi-4
-     sdl-base
-     (prefix opengl-glew gl::)
-     (prefix gl-utils gl::)
-     (prefix soil gl::))
+(import srfi-1
+        srfi-4
+        sdl-base
+        (prefix epoxy gl::)
+        (prefix gl-utils gl::)
+        (prefix soil gl::))
 
 (define-record texture
   texture-id
   framebuffer-id
   size
   )
-
 
 (define (%framebuffer-error-string status)
   (cond

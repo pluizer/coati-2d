@@ -1,8 +1,7 @@
 (declare (unit sprite)
-	 (uses misc
+         (uses misc
                primitives
                texture))
-
 
 (define-record frame
   rectangle)

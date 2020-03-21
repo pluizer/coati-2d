@@ -1,8 +1,8 @@
 (declare (unit pixmap)
-	 (uses primitives
-	       texture))
+         (uses primitives
+               texture))
 
-(use lolevel srfi-4)
+(import srfi-4)
 
 (define-record pixmap
   width

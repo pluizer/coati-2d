@@ -1,14 +1,12 @@
 (declare (unit batcher)
-	 (uses chunk
-	       shader
-	       misc))
+         (uses chunk
+               shader
+               misc))
 
-(use srfi-1
-     srfi-4
-     data-structures
-     lolevel
-     (prefix opengl-glew gl::)
-     (prefix gl-utils gl::))
+(import srfi-1
+        srfi-4
+        (prefix epoxy gl::)
+        (prefix gl-utils gl::))
 
 (define (index-func:create mode count func)
   (let ((value (u16vector))

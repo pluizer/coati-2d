@@ -1,6 +1,7 @@
 (declare (unit primitives))
 
-(use gl-math)
+(import gl-math
+        srfi-4)
 
 #>
 #include <float.h>

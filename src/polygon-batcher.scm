@@ -6,9 +6,9 @@
                primitives
                shader))
 
-(use srfi-1
-     srfi-4
-     matchable)
+(import srfi-1
+        srfi-4
+        matchable)
 
 (define-record triangle-batcher
   batcher

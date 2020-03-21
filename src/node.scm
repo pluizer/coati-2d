@@ -1,11 +1,10 @@
 (declare (unit node)
-	 (uses primitives
-	       trans
+         (uses primitives
+               trans
                misc
-	       sprite-batcher))
+               sprite-batcher))
 
-
-(use srfi-1)
+(import srfi-1)
 
 (define-record specials
   size

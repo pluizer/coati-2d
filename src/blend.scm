@@ -1,7 +1,7 @@
 (declare (unit blend))
 
-(use extras
-     (prefix opengl-glew gl::))
+(import (prefix epoxy gl::)
+        srfi-4)
 
 (define-record blend-mode
   type colour)

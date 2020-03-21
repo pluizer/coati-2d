@@ -1,11 +1,6 @@
 (declare (unit font)
          (uses misc))
 
-(use srfi-1
-     srfi-4
-     sdl-base
-     sdl-ttf)
-
 (define-record font
   filename
   size+pointer)

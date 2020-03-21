@@ -1,6 +1,6 @@
 (declare (unit misc))
 
-(use sdl-base)
+(import sdl-base)
 
 (define (rgb->sdl-color colour)
   (make-sdl-color (floor (inexact->exact
