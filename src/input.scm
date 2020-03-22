@@ -3,7 +3,8 @@
                misc
                window))
 
-(import (chicken bitwise))
+(import sdl-base
+        (chicken bitwise))
 
 (define %down-keys (list))
 

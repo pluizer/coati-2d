@@ -1,5 +1,7 @@
 (declare (unit chunk))
 
+(import srfi-13)
+
 #>
 #include <stdint.h>
 #include <stdio.h>
@@ -225,6 +227,9 @@ void* dv_vector_data(DV_Vector* dv)
 
 	(define %chunk-size
 	  `(foreign-lambda unsigned-integer "dv_vector_chunk_size" chunk-vector))
+
+  (define (symbol-append* #!rest symbols)
+    (inj (string->symbol (apply string-append (map symbol->string symbols)))))
 
 	`(begin
 

@@ -4,7 +4,8 @@
                sprite-batcher
                primitives))
 
-(import srfi-1
+(import (chicken gc)
+        srfi-1
         srfi-4
         sdl-base
         (prefix epoxy gl::)

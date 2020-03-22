@@ -3,6 +3,7 @@
 
 (import (prefix epoxy gl::)
         (prefix gl-utils gl::)
+        (chicken bitwise)
         sdl-base
         srfi-18)
 
