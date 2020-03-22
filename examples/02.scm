@@ -1,7 +1,6 @@
 ;; Renders a procedural generated tilemap.
 
-(use coati)
-
+(import coati)
 
 (define (game-1)
 
