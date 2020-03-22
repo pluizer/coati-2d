@@ -1,4 +1,0 @@
-(run (make -C src))
-(install-extension 'coati '("coati.so" "coati.import.so")
-                   '((version "v0.1")))
-

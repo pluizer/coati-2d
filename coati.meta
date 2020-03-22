@@ -1,7 +1,0 @@
-(
-(author "Richard van Roy")
-(synopsis "A simple, small and fast 2D game programming library for Chicken Scheme.")
-(license "MIT")
-(repository "https://github.com/pluizer/coati-2d")
-(category graphics)
-)
