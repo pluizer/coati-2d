@@ -4,6 +4,7 @@
                window))
 
 (import sdl-base
+        srfi-1
         (chicken bitwise))
 
 (define %down-keys (list))

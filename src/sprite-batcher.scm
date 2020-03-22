@@ -46,10 +46,10 @@
     sprite-id))
 
 
-(define (sprite-batcher:change! sprite-batcher sprite-batch-id matrix
+(define (sprite-batcher:change! sprite-batcher s-b-id matrix
 				#!optional colour)
-  (sprite-batch-id-matrix-set! sprite-batch-id matrix)
-  (match-let ((($ sprite-batch-id batch-id matrix sprite) sprite-batch-id))
+  (sprite-batch-id-matrix-set! s-b-id matrix)
+  (match-let ((($ sprite-batch-id batch-id matrix sprite) s-b-id))
 	     (if colour
 	      (batcher:change! (sprite-batcher-batcher sprite-batcher) 
 			       batch-id

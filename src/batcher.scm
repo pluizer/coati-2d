@@ -3,8 +3,11 @@
                shader
                misc))
 
-(import srfi-1
+(import (chicken keyword)
+        symbol-utils
+        srfi-1
         srfi-4
+        (chicken locative)
         (prefix epoxy gl::)
         (prefix gl-utils gl::))
 

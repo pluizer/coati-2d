@@ -1,6 +1,7 @@
 (declare (unit primitives))
 
 (import gl-math
+        srfi-1
         srfi-4)
 
 #>

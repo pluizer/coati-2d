@@ -1,6 +1,8 @@
 (declare (unit misc))
 
-(import sdl-base)
+(import symbol-utils
+        (chicken keyword)
+        sdl-base)
 
 (define (rgb->sdl-color colour)
   (make-sdl-color (floor (inexact->exact

@@ -88,7 +88,8 @@
 	       (rx (- x fx 1))
 	       (ry (- y fy 1)))
 	  
-	  (raw (coord:create (- (- fx) 1) (- (- fy) 1))
+	  (raw (coord:create (inexact->exact (- (- fx) 1))
+                       (inexact->exact (- (- fy) 1)))
 	       (+ width 1) (+ height 1)
 	       tile-func
 	       projection

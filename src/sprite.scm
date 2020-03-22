@@ -3,6 +3,9 @@
                primitives
                texture))
 
+(import srfi-4
+        (chicken time))
+
 (define-record frame
   rectangle)
 
