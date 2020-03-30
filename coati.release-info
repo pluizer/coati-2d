@@ -1,0 +1,4 @@
+(repo git "git://github.com/pluizer/{egg-name}.git")
+(uri targz "https://codeload.github.com/pluizer/{egg-name}/tar.gz/{egg-release}")
+(release "0.2")
+(release "0.1")

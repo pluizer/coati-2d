@@ -1,0 +1,62 @@
+(
+(author "Richard van Roy")
+(synopsis "A simple, small and fast 2D game programming library for Chicken Scheme.")
+(license "MIT")
+(category graphics)
+(component-options (csc-options "-c++" "-C" "-Wno-write-strings" "-I./src"))
+(components
+ (c-object animators       (source "src/animators.scm"))
+ (c-object batcher         (source "src/batcher.scm"))
+ (c-object blend           (source "src/blend.scm"))
+ (c-object camera          (source "src/camera.scm"))
+ (c-object chunk           (source "src/chunk.scm"))
+ (c-object drawing         (source "src/drawing.scm"))
+ (c-object events          (source "src/events.scm"))
+ (c-object font            (source "src/font.scm"))
+ (c-object input           (source "src/input.scm"))
+ (c-object misc            (source "src/misc.scm"))
+ (c-object node-pers       (source "src/node-pers.scm"))
+ (c-object node            (source "src/node.scm"))
+ (c-object particles       (source "src/particles.scm"))
+ (c-object pixmap          (source "src/pixmap.scm"))
+ (c-object polygon-batcher (source "src/polygon-batcher.scm"))
+ (c-object primitives      (source "src/primitives.scm"))
+ (c-object shader          (source "src/shader.scm"))
+ (c-object sound           (source "src/sound.scm"))
+ (c-object sprite-batcher  (source "src/sprite-batcher.scm"))
+ (c-object sprite          (source "src/sprite.scm"))
+ (c-object texture         (source "src/texture.scm"))
+ (c-object tilemap         (source "src/tilemap.scm"))
+ (c-object triangulate     (source "src/triangulate.cc"))
+ (c-object trans           (source "src/trans.scm"))
+ (c-object window          (source "src/window.scm"))
+
+ (extension coati
+            (source "src/coati.scm")
+            (objects
+             animators
+             batcher
+             blend
+             camera
+             chunk
+             drawing
+             events
+             font
+             input
+             misc
+             node-pers
+             node
+             particles
+             pixmap
+             polygon-batcher
+             primitives
+             shader
+             sound
+             sprite-batcher
+             sprite
+             texture
+             tilemap
+             triangulate
+             trans
+             window))
+))
