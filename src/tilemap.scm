@@ -5,13 +5,15 @@
                texture
                misc))
 
-(include "helpers.scm")
-
 (import srfi-1
         srfi-4
         (prefix epoxy gl::)
         (prefix gl-math gl::))
 
+(define-syntax maybe
+  (syntax-rules ()
+      ((_ func value)
+       (if func (func value) value))))
 
 (define (tilemap:create #!key new-coords-callback (shader default-shader))
   (let ((batcher (sprite-batcher:create shader))
