@@ -2,6 +2,7 @@
 
 (import coati)
 
+
 (define (game-1)
 
   (let* ((texture (texture:load "../share/arrow.png"))
@@ -110,7 +111,8 @@
                                     (sprite-batcher:update! sprite-batcher)
                                     (sprite-batcher:render sprite-batcher)))
        (with-blending trans (rgb:create 1 0 0 .5)
-                      (triangle-batcher:render triangle-batcher)))
+riangle-batcher:render triangle-batcher)))
+    
       
       (camera-pos-set! camera-1 position)
       (camera-pos-set! camera-2 position))))

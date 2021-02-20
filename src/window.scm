@@ -4,20 +4,23 @@
 (import (prefix epoxy gl::)
         (prefix gl-utils gl::)
         (chicken bitwise)
-        sdl-base
+        (chicken format)
+        (prefix sdl2 "sdl-")
         srfi-18)
 
 (define %window-should-close? #f)
 (define (coati:close)
   (set! %window-should-close? #t))
 (define %window-size (vect:create 0 0))
+(define %window #f)
 
 (define (window:size) %window-size)
 
 (define (game-loop iter-func prev-ret)
   (poll-input-events)
   (poll-events!)
-  (sdl-gl-swap-buffers)
+  ;(sdl-gl-swap-buffers)
+  (sdl-gl-swap-window! %window)
   (let ((ret (apply iter-func (if (list? prev-ret) prev-ret
                                   (list prev-ret)))))
     (when (and ret (not %window-should-close?))
@@ -39,16 +42,17 @@
 ;;                              (list (update-position position) 'walking)))
 ;;                        (list (vect:create 10 20) 'walking))))
 (define (coati:start w h title fullscreen? game)
-  (unless (sdl-init SDL_INIT_EVERYTHING)
+  (sdl-set-main-ready!)
+  (unless (sdl-init!)
     (error "Could not initialise SDL." (sdl-get-error)))
-  (sdl-gl-set-attribute SDL_GL_DOUBLEBUFFER 1)
-  (sdl-gl-set-attribute SDL_GL_SWAP_CONTROL 1)
-  (let ((surface (sdl-set-video-mode w h 32
-                                     (bitwise-ior (if fullscreen? SDL_FULLSCREEN 0)
-                                                  SDL_OPENGL))))
-    (unless surface
+  (sdl-gl-attribute-set! 'doublebuffer 1)
+  ;(sdl-gl-attribute-set! 'swap-control 1)
+  (let ((window (sdl-create-window! title 0 0 w h '(opengl))))
+    (unless window
       (error (sprintf "Could not set video mode (~sx~s:~s):" w h 32) (sdl-get-error)))
     (set! %window-size (vect:create w h))
+    (sdl-gl-create-context! window)
+    (set! %window window)
     (gl::enable gl::+texture-2d+)
     (gl::enable gl::+blend+)
     (gl::disable gl::+depth-test+)

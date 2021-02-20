@@ -1,6 +1,7 @@
 (declare (unit blend))
 
 (import (prefix epoxy gl::)
+        (chicken format)
         srfi-4)
 
 (define-record blend-mode

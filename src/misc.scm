@@ -2,7 +2,8 @@
 
 (import symbol-utils
         (chicken keyword)
-        sdl-base)
+        (chicken format)
+        (prefix sdl2 "sdl-"))
 
 (define (rgb->sdl-color colour)
   (make-sdl-color (floor (inexact->exact

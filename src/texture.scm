@@ -5,9 +5,10 @@
                primitives))
 
 (import (chicken gc)
+        (chicken format)
         srfi-1
         srfi-4
-        sdl-base
+        (prefix sdl2 "sdl-")
         (prefix epoxy gl::)
         (prefix gl-utils gl::)
         (prefix soil gl::))
@@ -99,8 +100,8 @@
   (let ((id (gl::gen-texture)))
     (gl::with-texture gl::+texture-2d+ id
 	(gl::tex-image-2d gl::+texture-2d+ 0 gl::+rgba8+ 
-			(vect:x size)
-			(vect:y size)
+			              (inexact->exact (vect:x size))
+			              (inexact->exact (vect:y size))
 			0 gl::+bgra+ gl::+unsigned-byte+ data)
 	(%texture-linear-filter id)
 	(gl::check-error))

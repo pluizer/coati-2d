@@ -8,6 +8,7 @@
         srfi-1
         srfi-4
         (chicken locative)
+        (chicken format)
         (prefix epoxy gl::)
         (prefix gl-utils gl::))
 
