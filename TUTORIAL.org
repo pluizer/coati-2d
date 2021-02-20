@@ -1,7 +1,7 @@
 * Installation
 
 To install Coati first make sure all the eggs on which it depends are installed.
-: chicken-install -s symbol-utils srfi-18 sdl-base gl-utils gl-math soil matchable
+: chicken-install -s symbol-utils srfi-18 sdl2 sdl2-ttf gl-utils gl-math soil matchable
 Then clone this repo and tell Chicken to install it:
 : cd coati-2d
 : chicken-install -s

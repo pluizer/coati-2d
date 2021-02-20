@@ -1,9 +1,14 @@
 A simple to use fast 2D game programming library for Chicken Scheme.
+
 - Version: 0.3
 - Author: Richard van Roy (pluizer)
 - Project: [[https://github.com/pluizer/coati]]
-- License: [[http://opensource.org/licenses/MIT][MIT]]
+- License: [[https://www.gnu.org/licenses/gpl-3.0.en.html][GPL-3]]
 
+* Updates
+- [22-03-2020] Moved to Chicken 5
+- [20-02-2021] Updated to SDL2
+  
 * Dependencies
 - sdl-base
 - sdl-ttf
@@ -15,7 +20,7 @@ A simple to use fast 2D game programming library for Chicken Scheme.
 
 * How to test...
 : # Install all needed eggs
-: chicken-install -s symbol-utils srfi-18 sdl-base gl-utils gl-math soil matchable
+: chicken-install -s symbol-utils srfi-18 sdl2 sdl2-ttf gl-utils gl-math soil matchable
 : # Install Coati
 : git clone https://github.com/pluizer/coati-2d.git
 : cd coati-2d
