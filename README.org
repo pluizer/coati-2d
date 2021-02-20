@@ -6,8 +6,8 @@ A simple to use fast 2D game programming library for Chicken Scheme.
 - License: [[https://www.gnu.org/licenses/gpl-3.0.en.html][GPL-3]]
 
 * Updates
-- [22-03-2020] Moved to Chicken 5
 - [20-02-2021] Updated to SDL2
+- [22-03-2020] Moved to Chicken 5
   
 * Dependencies
 - sdl-base
