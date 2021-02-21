@@ -18,9 +18,13 @@ Here is a small example of a /game/:
     (if (= frames 100) #f
         (+ frames 1))))
 #+END_SRC
+First let's initialise Coati, tell it to create a window 800 by 600 pixels and give it a title:
+#+BEGIN_SRC scheme
+(coati:init 800 600 "Hello Coati!" #f)
+#+END_SRC
 Here Coati will call the /game loop/ a 100 times. Incrementing the variable /frames/ each time. To start this game the function ~coati:start~ is used. It takes 5 arguments; the /width/, /height/ and title of the window, a boolean to decide whether to make the window /fullscreen/ and the /game/ function. So for example ...
 #+BEGIN_SRC scheme
-(coati:start 800 600 "Hello Coati" #f game)
+(coati:start game)
 #+END_SRC
 ... will open a non-fullscreen window with a dimension of 800x600, the title /Hello Coati/ and will start the previously defined game.
 To close the window when the game is done use the function ~(coati:close)~.

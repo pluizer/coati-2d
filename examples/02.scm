@@ -3,7 +3,6 @@
 (import coati)
 
 (define (game-1)
-
   (let* ((texture (texture:load "../share/arrow.png"))
          (batcher (sprite-batcher:create))
          (sprite  (sprite:create texture))
@@ -12,22 +11,17 @@
                                root (trans:create (vect:create 0 0)
                                                   origin:
                                                   (vect:create .5 .5)))))
-    
    (values
      (lambda (rot)
        (with-camera (camera:create (vect:create .5 .5) 1 (vect:create 1 1))
                     (with-texture texture
                                   (sprite-batcher:render
-                                   batcher
-                                   )))
-       
+                                   batcher)))
        (node:change! node (trans-change:create rotation: rot))
        (if (not (key-down? key-escape)) (+ rot .1) #f))
      1)))
 
-
 (define (game-2)
-
   (let* ((texture-map    (texture:load "../share/grid.png"))
          (dirt-sprite    (sprite:create-from-indices texture-map 3 2 (list 0)))
          (grass-sprite   (sprite:create-from-indices texture-map 3 2 (list 4)))
@@ -57,15 +51,9 @@
          ;; Polygons
          (triangle-batcher (triangle-batcher:create)))
 
-
-    
     (listen-for-event `(key-pressed ,key-right)
                       (lambda (#!rest _)
                         (set! position (vect+ position (vect:create -.1 0)))))
-
-    (listen-for-event `(key-pressed ,key-escape)
-                      (lambda (#!rest _)
-                        (coati:close)))
 
     (for-each (lambda (triangle)
                 (triangle-batcher:push! triangle-batcher
@@ -76,11 +64,10 @@
                                                               (vect:create 1 1)
                                                               (vect:create 1 .2))))
 
-    
     (lambda (#!rest _)
       (texture:clear (rgb:create 0 0 0))
       (with-texture texture-map
-                    ;; Render first layer                           
+                    ;; Render first layer
                     (with-camera camera-1
                      (tilemap:render tilemap-1
                                      6 6
@@ -111,11 +98,16 @@
                                     (sprite-batcher:render sprite-batcher)))
        (with-blending trans (rgb:create 1 0 0 .5)
                       (triangle-batcher:render triangle-batcher)))
-      
+
       (camera-pos-set! camera-1 position)
       (camera-pos-set! camera-2 position))))
 
-(coati:start 800 600 "Example - 02" #f game-1)
-(coati:start 800 600 "Example - 02" #f game-2)
+(define (game-3)
+  (lambda (#!rest _)
+    #f))
+
+(coati:init 800 600 "Example 2" #f)
+(coati:start game-1)
+(coati:start game-2)
 
 (exit)
