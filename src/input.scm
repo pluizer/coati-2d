@@ -35,7 +35,6 @@
          ((or (eq? type 'mouse-button-down)
               (eq? type 'mouse-button-up))
           (send-event (if (eq? type 'mouse-button-down) 'button-down 'button-up)
-                      (sdl-event-button event)
                       (vect:create (sdl-mouse-button-event-x event)
                                    (sdl-mouse-button-event-y event))))
          ((eq? type 'quit)
