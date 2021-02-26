@@ -9,22 +9,22 @@
 (define-record frame
   rectangle)
 
-(define (%frame:create texture rectangle)
+(define (%frame:create texture/size rectangle)
   (make-frame
    ;; Map texels to pixels.
-   (let ((w (vect:x (texture:size texture)))
-	 (h (vect:y (texture:size texture))))
-     
-     (let ((r
-	    (rect:create (+ (rect:l rectangle)
-			    (/ .5 w))
-			 (- (rect:r rectangle)
-			    (/ .5 w))
-			 (+ (rect:t rectangle)
-			    (/ .5 h))
-			 (- (rect:b rectangle)
-			    (/ .5 h)))))
-       r))))
+   (let* ((s (if (texture? texture/size)
+		 (texture:size texture/size)
+		 texture/size))
+	  (w (vect:x s))
+	  (h (vect:y s))
+	  (r (rect:create (+ (rect:l rectangle)
+			     (/ .5 w))
+			  (- (rect:r rectangle)
+			     (/ .5 w))
+			  (+ (rect:t rectangle)
+			     (/ .5 h))
+			  (- (rect:b rectangle)
+			     (/ .5 h))))))))
 
 (define-record animation
   frames	;; all the animation's frames.
