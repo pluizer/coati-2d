@@ -15,7 +15,7 @@
       ((_ func value)
        (if func (func value) value))))
 
-(define (tilemap:create #!key new-coords-callback (shader default-shader))
+(define (tilemap:create #!key isometric? new-coords-callback (shader default-shader))
   (let ((batcher (sprite-batcher:create shader))
 	;; Rememer the last added coordinate and the width and height
 	;; so that the sprite-batch does not have to be repopulated
@@ -23,6 +23,8 @@
 	(changed? (make-change-check))
 	;; Cache all active coords.
 	(active-coords (list)))
+		     (display isometric?)
+		     (newline)
     (let ((raw
 	   (lambda (coord
 		    width height
@@ -70,10 +72,12 @@
 						  (trans->matrix
 						   (trans:create
 						    (vect:create
-						     (- (coord:x tile-coord) 
-							(coord:x coord))
-						     (- (coord:y tile-coord)
-							(coord:y coord)))))))))
+						     (* (exact->inexact (- (coord:x tile-coord) 
+									   (coord:x coord)))
+							(if isometric? 0.5 1.0))
+						     (* (exact->inexact (- (coord:y tile-coord)
+									   (coord:y coord)))
+							(if isometric? 0.25 1.0)))))))))
 		      coords)
 		     (set! active-coords coords)))))
 	     ;; Render the sprite-batch
@@ -92,13 +96,18 @@
 	  
 	  (raw (coord:create (inexact->exact (- (- fx) 1))
                        (inexact->exact (- (- fy) 1)))
-	       (+ width 1) (+ height 1)
+	       (+ (if isometric?
+		      (* width 2)
+		      width) 1)
+	       (+ (if isometric?
+		      (* height 4)
+		      height) 1)
 	       tile-func
 	       projection
 	       (maybe trans-func (matrix:translate (vect:create rx ry) view))))))))
 
 ;; Renders a procedural generated tilemap from the position of a camera.
-(define (tilemap:render tilemap width height tile-func #!optional trans-func)
+(define (tilemap:render tilemap width height tile-func #!optional trans-func )
   (let ((projection (camera:projection (current-camera)))
         (view (camera:view (current-camera))))
    (tilemap (camera:pos (current-camera)) width height tile-func projection view trans-func)))

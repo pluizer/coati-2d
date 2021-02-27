@@ -20,6 +20,7 @@
                  shader
                  sound
                  sprite
+		 sprite-map
                  sprite-batcher
                  texture
                  tilemap

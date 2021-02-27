@@ -25,6 +25,7 @@
  (c-object sound           (source "src/sound.scm"))
  (c-object sprite-batcher  (source "src/sprite-batcher.scm"))
  (c-object sprite          (source "src/sprite.scm"))
+ (c-object sprite-map      (source "src/sprite-map.scm"))
  (c-object texture         (source "src/texture.scm"))
  (c-object tilemap         (source "src/tilemap.scm"))
  (c-object triangulate     (source "src/triangulate.cc"))
@@ -54,6 +55,7 @@
              sound
              sprite-batcher
              sprite
+             sprite-map
              texture
              tilemap
              triangulate
