@@ -3,6 +3,7 @@
 (synopsis "A simple, small and fast 2D game programming library for Chicken Scheme.")
 (license "MIT")
 (category graphics)
+(dependencies symbol-utils srfi-1 srfi-18 sdl2 sdl2-ttf gl-utils gl-math soil matchable)
 (component-options (csc-options "-c++" "-C" "-Wno-write-strings" "-I./src"))
 (components
  (c-object animators       (source "src/animators.scm"))
