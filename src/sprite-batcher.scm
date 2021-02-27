@@ -28,7 +28,15 @@
 		   4)
    (list)))
 
-(define (sprite-batcher:push! sprite-batcher sprite matrix #!optional colour)
+;; assuming colour/matrix is a colour or a colour-matrix, always
+;; returns a full, rectangle colour-matrix.
+(define (%maybe-colour->matrix colour/matrix)
+  (if (= (f32vector-length colour/matrix) 4)
+      (rgb->colour-matrix colour/matrix)
+      colour/matrix))
+
+(define (sprite-batcher:push! sprite-batcher sprite matrix
+			      #!optional colour/matrix)
   (let* ((sprite-id (make-sprite-batch-id 
 		     (batcher:push!
 		      (sprite-batcher-batcher sprite-batcher)
@@ -37,7 +45,8 @@
 		      ;; Coord data
 		      (sprite:coord-data sprite)
 		      ;; Colour (white)
-		      (or colour
+		      (if colour/matrix
+			  (%maybe-colour->matrix colour/matrix)
 			  (make-f32vector 16 1)))
 		     matrix sprite)))
     (sprite-batcher-sprite-ids-set! 
@@ -45,18 +54,17 @@
      (cons sprite-id (sprite-batcher-sprite-ids sprite-batcher)))
     sprite-id))
 
-
 (define (sprite-batcher:change! sprite-batcher s-b-id matrix
-				#!optional colour)
+				#!optional colour/matrix)
   (sprite-batch-id-matrix-set! s-b-id matrix)
   (match-let ((($ sprite-batch-id batch-id matrix sprite) s-b-id))
-	     (if colour
+	     (if colour/matrix
 	      (batcher:change! (sprite-batcher-batcher sprite-batcher) 
 			       batch-id
 			       ;; Vertex data
 			       vertex: (sprite:vertex-data sprite matrix)
 			       coord:  (sprite:coord-data sprite)
-			       colour: colour)
+			       colour: (%maybe-colour->matrix colour/matrix))
 	      (batcher:change! (sprite-batcher-batcher sprite-batcher) 
 			       batch-id
 			       ;; Vertex data
