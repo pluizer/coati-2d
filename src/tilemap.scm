@@ -64,22 +64,26 @@
 		     (sprite-batcher:clear! batcher)
 		     (for-each
 		      (lambda (tile-coord)
-			(let ((sprite ((match-lambda
-					 ((? sprite? sprite) sprite))
-				       (tile-func tile-coord))))
+			(let ((sprite (tile-func tile-coord)))
 			  ;; It is possible not to have a sprite at these coords.
 			  (when sprite
-			    ;; Push the tile to the batcher.
-			    (sprite-batcher:push! batcher sprite
-						  (trans->matrix
-						   (trans:create
-						    (vect:create
-						     (* (exact->inexact (- (coord:x tile-coord) 
-									   (coord:x coord)))
-							(if isometric? 0.5 1.0))
-						     (* (exact->inexact (- (coord:y tile-coord)
-									   (coord:y coord)))
-							(if isometric? 0.25 1.0)))))))))
+			    (let ((trans (trans->matrix
+					  (trans:create
+					   (vect:create
+					    (* (exact->inexact (- (coord:x tile-coord) 
+								  (coord:x coord)))
+					       (if isometric? 0.5 1.0))
+					    (* (exact->inexact (- (coord:y tile-coord)
+								  (coord:y coord)))
+					       (if isometric? 0.25 1.0)))))))
+			      ;; Push the tile to the batcher.
+			      ((match-lambda
+				 ;; sprite with no special colour
+				 ((? sprite? sprite)
+				  (sprite-batcher:push! batcher sprite trans))
+				 ((sprite: sprite colour: colour)
+				  (sprite-batcher:push! batcher sprite trans colour)))
+			       sprite)))))
 		      coords)
 		     (set! active-coords coords)))))
 	     ;; Render the sprite-batch
