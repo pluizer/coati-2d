@@ -10,9 +10,11 @@ A simple to use fast 2D game programming library for Chicken Scheme.
 - [22-03-2020] Moved to Chicken 5
   
 * Dependencies
-- sdl-base
-- sdl-ttf
-- opengl-glew
+- symbol-utils
+- srfi-1
+- srfi-18
+- sdl2
+- sdl2-ttf
 - gl-utils
 - gl-math
 - soil
@@ -20,7 +22,7 @@ A simple to use fast 2D game programming library for Chicken Scheme.
 
 * How to test...
 : # Install all needed eggs
-: chicken-install -s symbol-utils srfi-18 sdl2 sdl2-ttf gl-utils gl-math soil matchable
+: chicken-install -s symbol-utils srfi-1 srfi-18 sdl2 sdl2-ttf gl-utils gl-math soil matchable
 : # Install Coati
 : git clone https://github.com/pluizer/coati-2d.git
 : cd coati-2d
