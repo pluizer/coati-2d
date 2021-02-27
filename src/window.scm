@@ -20,7 +20,6 @@
 (define (game-loop iter-func prev-ret)
   (poll-input-events)
   (poll-events!)
-  ;(sdl-gl-swap-buffers)
   (sdl-gl-swap-window! %window)
   (let ((ret (apply iter-func (if (list? prev-ret) prev-ret
                                   (list prev-ret)))))
@@ -60,6 +59,8 @@
 ;;                              (list (update-position position) 'walking)))
 ;;                        (list (vect:create 10 20) 'walking))))
 (define (coati:start game)
-  (call-with-values
-      (lambda () (game))
-    (lambda (f #!optional (a (list))) (game-loop f a))))
+  (if %window
+      (call-with-values
+	     (lambda () (game))
+	(lambda (f #!optional (a (list))) (game-loop f a)))
+      (error "call coati:init first")))

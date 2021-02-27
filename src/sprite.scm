@@ -16,15 +16,15 @@
 		 (texture:size texture/size)
 		 texture/size))
 	  (w (vect:x s))
-	  (h (vect:y s))
-	  (r (rect:create (+ (rect:l rectangle)
-			     (/ .5 w))
-			  (- (rect:r rectangle)
-			     (/ .5 w))
-			  (+ (rect:t rectangle)
-			     (/ .5 h))
-			  (- (rect:b rectangle)
-			     (/ .5 h))))))))
+	  (h (vect:y s)))
+     (rect:create (+ (rect:l rectangle)
+		     (/ .5 w))
+		  (- (rect:r rectangle)
+		     (/ .5 w))
+		  (+ (rect:t rectangle)
+		     (/ .5 h))
+		  (- (rect:b rectangle)
+		     (/ .5 h))))))
 
 (define-record animation
   frames	;; all the animation's frames.
@@ -63,18 +63,18 @@
 ;; Create a new sprite with a list of rectangles that describe the
 ;; the sprite's frames on the texture.
 ;; Frames will updated every ''interval'' milliseconds.
-(define (sprite:create texture
+(define (sprite:create texture/size
 		       #!optional
 		       (rectangles (list (rect:create 0 1 0 1))) 
 		       (size (vect:create 1 1))
 		       (interval (/ 1000 20)))
   (let ((l (length rectangles)))
     (if (= l 1)
-	(make-sprite #f (%frame:create texture (car rectangles)) size)
+	(make-sprite #f (%frame:create texture/size (car rectangles)) size)
 	(make-sprite (%animation:create
 		      interval
 		      (map (lambda (rectangle)
-			     (%frame:create texture rectangle))
+			     (%frame:create texture/size rectangle))
 			   rectangles))
 		     #f
 		     size))))
