@@ -7,6 +7,7 @@
 
 (import srfi-1
         srfi-4
+	matchable
         (prefix epoxy gl::)
         (prefix gl-math gl::))
 
@@ -14,6 +15,7 @@
   (syntax-rules ()
       ((_ func value)
        (if func (func value) value))))
+
 
 (define (tilemap:create #!key isometric? new-coords-callback (shader default-shader))
   (let ((batcher (sprite-batcher:create shader))
@@ -23,8 +25,6 @@
 	(changed? (make-change-check))
 	;; Cache all active coords.
 	(active-coords (list)))
-		     (display isometric?)
-		     (newline)
     (let ((raw
 	   (lambda (coord
 		    width height
@@ -64,7 +64,9 @@
 		     (sprite-batcher:clear! batcher)
 		     (for-each
 		      (lambda (tile-coord)
-			(let ((sprite (tile-func tile-coord)))
+			(let ((sprite ((match-lambda
+					 ((? sprite? sprite) sprite))
+				       (tile-func tile-coord))))
 			  ;; It is possible not to have a sprite at these coords.
 			  (when sprite
 			    ;; Push the tile to the batcher.
@@ -107,7 +109,7 @@
 	       (maybe trans-func (matrix:translate (vect:create rx ry) view))))))))
 
 ;; Renders a procedural generated tilemap from the position of a camera.
-(define (tilemap:render tilemap width height tile-func #!optional trans-func )
+(define (tilemap:render tilemap width height tile-func #!optional trans-func)
   (let ((projection (camera:projection (current-camera)))
         (view (camera:view (current-camera))))
    (tilemap (camera:pos (current-camera)) width height tile-func projection view trans-func)))
