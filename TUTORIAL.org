@@ -77,9 +77,15 @@ Let's try:
 * Sprites
 
 Rendering textures using a renderer might be okay for just a few textures but gets terribly inefficient after I while. To render many textures to screen it is best to use a /sprites/ in combination with a /sprite-batcher/. A /sprite-batcher/ collects multiple /sprites/ and renders them all in one go. To create a sprite-batcher use the function ~(sprite-batcher:create)~, to create a sprite use the function ~(sprite:create texture)~
- 
 
+* Sprite batcher
 
+* Input
 
+* Nodes
 
+* Transformations
 
+* Tilemaps
+
+* Polygons
