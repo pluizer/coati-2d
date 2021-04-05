@@ -248,6 +248,13 @@
     (vect:create (f32vector-ref pos 0)
 		 (f32vector-ref pos 1))))
 
+(define (vect->isometriv v)
+  (let* ((vx (+ (- (vect:x v))
+                (- (* (vect:y v) 2))))
+         (vy (+ (vect:x v)
+                (- (* (vect:y v) 2)))))
+    (vect:vreate vx vy)))
+
 ;;-------------------------------------------------------
 ;; Coords
 ;;-------------------------------------------------------
@@ -282,6 +289,12 @@
       (coord:create (- (coord:x a))
 		    (- (coord:y a)))))
 
+(define (coord->isometric c)
+  (let* ((cx (+ (- (coord:x c))
+                (- (* (coord:y c) 2))))
+         (cy (+ (coord:x c)
+                (- (* (coord:y c) 2)))))
+    (coord:create cx cy)))
 
 ;;-------------------------------------------------------
 ;; Bounding Boxes
