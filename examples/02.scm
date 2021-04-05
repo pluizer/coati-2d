@@ -31,8 +31,15 @@
          (tilemap-1      (tilemap:create))
          (tilemap-2      (tilemap:create))
          ;;
-         (camera-1       (camera:create (vect:create 3.0 3.0) 1  (vect:create 6 6)))
-         (camera-2       (camera:create (vect:create 2.5 2.5) 1  (vect:create 5 5)))
+         (tile-func-1    (lambda ()
+                           (lambda (coord)
+                             (if (and (zero? (coord:x coord))
+                                      (zero? (coord:y coord)))
+                                 water-sprite
+                                 (if (and (even? (coord:x coord))
+                                          (even? (coord:y coord)))
+                                     grass-sprite
+                                     (if (< (coord:x coord) 50) dirt-sprite water-sprite))))))
          ;;
          (position       (vect:create 0 0))
 
@@ -53,7 +60,7 @@
 
     (listen-for-event `(key-pressed ,key-right)
                       (lambda (#!rest _)
-                        (set! position (vect+ position (vect:create -.1 0)))))
+                        (set! position (vect- position (vect:create -.1 0)))))
 
     (for-each (lambda (triangle)
                 (triangle-batcher:push! triangle-batcher
@@ -65,42 +72,36 @@
                                                               (vect:create 1 .2))))
 
     (lambda (#!rest _)
-      (texture:clear (rgb:create 0 0 0))
-      (with-texture texture-map
-                    ;; Render first layer
-                    (with-camera camera-1
-                     (tilemap:render tilemap-1
-                                     6 6
-                                     (lambda (coord)
-                                       (if (and (zero? (coord:x coord))
-                                                (zero? (coord:y coord)))
-                                           water-sprite
-                                           (if (and (even? (coord:x coord))
-                                                    (even? (coord:y coord)))
-                                               grass-sprite
-                                               (if (< (coord:x coord) 50) dirt-sprite water-sprite))))))
-                    ;; Render second layer
-                    (with-camera camera-2
-                     (with-blending trans (rgb:create 1 1 1)
-                                    (tilemap:render tilemap-2
-                                                    5 5
-                                                    (lambda (coord)
-                                                      (if (and (odd? (coord:x coord))
-                                                               (odd? (coord:y coord)))
-                                                          (if (< (coord:x coord) 50) flower-sprite dirt-sprite)
-                                                          #f))))))
+      (let ((camera-1       (camera:create (vect+ position (vect:create 3.0 3.0)) 1  (vect:create 6 6)))
+            (camera-2       (camera:create (vect+ position (vect:create 2.5 2.5)) 1  (vect:create 5 5))))
+        (texture:clear (rgb:create 0 0 0))
+        (with-texture texture-map
+                      ;; Render first layer
+                      (with-camera camera-1
+                                   (tilemap:render tilemap-1 #f tile-func-1))
+                      ;; Render second layer
+                      (with-camera camera-2
+                                   (with-blending trans (rgb:create 1 1 1)
+                                                  (tilemap:render tilemap-2 #f
+                                                                  (lambda () (lambda (coord)
+                                                                               (if (and (odd? (coord:x coord))
+                                                                                        (odd? (coord:y coord)))
+                                                                                   (if (< (coord:x coord) 50) flower-sprite dirt-sprite)
+                                                                                   #f)))))))
 
-      ;; Render sprites
-      (with-camera camera-2
-       (with-texture cat-texture
-                     (with-blending trans (rgb:create 1 1 1)
-                                    (sprite-batcher:update! sprite-batcher)
-                                    (sprite-batcher:render sprite-batcher)))
-       (with-blending trans (rgb:create 1 0 0 .5)
-                      (triangle-batcher:render triangle-batcher)))
+        ;; Render sprites
+        (with-camera camera-2
+                     (with-texture cat-texture
+                                   (with-blending trans (rgb:create 1 1 1)
+                                                  (sprite-batcher:update! sprite-batcher)
+                                                  (sprite-batcher:render sprite-batcher)))
+                     (with-blending trans (rgb:create 1 0 0 .5)
+                                    (triangle-batcher:render triangle-batcher))))
 
-      (camera-pos-set! camera-1 position)
-      (camera-pos-set! camera-2 position))))
+      (node:change! cat-node (trans-change:create position: (vect+ (vect:create 2 2) position)))
+      (display (trans:position (node:trans cat-node)))
+      (newline)
+      )))
 
 (define (game-3)
   (lambda (#!rest _)
