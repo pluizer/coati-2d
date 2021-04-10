@@ -107,7 +107,7 @@
 	(gl::check-error))
     (make-texture* id (%create-framebuffer id) size)))
 
-(define (texture:clear rgba)
+(define (texture:clear! rgba)
   (gl::clear-color (rgb:r rgba)
 		   (rgb:g rgba)
 		   (rgb:b rgba)
@@ -159,9 +159,15 @@
 
 (define %target-is-screen? #t)
 
+;; Returns whether we are rendering to screen
+(define (target-is-screen?)
+  %target-is-screen?)
+
 (define (with-target/proc target thunk)
   (let ((id (texture:framebuffer-id target)))
-    (set! %target-is-screen? (= id 0))
-    (gl::with-framebuffer id (thunk))))
+    (let ((target-was-screen? %target-is-screen?))
+      (set! %target-is-screen? (= id 0))
+      (gl::with-framebuffer id (begin (thunk)
+                                      (set! %target-is-screen? target-was-screen?))))))
 
 ;; TODO: free texture, more testing needed
