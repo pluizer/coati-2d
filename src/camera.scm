@@ -3,16 +3,15 @@
                window))
 
 (define-record camera
-  pos zoom width height projection view)
+  pos width height projection view)
 
-(define (camera:create pos zoom #!optional (size (window:size)))
-  (make-camera pos zoom (vect:x size) (vect:y size)
-               (ortho-matrix (* zoom (vect:x size))
-                             (* zoom (vect:y size)))
+(define (camera:create pos #!optional (size (window:size)))
+  (make-camera pos (vect:x size) (vect:y size)
+               (ortho-matrix (vect:x size)
+                             (vect:y size))
                (look-at-matrix pos pos 1)))
 
 (define camera:pos camera-pos)
-(define camera:zoom camera-zoom)
 (define camera:width camera-width)
 (define camera:height camera-height)
 (define camera:projection camera-projection)

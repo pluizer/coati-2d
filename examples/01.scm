@@ -16,7 +16,7 @@
                         (coati:close)))
     (values
      (lambda (rot)
-       (with-camera (camera:create (vect:create .5 .5) 1 (vect:create 1 1))
+       (with-camera (camera:create (vect:create .5 .5) (vect:create 1 1))
                     (with-texture texture
                                   (sprite-batcher:render
                                    batcher)))

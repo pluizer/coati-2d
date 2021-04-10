@@ -61,5 +61,5 @@
 
 (define (poll-events!)
   (set! %listeners
-	(%poll-events %events %listeners))
+	    (%poll-events %events %listeners))
   (set! %events (list)))
