@@ -10,7 +10,7 @@
         srfi-4
         matchable)
 
-(define-record triangle-batcher
+(define-record polygon-batcher
   batcher
   triangle-ids)
 
@@ -19,59 +19,77 @@
   matrix
   triangle)
 
-(define (triangle-batcher:create #!optional (shader solid-shader))
-  (make-triangle-batcher
+(define (polygon-batcher:create #!optional (shader solid-shader))
+  (make-polygon-batcher
    (batcher:create shader
                    *triangle-mode*
                    3)
    (list)))
 
-(define (triangle-batcher:push! triangle-batcher triangle matrix)
-  (let* ((triangle-id (make-triangle-batch-id
-                       (batcher:push!
-                        (triangle-batcher-batcher triangle-batcher)
-                        ;; Vertex data
-                        (apply polygon:create
-                               (map (lambda (v) (vect*matrix v matrix))
-                                    (polygon->vects triangle))))
-                       matrix triangle)))
-    (triangle-batcher-triangle-ids-set!
-     triangle-batcher
-     (cons triangle-id (triangle-batcher-triangle-ids triangle-batcher)))
-    triangle-id))
+(define (polygon-batcher:push! polygon-batcher triangle/polygon matrix)
+  (if (= (f32vector-length triangle/polygon) 6)
+      ;; We have a triangle, push it and return the batcher-id
+      (let* ((triangle-id (make-triangle-batch-id
+                           (batcher:push!
+                            (polygon-batcher-batcher polygon-batcher)
+                            ;; Vertex data
+                            (apply polygon:create
+                                   (map (lambda (v) (vect*matrix v matrix))
+                                        (polygon->vects triangle/polygon))))
+                           matrix triangle/polygon)))
+        (polygon-batcher-triangle-ids-set!
+         polygon-batcher
+         (cons triangle-id (polygon-batcher-triangle-ids polygon-batcher)))
+        triangle-id)
+      ;; We have a polygon, convert it to triangles, push-them and return
+      ;; there batch-id's ...
+      (map (lambda (triangle)
+             (polygon-batcher:push! polygon-batcher triangle matrix))
+           (polygon:triangulate->triangles triangle/polygon))))
 
-(define (triangle-batcher:change! triangle-batcher triangle-batch-id
-                                  matrix)
-  (triangle-batch-id-matrix-set! triangle-batch-id matrix)
-  (match-let ((($ triangle-batch-id batch-id matrix triangle)
-               triangle-batcher))
-    (batcher:change! (triangle-batcher-batcher triangle-batcher)
-                     batch-id
-                     vertex: (apply polygon:create
-                                    (map (lambda (vect)
-                                           (vect*matrix vect matrix)) triangle)))))
+(define (polygon-batcher:change! polygon-batcher id/s matrix)
+  (if (not (list? id/s))
+      ;; Change on triangle ...
+      (let ((id id/s))
+        (triangle-batch-id-matrix-set! id matrix)
+        (match-let ((($ triangle-batch-id batch-id matrix triangle) id))
+                   (batcher:change! (polygon-batcher-batcher polygon-batcher)
+                                    batch-id
+                                    vertex: (apply polygon:create
+                                                   (map (lambda (vect)
+                                                          (vect*matrix vect matrix))
+                                                        (polygon->vects triangle))))))
+      ;; Change multiple triangles ...
+      (for-each (lambda (id)
+                  (polygon-batcher:change! polygon-batcher id matrix))
+                id/s)))
 
-(define (triangle-batcher:remove! triangle-batcher id)
-  (batcher:remove! (triangle-batcher-batcher triangle-batcher)
-		   (triangle-batch-id-batch-id id))
-  (triangle-batcher-triangle-ids-set! triangle-batcher
-   (remove (=? id) (triangle-batcher-triangle-ids triangle-batcher))))
+(define (polygon-batcher:remove! polygon-batcher id/s)
+  (if (not (list? id/s))
+      (let ((id id/s))
+        (batcher:remove! (polygon-batcher-batcher polygon-batcher)
+                         (triangle-batch-id-batch-id id))
+        (polygon-batcher-triangle-ids-set! polygon-batcher
+                                            (remove (=? id) (polygon-batcher-triangle-ids polygon-batcher))))
+      (for-each (lambda (id)
+                  (polygon-batcher:remove! polygon-batcher id))
+                id/s)))
 
-(define (triangle-batcher:clear! triangle-batcher)
-  (batcher:clear! (triangle-batcher-batcher triangle-batcher))
-  (triangle-batcher-triangle-ids-set! triangle-batcher (list)))
+(define (polygon-batcher:clear! polygon-batcher)
+  (batcher:clear! (polygon-batcher-batcher polygon-batcher))
+  (polygon-batcher-triangle-ids-set! polygon-batcher (list)))
 
 ;; Render with matrices instead of camera
-(define (triangle-batcher:render* triangle-batcher projection view)
-  (when (not (null? (triangle-batcher-triangle-ids triangle-batcher)))
-    (batcher:render (triangle-batcher-batcher triangle-batcher) 
+(define (polygon-batcher:render* polygon-batcher projection view)
+  (when (not (null? (polygon-batcher-triangle-ids polygon-batcher)))
+    (batcher:render (polygon-batcher-batcher polygon-batcher)
                     projection (if %target-is-screen?
                                    view
                                    ;; Flip the y-axis of all framebuffer targets.
                                    (matrix:scale (vect:create 1 -1) view))
                     (%current-colour))))
 
-(define (triangle-batcher:render triangle-batcher)
-  (triangle-batcher:render* triangle-batcher
-                          (camera:projection (current-camera))
-                          (camera:view (current-camera))))
+(define (polygon-batcher:render polygon-batcher)
+  (polygon-batcher:render* polygon-batcher
+                            (camera:projection (current-camera))
+                            (camera:view (current-camera))))

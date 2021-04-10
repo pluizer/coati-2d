@@ -56,50 +56,51 @@
                                                                          (/ (vect:y cat-size) 2))
                                                     flip-v?: #t)))
          ;; Polygons
-         (triangle-batcher (triangle-batcher:create)))
+         (polygon-batcher (polygon-batcher:create)))
 
     (listen-for-event `(key-pressed ,key-right)
                       (lambda (#!rest _)
                         (set! position (vect- position (vect:create -.1 0)))))
 
-    (for-each (lambda (triangle)
-                (triangle-batcher:push! triangle-batcher
-                                        triangle
-                                        (trans->matrix (trans:create (zero-vect)))))
-              (polygon:triangulate->triangles (polygon:create (vect:create 0 0)
-                                                              (vect:create 0 1)
-                                                              (vect:create 1 1)
-                                                              (vect:create 1 .2))))
+    (let ((ids (polygon-batcher:push! polygon-batcher
+                              (polygon:create (vect:create 0 0)
+                                              (vect:create 0 1)
+                                              (vect:create 1 1)
+                                              (vect:create 1 .2))
+                              (trans->matrix (trans:create (zero-vect))))))
 
-    (lambda (#!rest _)
-      (let ((camera-1       (camera:create (vect+ position (vect:create 3.0 3.0)) 1  (vect:create 6 6)))
-            (camera-2       (camera:create (vect+ position (vect:create 2.5 2.5)) 1  (vect:create 5 5))))
-        (texture:clear (rgb:create 0 0 0))
-        (with-texture texture-map
-                      ;; Render first layer
-                      (with-camera camera-1
-                                   (tilemap:render tilemap-1 #f tile-func-1))
-                      ;; Render second layer
-                      (with-camera camera-2
-                                   (with-blending trans (rgb:create 1 1 1)
-                                                  (tilemap:render tilemap-2 #f
-                                                                  (lambda () (lambda (coord)
-                                                                               (if (and (odd? (coord:x coord))
-                                                                                        (odd? (coord:y coord)))
-                                                                                   (if (< (coord:x coord) 50) flower-sprite dirt-sprite)
-                                                                                   #f)))))))
 
-        ;; Render sprites
-        (with-camera camera-2
-                     (with-texture cat-texture
-                                   (with-blending trans (rgb:create 1 1 1)
-                                                  (sprite-batcher:update! sprite-batcher)
-                                                  (sprite-batcher:render sprite-batcher)))
-                     (with-blending trans (rgb:create 1 0 0 .5)
-                                    (triangle-batcher:render triangle-batcher))))
+      (lambda (#!key (rot 0))
+        (let ((camera-1       (camera:create (vect+ position (vect:create 3.0 3.0)) 1  (vect:create 6 6)))
+              (camera-2       (camera:create (vect+ position (vect:create 2.5 2.5)) 1  (vect:create 5 5))))
+          (texture:clear (rgb:create 0 0 0))
+          (with-texture texture-map
+                        ;; Render first layer
+                        (with-camera camera-1
+                                     (tilemap:render tilemap-1 #f tile-func-1))
+                        ;; Render second layer
+                        (with-camera camera-2
+                                     (with-blending trans (rgb:create 1 1 1)
+                                                    (tilemap:render tilemap-2 #f
+                                                                    (lambda () (lambda (coord)
+                                                                                 (if (and (odd? (coord:x coord))
+                                                                                          (odd? (coord:y coord)))
+                                                                                     (if (< (coord:x coord) 50) flower-sprite dirt-sprite)
+                                                                                     #f)))))))
 
-      (node:change! cat-node (trans-change:create position: (vect+ (vect:create 2 2) position)))
-      )))
+          ;; Render sprites
+          (with-camera camera-2
+                       (with-texture cat-texture
+                                     (with-blending trans (rgb:create 1 1 1)
+                                                    (sprite-batcher:update! sprite-batcher)
+                                                    (sprite-batcher:render sprite-batcher)))
+                       (with-blending trans (rgb:create 1 0 0 .5)
+                                      (polygon-batcher:render polygon-batcher))))
+
+        (polygon-batcher:change! polygon-batcher ids (matrix:rotate rot (identity-matrix)))
+        (node:change! cat-node (trans-change:create position: (vect+ (vect:create 2 2) position)))
+        (list rot: (+ rot 0.1))
+        ))))
 
 (define (game-3)
   (lambda (#!rest _)
