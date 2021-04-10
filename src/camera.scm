@@ -17,10 +17,18 @@
 (define camera:projection camera-projection)
 (define camera:view camera-view)
 
+(define (%gui-camera)
+  (let* ((size (window:size))
+         (w (vect:x size))
+         (h (vect:y size))
+         (camera (camera:create (vect:create (/ w 2) (/ h 2)))))
+    (camera-view-set! camera (matrix:scale (vect:create 1 -1) (camera-view camera)))
+    camera))
+
 (define %camera-stack (list))
 (define (current-camera) (if (null? %camera-stack)
                              ;; Default current camera
-                             (camera:create (zero-vect) 1)
+                             (%gui-camera)
                              (car %camera-stack)))
 
 
