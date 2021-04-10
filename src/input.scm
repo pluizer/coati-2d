@@ -42,7 +42,7 @@
   ;; Keyboard pressed event. These events keep firing as long a key is pressed.
   ;; Modifiers are ignored (always zero).
   (for-each (lambda (sym)
-              (send-event 'key-pressed sym 0)) %down-keys))
+              (send-event-not-double 'key-pressed sym 0)) %down-keys))
 
 (define (key-down? key)
   (member key %down-keys))

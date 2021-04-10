@@ -13,6 +13,10 @@
 (define (send-event #!rest args)
   (set! %events (cons args %events)))
 
+(define (send-event-not-double #!rest args)
+  (unless (member args %events)
+    (apply send-event args)))
+
 (define (listen-for-event args func)
   (let ((id (gensym)))
     (set! %listeners (cons (make-listener args func id) %listeners))

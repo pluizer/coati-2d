@@ -99,8 +99,6 @@
                                     (triangle-batcher:render triangle-batcher))))
 
       (node:change! cat-node (trans-change:create position: (vect+ (vect:create 2 2) position)))
-      (display (trans:position (node:trans cat-node)))
-      (newline)
       )))
 
 (define (game-3)
