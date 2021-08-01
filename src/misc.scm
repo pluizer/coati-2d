@@ -6,7 +6,7 @@
         (prefix sdl2 "sdl-"))
 
 (define (rgb->sdl-color colour)
-  (make-sdl-color (floor (inexact->exact
+  (sdl-make-color (floor (inexact->exact
                           (* (rgb:r colour) 255)))
                   (floor (inexact->exact
                           (* (rgb:g colour) 255)))

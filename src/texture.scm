@@ -67,15 +67,15 @@
 (define (sdl-surface->texture surface)
   (let ((id (gl::gen-texture))
         (mode (if (= (sdl-pixel-format-bytes-per-pixel
-                      (sdl-surface-pixel-format surface)) 4)
+                     (sdl-surface-format surface)) 4)
                   gl::+rgba+ gl::+rgb+))
-        (w (sdl-surface-width surface))
-        (h (sdl-surface-height surface)))
+        (w (sdl-surface-w surface))
+        (h (sdl-surface-h surface)))
     (gl::with-texture gl::+texture-2d+ id
                       (gl::tex-image-2d gl::+texture-2d+ 0 mode
                                         w h
                                         0 mode gl::+unsigned-byte+
-                                        (sdl-surface-pixels surface)))
+                                        (sdl-surface-pixels-raw surface)))
     (let ((texture (make-texture* id (%create-framebuffer id) (vect:create w h))))
       (%texture-linear-filter id)
       texture)))

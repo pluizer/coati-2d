@@ -6,12 +6,14 @@
   size+pointer)
 
 (import
-  (prefix sdl2 "sdl")
-  (prefix sdl2-ttf "ttf:"))
+  (chicken gc)
+  (srfi-1)
+  (prefix sdl2 "sdl-")
+  (prefix sdl2-ttf "ttf-"))
 
 (define (load-font filename)
-  (unless (and (ttf:was-init?) (zero? (ttf:init)))
-    (error "Could not init sdl-ttf:" #f))
+  (unless (ttf-was-init?)
+    (ttf-init!))
   (set-finalizer!
    (make-font filename (list))
    (lambda (font)
@@ -24,7 +26,7 @@
 (define (%font-ptr font size)
   (let ((tmp (filter (lambda (s+p) (= (car s+p) size)) (font-size+pointer font))))
     (if (null-list? tmp)
-        (let ((ptr (ttf:open-font (font-filename font) size)))
+        (let ((ptr (ttf-open-font (font-filename font) size)))
           (unless ptr (error "Could not create font:" (sdl:get-error)))
           (font-size+pointer-set! font (cons (list size ptr)
                                              (font-size+pointer font)))
@@ -34,7 +36,7 @@
 ;; Renders (blended) a string to a texture.
 (define (string->texture string font size colour)
   (let* ((font-ptr (%font-ptr font size))
-         (surface (ttf:render-text-blended
+         (surface (ttf-render-text-blended
                    font-ptr string (rgb->sdl-color colour))))
     (unless surface (error "Could not render string:" (sdl:get-error)))
     (sdl-surface->texture surface)))

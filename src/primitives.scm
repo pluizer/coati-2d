@@ -116,7 +116,7 @@
 ;; Scalar multiplication.
 (define (vect* v s)
   (vect:create (* (vect:x v) s)
-	       (* (vect:y v) s)))
+	             (* (vect:y v) s)))
 
 ;; Vector dot product.
 (define (vect:dot a b)
