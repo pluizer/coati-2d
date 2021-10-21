@@ -24,6 +24,11 @@ A simple to use fast 2D game programming library for Chicken Scheme.
 
 See [[https://github.com/pluizer/coati-2d/blob/master/TUTORIAL.org][TUTORIAL.org]] for more detailed info.
 
+* Connecting to REPL
+
+A REPL is automatically started on port 1234 to connect to it use:
+: rlwrap nc localhost 1234
+
 * todo
 - Delta time
 - Particle system
