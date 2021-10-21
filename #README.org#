@@ -6,7 +6,6 @@ A simple to use fast 2D game programming library for Chicken Scheme.
 - License: [[https://www.gnu.org/licenses/gpl-3.0.en.html][GPL-3]]
 
 * Updates
-- [19-10-2011] Text rendering capabilities
 - [05-04-2021] Support for .tmx and .tsx files
 - [27-02-2021] Support for isometric tilemaps
 - [20-02-2021] Updated to SDL2
