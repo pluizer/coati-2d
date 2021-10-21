@@ -1,0 +1,117 @@
+(declare (unit textbuffer)
+         (uses primitives
+	       tilemap
+               texture
+               misc))
+
+(import srfi-1
+        (chicken string)
+        vector-lib)
+
+(define char-map
+ " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~")
+
+(define (%string->chars str)
+  (apply vector
+	 (map (lambda (c) (substring-index (string c) char-map))
+	      (string->list str))))
+
+(define-record textbuffer
+  dirty?
+  width height
+  buffer
+  colour-buffer
+  tilemap
+  colour
+  location
+  location-start-x
+  texture
+  camera
+  text-texture
+  renderer)
+
+(define (textbuffer:create charmap-texture w h)
+  (let ((buffer (make-vector (* w h) 0))
+	(colour-buffer (make-vector (* w h) (rgb:create 1 1 1)))
+	(tilemap (tilemap:create))
+	(camera (camera:create (vect:create 0 0) (vect:create w h)))
+	(text-texture (texture:create (window:size))))
+    (make-textbuffer
+     #t
+     w h
+     buffer
+     colour-buffer
+     (tilemap:create)
+     (rgb:create 1 1 1)
+     (coord:create 0 0)
+     0
+     charmap-texture
+     camera
+     text-texture
+     (texture:renderer text-texture))))
+
+(define (textbuffer:render textbuffer)
+  (let* ((dirty? (textbuffer-dirty? textbuffer))
+	 (width (textbuffer-width textbuffer))
+	 (height (textbuffer-height textbuffer))
+	 (target (textbuffer-text-texture textbuffer))
+	 (func
+	  (lambda ()
+	    (lambda (coord)
+	      (let* ((x (coord:x coord))
+		     (y (coord:y coord))
+		     (pos (+ (* width (- height y 1)) x))
+		     (char (vector-ref (textbuffer-buffer textbuffer) pos))
+		     (colour (vector-ref (textbuffer-colour-buffer textbuffer) pos)))
+
+		(list sprite: (sprite:create-from-indices (textbuffer-texture textbuffer) 16 6
+							  (list char))
+		      colour: colour))))))
+    (when dirty?
+      (with-target target
+		   (with-camera (textbuffer-camera textbuffer)
+				(with-blending trans
+					       (rgb:create 1 1 1)
+					       (with-texture (textbuffer-texture textbuffer)
+							     (tilemap:render (textbuffer-tilemap textbuffer) #f func)))))
+      (textbuffer-dirty?-set! textbuffer #f))
+    (with-blending trans (rgb:create 1 1 1)
+		   ((textbuffer-renderer textbuffer)))))
+
+(define (%textbuffer-set! textbuffer start text-vector colour)
+  (textbuffer-dirty?-set! textbuffer #t)
+  (vector-copy! (textbuffer-buffer textbuffer) start text-vector)
+  (vector-copy! (textbuffer-colour-buffer textbuffer) start (make-vector (vector-length text-vector) colour)))
+
+(define (textbuffer:set-cursor! textbuffer x y)
+  (let ((width (textbuffer-width textbuffer)))
+    (textbuffer-location-start-x-set! textbuffer x)
+    (textbuffer-location-set! textbuffer (coord:create x y))))
+
+(define (textbuffer:newline! textbuffer)
+  (let* ((location (textbuffer-location textbuffer))
+	 (x (textbuffer-location-start-x textbuffer))
+	 (y (coord:y location)))
+    (textbuffer:set-cursor! textbuffer x (+ y 1))))
+
+(define (textbuffer:colour! textbuffer colour)
+  (textbuffer-colour-set! textbuffer colour))
+
+(define (textbuffer:prn! textbuffer str)
+  (let* ((location (textbuffer-location textbuffer))
+	 (x (coord:x location))
+	 (y (coord:y location))
+	 (align-x (textbuffer-location-start-x textbuffer))
+	 (length (string-length str))
+	 (width (textbuffer-width textbuffer))
+	 (colour (textbuffer-colour textbuffer))
+	 (start (+ (* width y) x))
+	 (end (+ start length))
+	 (nx (modulo end width))
+	 (ny (/ (- end nx) width)))
+    (if (> (+ x length) width)
+	(begin (textbuffer:prn! textbuffer (substring str 0 (- width x)))
+	       (textbuffer-location-set! textbuffer (coord:create align-x (+ y 1)))
+	       (textbuffer:prn! textbuffer (substring str (- width x))))
+	(begin (%textbuffer-set! textbuffer start (%string->chars str) colour)
+	       (textbuffer-location-set! textbuffer (coord:create nx ny))))))

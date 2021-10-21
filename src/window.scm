@@ -1,5 +1,6 @@
 (declare (unit window)
-         (uses primitives))
+         (uses primitives
+	       textbuffer))
 
 (import (prefix epoxy gl::)
         (prefix gl-utils gl::)
@@ -35,6 +36,7 @@
                                    (list prev-ret)))))
      (when (and ret (not %window-should-close?))
        (thread-sleep! 0.05)
+       (textbuffer '(%render))
        (game-loop iter-func ret)))))
 
 (define (coati:init w h title fullscreen?)
@@ -71,10 +73,10 @@
 ;;                              (list (update-position position) 'walking)))
 ;;                        (list (vect:create 10 20) 'walking))))
 (define (coati:start game)
-
+  (set! textbuffer (textbuffer:init 50 25))
   (thread-start!
    (lambda ()
-     (nrepl 1234
+     (nrepl 123
             #:spawn (lambda ()
                       (thread-start!
                        (lambda ()

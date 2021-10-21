@@ -71,8 +71,8 @@
 
 
       (lambda (#!key (rot 0))
-        (let ((camera-1       (camera:create (vect+ position (vect:create 3.0 3.0)) 1  (vect:create 6 6)))
-              (camera-2       (camera:create (vect+ position (vect:create 2.5 2.5)) 1  (vect:create 5 5))))
+        (let ((camera-1       (camera:create (vect+ position (vect:create 3.0 3.0)) (vect:create 6 6)))
+              (camera-2       (camera:create (vect+ position (vect:create 2.5 2.5)) (vect:create 5 5))))
           (texture:clear! (rgb:create 0 0 0))
           (with-texture texture-map
                         ;; Render first layer
@@ -107,7 +107,7 @@
     #f))
 
 (coati:init 800 600 "Example 2" #f)
-(coati:start game-1)
+;(coati:start game-1)
 (coati:start game-2)
 
 (exit)

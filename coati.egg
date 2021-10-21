@@ -3,8 +3,8 @@
 (synopsis "A simple, small and fast 2D game programming library for Chicken Scheme.")
 (license "MIT")
 (category graphics)
-(dependencies symbol-utils srfi-1 srfi-4 srfi-18 sdl2 sdl2-ttf gl-utils gl-math soil matchable ssax nrepl)
-(component-options (csc-options "-c++" "-C" "-Wno-write-strings" "-I./src"))
+(dependencies symbol-utils srfi-1 srfi-4 srfi-18 sdl2 sdl2-ttf gl-utils gl-math soil matchable ssax nrepl vector-lib)
+(component-options (csc-options "-c++" "-C" "-Wno-write-strings -Wno-narrowing -Wno-int-to-pointer-cast" "-I./src"))
 (components
  (c-object animators       (source "src/animators.scm"))
  (c-object batcher         (source "src/batcher.scm"))
@@ -27,6 +27,7 @@
  (c-object sprite-batcher  (source "src/sprite-batcher.scm"))
  (c-object sprite          (source "src/sprite.scm"))
  (c-object sprite-map      (source "src/sprite-map.scm"))
+ (c-object textbuffer      (source "src/textbuffer.scm"))
  (c-object texture         (source "src/texture.scm"))
  (c-object tilemap         (source "src/tilemap.scm"))
  (c-object triangulate     (source "src/triangulate.cc"))
@@ -57,6 +58,7 @@
              sprite-batcher
              sprite
              sprite-map
+	     textbuffer
              texture
              tilemap
              triangulate

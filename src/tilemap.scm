@@ -185,13 +185,13 @@
                ;; Moving the camera by one in a direction will move the map also
                ;; by one in that direction (depending on zoom level).
                (coord:create
-		(inexact->exact (round fx))
-                (inexact->exact (round fy)))
+		(inexact->exact (floor fx))
+                (inexact->exact (floor fy)))
                ;; Half of the size of a tile can be offscreen. That is why we
                ;; must also render a border of 1 tile with so there won't be
                ;; an empty part on the order edge.
-	       (+ width 1)
-	       (+ height 1)
+	       width
+	       height
 	       tile-func
                tile-args
 	       projection

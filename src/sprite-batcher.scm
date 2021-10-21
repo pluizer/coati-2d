@@ -101,7 +101,8 @@
                     projection (if %target-is-screen?
                                    view
                                    ;; Flip the y-axis of all framebuffer targets.
-                                   (matrix:scale (vect:create 1 -1) view))
+                                   (matrix:scale (vect:create 1 -1) view)
+				   )
                     (%current-colour))))
 
 (define (sprite-batcher:render sprite-batcher)

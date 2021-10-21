@@ -138,7 +138,10 @@
   (let ((func (texture:renderer* texture rect)))
     (lambda ()
       (func (camera:projection (current-camera))
-            (camera:view (current-camera))))))
+	    ;; TODO: Figure out why this is needed ...
+            (if %target-is-screen? 
+		(matrix:scale (vect:create 1 -1) (camera:view (current-camera)))
+		(camera:view (current-camera)))))))
 
 ;; TODO
 ;; Returns a function that renders a texture fullscreen.
