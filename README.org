@@ -6,6 +6,7 @@ A simple to use fast 2D game programming library for Chicken Scheme.
 - License: [[https://www.gnu.org/licenses/gpl-3.0.en.html][GPL-3]]
 
 * Updates
+- [24-10-2011] Optimised text rendering
 - [19-10-2011] Text rendering capabilities
 - [05-04-2021] Support for .tmx and .tsx files
 - [27-02-2021] Support for isometric tilemaps
@@ -30,18 +31,6 @@ See [[https://github.com/pluizer/coati-2d/blob/master/TUTORIAL.org][TUTORIAL.org
 A REPL is automatically started on port 1234 to connect to it use:
 : rlwrap nc localhost 1234
 
-* Printing text example
-  
-(map textbuffer `((cursor 5 5) 
-		    (prn "Hello!")
-		    (colour ,(rgb:create 1 0 0))
-		    (newline)
-		    (prn "Test!")
-		    (colour ,(rgb:create 1 1 0))
-		    (prn "!")
-		    (colour ,(rgb:create 0 1 1))
-		    (prn "!")
-		    ))
 * todo
 - Delta time
 - Particle system

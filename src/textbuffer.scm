@@ -1,11 +1,12 @@
 (declare (unit textbuffer)
          (uses primitives
-	       tilemap
+	       static-tilemap
                texture
                misc))
 
 (import srfi-1
         (chicken string)
+	(chicken random)
 	matchable
         vector-lib)
 
@@ -20,9 +21,7 @@
 (define-record textbuffer
   dirty?
   width height
-  buffer
-  colour-buffer
-  tilemap
+  static-tilemap
   colour
   location
   location-start-x
@@ -32,17 +31,13 @@
   renderer)
 
 (define (%textbuffer:create charmap-texture w h)
-  (let ((buffer (make-vector (* w h) 0))
-	(colour-buffer (make-vector (* w h) (rgb:create 1 1 1)))
-	(tilemap (tilemap:create))
-	(camera (camera:create (vect:create 0 0) (vect:create w h)))
+  (let ((static-tilemap (static-tilemap:create w h (coord:create 1 1) #f))
+	(camera (camera:create (vect:create  (/ w 2) (exact->inexact (/ h 2))) (vect:create w h)))
 	(text-texture (texture:create (window:size))))
     (make-textbuffer
      #t
      w h
-     buffer
-     colour-buffer
-     (tilemap:create)
+     static-tilemap
      (rgb:create 1 1 1)
      (coord:create 0 0)
      0
@@ -55,19 +50,7 @@
   (let* ((dirty? (textbuffer-dirty? textbuffer))
 	 (width (textbuffer-width textbuffer))
 	 (height (textbuffer-height textbuffer))
-	 (target (textbuffer-text-texture textbuffer))
-	 (func
-	  (lambda ()
-	    (lambda (coord)
-	      (let* ((x (coord:x coord))
-		     (y (coord:y coord))
-		     (pos (+ (* width (- height y 1)) x))
-		     (char (vector-ref (textbuffer-buffer textbuffer) pos))
-		     (colour (vector-ref (textbuffer-colour-buffer textbuffer) pos)))
-
-		(list sprite: (sprite:create-from-indices (textbuffer-texture textbuffer) 16 6
-							  (list char))
-		      colour: colour))))))
+	 (target (textbuffer-text-texture textbuffer)))
     (when dirty?
       (with-target/proc
        target
@@ -76,20 +59,32 @@
 	  (textbuffer-camera textbuffer)
 	  (lambda () 
 	    (with-blending/proc
-
-		   'trans
-		   (rgb:create 1 1 1)
-		   (lambda () 
-		     (with-texture/proc (textbuffer-texture textbuffer)
-					(lambda () (tilemap:render (textbuffer-tilemap textbuffer) #f func)))))))))
+	     'trans
+	     (rgb:create 1 1 1)
+	     (lambda () 
+	       (with-texture/proc (textbuffer-texture textbuffer)
+				  (lambda ()
+				    (texture:clear! (rgb:create 0 0 0 0))
+				    (static-tilemap:render (textbuffer-static-tilemap textbuffer))))))))))
       (textbuffer-dirty?-set! textbuffer #f))
     (with-blending/proc 'trans (rgb:create 1 1 1)
-			(lambda () ((textbuffer-renderer textbuffer))))))
+			(lambda ()
+			  ((textbuffer-renderer textbuffer))))))
 
-(define (%textbuffer-set! textbuffer start text-vector colour)
+(define (textbuffer:clear! textbuffer)
   (textbuffer-dirty?-set! textbuffer #t)
-  (vector-copy! (textbuffer-buffer textbuffer) start text-vector)
-  (vector-copy! (textbuffer-colour-buffer textbuffer) start (make-vector (vector-length text-vector) colour)))
+  (static-tilemap:clear! (textbuffer-static-tilemap textbuffer)))
+
+(define (%textbuffer-set! textbuffer x y text-vector colour)
+  (textbuffer-dirty?-set! textbuffer #t)
+  (let ((tilemap (textbuffer-static-tilemap textbuffer)))
+    (map (lambda (c i)
+	   (static-tilemap:set! (textbuffer-static-tilemap textbuffer) (coord:create (+ x i) y)
+				(list sprite: (sprite:create-from-indices (textbuffer-texture textbuffer) 16 6 (list c))
+				      colour: colour)))
+
+	 (vector->list text-vector)
+	 (iota (vector-length text-vector)))))
 
 (define (textbuffer:set-cursor! textbuffer x y)
   (let ((width (textbuffer-width textbuffer)))
@@ -112,6 +107,7 @@
 	 (align-x (textbuffer-location-start-x textbuffer))
 	 (length (string-length str))
 	 (width (textbuffer-width textbuffer))
+	 (height (textbuffer-height textbuffer))
 	 (colour (textbuffer-colour textbuffer))
 	 (start (+ (* width y) x))
 	 (end (+ start length))
@@ -121,7 +117,7 @@
 	(begin (textbuffer:prn! textbuffer (substring str 0 (- width x)))
 	       (textbuffer-location-set! textbuffer (coord:create align-x (+ y 1)))
 	       (textbuffer:prn! textbuffer (substring str (- width x))))
-	(begin (%textbuffer-set! textbuffer start (%string->chars str) colour)
+	(begin (%textbuffer-set! textbuffer x (- height 1 y) (%string->chars str) colour)
 	       (textbuffer-location-set! textbuffer (coord:create nx ny))))))
 
 (define textbuffer #f)
@@ -133,4 +129,5 @@
 		  (('colour colour) (textbuffer:colour! textbuffer colour))
 		  (('newline) (textbuffer:newline! textbuffer))
 		  (('cursor x y) (textbuffer:set-cursor! textbuffer x y))
+		  (('clear) (textbuffer:clear! textbuffer))
 		  (('%render) (textbuffer:render textbuffer)))))

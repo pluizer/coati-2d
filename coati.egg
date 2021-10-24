@@ -4,7 +4,7 @@
 (license "MIT")
 (category graphics)
 (dependencies symbol-utils srfi-1 srfi-4 srfi-18 sdl2 sdl2-ttf gl-utils gl-math soil matchable ssax nrepl vector-lib)
-(component-options (csc-options "-c++" "-C" "-Wno-write-strings -Wno-narrowing -Wno-int-to-pointer-cast" "-I./src"))
+(component-options (csc-options "-c++" "-C" "-Wno-pointer-arith -Wno-write-strings -Wno-narrowing -Wno-int-to-pointer-cast" "-I./src"))
 (components
  (c-object animators       (source "src/animators.scm"))
  (c-object batcher         (source "src/batcher.scm"))
@@ -27,6 +27,7 @@
  (c-object sprite-batcher  (source "src/sprite-batcher.scm"))
  (c-object sprite          (source "src/sprite.scm"))
  (c-object sprite-map      (source "src/sprite-map.scm"))
+ (c-object static-tilemap  (source "src/static-tilemap.scm"))
  (c-object textbuffer      (source "src/textbuffer.scm"))
  (c-object texture         (source "src/texture.scm"))
  (c-object tilemap         (source "src/tilemap.scm"))
@@ -58,6 +59,7 @@
              sprite-batcher
              sprite
              sprite-map
+	     static-tilemap
 	     textbuffer
              texture
              tilemap

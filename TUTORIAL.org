@@ -81,15 +81,16 @@ Rendering textures using a renderer might be okay for just a few textures but ge
 * UI, printing text example
 
 #+BEGIN_SRC scheme
-(map textbuffer `((cursor 5 5) 
-		  (prn "Hello!")
-		  (colour ,(rgb:create 1 0 0))
-		  (newline)
-		  (prn "Test!")
-		  (colour ,(rgb:create 1 1 0))
-		  (prn "!")
-		  (colour ,(rgb:create 0 1 1))
-		  (prn "!")))
+  (map textbuffer `((cursor 5 5) 
+		    (prn "Hello!")
+		    (clear)
+		    (colour ,(rgb:create 1 0 0))
+		    (newline)
+		    (prn "Test!")
+		    (colour ,(rgb:create 1 1 0))
+		    (prn "!")
+		    (colour ,(rgb:create 0 1 1))
+		    (prn "!")))
 #+END_SRC
 
 * Sprite batcher

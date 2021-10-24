@@ -22,6 +22,7 @@
                  sprite
 		 sprite-map
                  sprite-batcher
+		 static-tilemap
                  texture
                  tilemap
                  trans

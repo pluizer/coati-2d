@@ -1,0 +1,13 @@
+(declare (unit static-tilemap)
+         (uses primitives
+               shader
+               sprite-batcher
+               texture
+               misc))
+
+(import srfi-1
+        srfi-4
+        matchable
+        (prefix epoxy gl::)
+        (prefix gl-math gl::))
+
