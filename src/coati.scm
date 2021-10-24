@@ -3,7 +3,8 @@
   (import scheme
           (chicken base)
           (chicken foreign))
-  (declare (uses animators
+  (declare (uses algorithms
+		 animators
                  batcher
                  blend
                  chunk

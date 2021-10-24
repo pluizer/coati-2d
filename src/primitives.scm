@@ -255,6 +255,10 @@
                 (- (* (vect:y v) 2)))))
     (vect:vreate vx vy)))
 
+(define (vect->coord v)
+  (coord:create (inexact->exact (round (vect:x v)))
+		(inexact->exact (round (vect:y v)))))
+
 ;;-------------------------------------------------------
 ;; Coords
 ;;-------------------------------------------------------
@@ -295,6 +299,10 @@
          (cy (+ (coord:x c)
                 (- (* (coord:y c) 2)))))
     (coord:create cx cy)))
+
+(define (coord->vect c)
+  (vect:create (coord:x c)
+	       (coord:y c)))
 
 ;;-------------------------------------------------------
 ;; Bounding Boxes

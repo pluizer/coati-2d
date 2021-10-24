@@ -3,9 +3,10 @@
 (synopsis "A simple, small and fast 2D game programming library for Chicken Scheme.")
 (license "MIT")
 (category graphics)
-(dependencies symbol-utils srfi-1 srfi-4 srfi-18 sdl2 sdl2-ttf gl-utils gl-math soil matchable ssax nrepl vector-lib)
+(dependencies symbol-utils srfi-1 srfi-4 srfi-18 srfi-128 srfi-113 sdl2 sdl2-ttf gl-utils gl-math soil matchable ssax nrepl vector-lib)
 (component-options (csc-options "-c++" "-C" "-Wno-pointer-arith -Wno-write-strings -Wno-narrowing -Wno-int-to-pointer-cast" "-I./src"))
 (components
+ (c-object algorithms	   (source "src/algorithms.scm"))
  (c-object animators       (source "src/animators.scm"))
  (c-object batcher         (source "src/batcher.scm"))
  (c-object blend           (source "src/blend.scm"))
@@ -38,6 +39,7 @@
  (extension coati
             (source "src/coati.scm")
             (objects
+	     algorithms
              animators
              batcher
              blend
