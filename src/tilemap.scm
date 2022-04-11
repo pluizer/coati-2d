@@ -1,5 +1,6 @@
 (declare (unit tilemap)
          (uses primitives
+	       camera
                shader
                sprite-batcher
                texture
@@ -97,13 +98,12 @@
 						  (vect:create x y))
 					      ))))
 				;; Push the tile to the batcher.
-				((match-lambda
-				  ;; sprite with no special colour
-				  ((? sprite? sprite)
-				   (sprite-batcher:push! batcher sprite trans))
-				  ((sprite: sprite colour: colour)
-				   (sprite-batcher:push! batcher sprite trans colour)))
-				 sprite)))))
+				(match sprite
+				 ;; sprite with no special colour
+				 ((? sprite? sprite)
+				  (sprite-batcher:push! batcher sprite trans))
+				 ((sprite: sprite colour: colour)
+				  (sprite-batcher:push! batcher sprite trans colour)))))))
 			coords)
 		       (set! active-coords coords))))))
 	     ;; Render the sprite-batch

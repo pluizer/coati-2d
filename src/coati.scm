@@ -11,6 +11,7 @@
                  drawing
                  events
                  font
+		 gamemap
                  input
                  misc
                  node

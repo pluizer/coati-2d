@@ -3,7 +3,7 @@
 (synopsis "A simple, small and fast 2D game programming library for Chicken Scheme.")
 (license "MIT")
 (category graphics)
-(dependencies symbol-utils srfi-1 srfi-4 srfi-18 srfi-128 srfi-113 sdl2 sdl2-ttf gl-utils gl-math soil matchable ssax nrepl vector-lib)
+(dependencies symbol-utils srfi-1 srfi-4 srfi-18 srfi-128 srfi-113 sdl2 sdl2-ttf gl-utils gl-math soil matchable ssax nrepl vector-lib queues)
 (component-options (csc-options "-c++" "-C" "-Wno-pointer-arith -Wno-write-strings -Wno-narrowing -Wno-int-to-pointer-cast" "-I./src"))
 (components
  (c-object algorithms	   (source "src/algorithms.scm"))
@@ -15,6 +15,7 @@
  (c-object drawing         (source "src/drawing.scm"))
  (c-object events          (source "src/events.scm"))
  (c-object font            (source "src/font.scm"))
+ (c-object gamemap         (source "src/gamemap.scm"))
  (c-object input           (source "src/input.scm"))
  (c-object misc            (source "src/misc.scm"))
  (c-object node-pers       (source "src/node-pers.scm"))
@@ -48,6 +49,7 @@
              drawing
              events
              font
+	     gamemap
              input
              misc
              node-pers
