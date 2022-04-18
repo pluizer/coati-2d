@@ -1,13 +1,15 @@
 A simple to use fast 2D game programming library for Chicken Scheme.
 
-- Version: 0.3
+- Version: 0.5
 - Author: Richard van Roy (pluizer)
 - Project: [[https://github.com/pluizer/coati]]
 - License: [[https://www.gnu.org/licenses/gpl-3.0.en.html][GPL-3]]
 
 * Updates
-- [24-10-2011] Optimised text rendering
-- [19-10-2011] Text rendering capabilities
+- [18-04-2022] Integrated Chipmunk physics
+- [11-04-2022] Gamemap support
+- [24-10-2021] Optimised text rendering
+- [19-10-2021] Text rendering capabilities
 - [05-04-2021] Support for .tmx and .tsx files
 - [27-02-2021] Support for isometric tilemaps
 - [20-02-2021] Updated to SDL2
