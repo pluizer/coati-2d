@@ -19,6 +19,7 @@
                  pixmap
                  particles
                  polygon-batcher
+		 physics
                  shader
                  sound
                  sprite

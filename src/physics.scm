@@ -3,6 +3,8 @@
 
 (import scheme
 	(chicken foreign)
+	(chicken memory)
+	(chicken gc)
 	srfi-1
 	srfi-4
 	srfi-69)
@@ -202,7 +204,7 @@
    #f))
 
 (define (create-space)
-  (let ((space (create-space))
+  (let ((space (low:create-space))
         (dispatch-data-tuple
          (new-gc-root
           (list (lambda (space type)
@@ -222,7 +224,7 @@
                     (else (error "internal error dispatching callback function."))))
                 (list)))))
     (hash-table-set! %meta-hash space (%empty-space-meta))
-    (%space-default-collision-handler-set! space
+    (low:%space-default-collision-handler-set! space
 					       #$_collision_begin_bridge
 					       #$_collision_presolve_bridge
 					       #$_collision_postsolve_bridge
@@ -230,7 +232,7 @@
                                                dispatch-data-tuple)
     (set-finalizer! space (lambda (space)
                             (free-gc-root dispatch-data-tuple)
-                            (space-free space)
+                            (low:space-free space)
                             (hash-table-delete! %meta-hash space)))))
 
 (define (space-bodies space) (space-meta-bodies (%metadata space)))
@@ -247,57 +249,57 @@
 
 (define (space-each-body space func)
   (let-protect ((ptr func))
-   (space-each-body space #$_space_body_iter_bridge ptr)))
+   (low:space-each-body space #$_space_body_iter_bridge ptr)))
 
 (define (space-each-shape space func)
   (let-protect ((ptr func))
-   (space-each-shape space #$_space_shape_iter_bridge ptr)))
+   (low:space-each-shape space #$_space_shape_iter_bridge ptr)))
 
 (define (space-each-constraint space func)
   (let-protect ((ptr func))
-   (space-each-constraint space #$_space_constraint_iter_bridge ptr)))
+   (low:space-each-constraint space #$_space_constraint_iter_bridge ptr)))
 
 (define (space-add-body space body)
   (let ((meta (%metadata space)))
     (space-meta-bodies-set!
      meta (cons body (space-meta-bodies meta)))
-    (space-add-body space body)))
+    (low:space-add-body space body)))
  
 (define (space-remove-body space body)
   (let ((meta (%metadata space)))
    (space-meta-bodies-set!
     meta (delete-first-occurance body (space-meta-bodies meta) pointer=?))
-     (space-remove-body space body)))
+     (low:space-remove-body space body)))
 
 (define (space-add-shape space shape)
   (let ((meta (%metadata space)))
     (space-meta-shapes-set!
      meta (cons shape (space-meta-shapes meta)))
-    (space-add-shape space shape)))
+    (low:space-add-shape space shape)))
 
 (define (space-add-static-shape space shape)
   (let ((meta (%metadata space)))
     (space-meta-shapes-set!
      meta (cons shape (space-meta-shapes meta)))
-    (space-add-static-shape space shape)))
+    (low:space-add-static-shape space shape)))
 
 (define (space-remove-shape space shape)
   (let ((meta (%metadata space)))
    (space-meta-shapes-set!
     meta (delete-first-occurance shape (space-meta-shapes meta) pointer=?))
-     (space-remove-shape space shape)))
+     (low:space-remove-shape space shape)))
 
 (define (space-add-constraint space constraint)
   (let ((meta (%metadata space)))
     (space-meta-constraints-set!
      meta (cons constraint (space-meta-constraints meta)))
-    (space-add-constraint space constraint)))
+    (low:space-add-constraint space constraint)))
 
 (define (space-remove-constraint space constraint)
   (let ((meta (%metadata space)))
    (space-meta-constraints-set!
     meta (delete-first-occurance constraint (space-meta-constraints meta) pointer=?))
-     (space-remove-constraint space constraint)))
+     (low:space-remove-constraint space constraint)))
 
 ; Collision handling
 
@@ -347,7 +349,7 @@
     (hash-table-set! (space-meta-collision-handlers (%metadata space))
                      (list collision-type-a collision-type-b)
                      dispatch-data-tuple)
-    (%space-add-collision-handler space
+    (low:%space-add-collision-handler space
                                   collision-type-a collision-type-b
                                   #$_collision_begin_bridge
                                   #$_collision_presolve_bridge
@@ -360,7 +362,7 @@
         (key (list collision-type-a collision-type-b)))
    (free-gc-root (hash-table-ref handlers key))
    (hash-table-delete! handlers key))
-  (%space-remove-collision-handler space collision-type-a collision-type-b))
+  (low:%space-remove-collision-handler space collision-type-a collision-type-b))
 
 (define (space-add-poststep-callback space func key #!rest data)
   (let ((dispatch-data-tuple
@@ -375,13 +377,13 @@
                                         (cons key-root (cons dispatch-data-tuple
                                                         (space-meta-poststep-callbacks
                                                          (%metadata space)))))
-    (space-add-poststep-callback space
+    (low:space-add-poststep-callback space
                                      #$_collision_postsolve_bridge
                                      key-root
                                      dispatch-data-tuple)))
 
 (define (space-step space dt)
-  (space-step space dt)
+  (low:space-step space dt)
   ; Remove all poststep callbacks, there are not needed anymore.
   (map free-gc-root (space-meta-poststep-callbacks (%metadata space)))
   (space-meta-poststep-callbacks-set! (%metadata space) (list)))
@@ -395,9 +397,9 @@
   userdata)
 
 (define-high-wrappers
- body-free (make-body-meta #f)
- (create-body create-body)
- (create-static-body create-static-body))
+ low:body-free (make-body-meta #f)
+ (create-body low:create-body)
+ (create-static-body low:create-static-body))
 
 (define body-userdata
   (getter-with-setter
@@ -408,15 +410,15 @@
 
 (define (body-each-shape body func)
   (let-protect ((ptr func))
-   (body-each-shape body #$_body_shape_iter_bridge ptr)))
+   (low:body-each-shape body #$_body_shape_iter_bridge ptr)))
 
 (define (body-each-constraint body func)
   (let-protect ((ptr func))
-   (body-each-constraint body #$_body_constraint_iter_bridge ptr)))
+   (low:body-each-constraint body #$_body_constraint_iter_bridge ptr)))
 
 (define (body-each-arbiter body func)
   (let-protect ((ptr func))
-   (body-each-arbiter body #$_body_arbiter_iter_bridge ptr)))
+   (low:body-each-arbiter body #$_body_arbiter_iter_bridge ptr)))
 
 ;-------------------------------------------------------
 ; Shape
@@ -426,10 +428,10 @@
   userdata)
 
 (define-high-wrappers
- shape-free (make-shape-meta #f)
- (create-circle-shape create-circle-shape)
- (create-polygon-shape create-polygon-shape)
- (create-box-shape create-box-shape))
+ low:shape-free (make-shape-meta #f)
+ (create-circle-shape low:create-circle-shape)
+ (create-polygon-shape low:create-polygon-shape)
+ (create-box-shape low:create-box-shape))
 
 (define shape-userdata
   (getter-with-setter
@@ -441,24 +443,24 @@
 (define shape-group
   (getter-with-setter
    (lambda (shape)
-    (let ((group-index (shape-group shape)))
+    (let ((group-index (low:shape-group shape)))
       (assert (hash-table-exists? %group-symbol-table group-index))
       (hash-table-ref %group-symbol-table group-index)))
    (lambda (shape group)
-     (set! (shape-group shape) (%group->integer group)))))
+     (set! (low:shape-group shape) (%group->integer group)))))
 
 (define shape-layers
   (getter-with-setter
    (lambda (shape)
-     (%layers->list (shape-layers shape)))
+     (%layers->list (low:shape-layers shape)))
    (lambda (shape layers)
-     (set! (shape-layers shape) (%list->layers layers)))))
+     (set! (low:shape-layers shape) (%list->layers layers)))))
 
 ; Polygon shapes
 
 (define (polygon-shape-vertices shape)
-  (map (lambda (n) (polygon-shape-vertex-ref shape n))
-       (iota (polygon-shape-vertex-count))))
+  (map (lambda (n) (low:polygon-shape-vertex-ref shape n))
+       (iota (low:polygon-shape-vertex-count shape))))
 
 ;-------------------------------------------------------
 ; Contraint
@@ -468,18 +470,18 @@
   userdata)
 
 (define-high-wrappers
-  constraint-free (make-constraint-meta #f)
-  (create-pin-joint create-pin-joint)
-  (create-slide-joint create-slide-joint)
-  (create-pivot-joint-with-anchors create-pivot-joint-with-anchors)
-  (create-pivot-joint-with-pivot create-pivot-joint-with-pivot)
-  (create-groove-joint create-groove-joint)
-  (create-damped-spring create-damped-spring)
-  (create-damped-rotary-spring create-damped-rotary-spring)
-  (create-rotary-limit-joint create-rotary-limit-joint)
-  (create-ratchet-joint create-ratchet-joint)
-  (create-gear-joint create-gear-joint)
-  (create-simple-motor create-simple-motor))
+  low:constraint-free (make-constraint-meta #f)
+  (create-pin-joint low:create-pin-joint)
+  (create-slide-joint low:create-slide-joint)
+  (create-pivot-joint-with-anchors low:create-pivot-joint-with-anchors)
+  (create-pivot-joint-with-pivot low:create-pivot-joint-with-pivot)
+  (create-groove-joint low:create-groove-joint)
+  (create-damped-spring low:create-damped-spring)
+  (create-damped-rotary-spring low:create-damped-rotary-spring)
+  (create-rotary-limit-joint low:create-rotary-limit-joint)
+  (create-ratchet-joint low:create-ratchet-joint)
+  (create-gear-joint low:create-gear-joint)
+  (create-simple-motor low:create-simple-motor))
 
 (define constraint-userdata
   (getter-with-setter
@@ -533,7 +535,7 @@
                                    layers group
                                    func #!rest data)
   (let-protect ((ptr (list func data)))
-               (space-nearest-point-query space
+               (low:space-nearest-point-query space
                                               point max-distance
                                               layers group
                                               #$_nearest_point_bridge
@@ -544,7 +546,7 @@
                              layers group
                              func #!rest data)
   (let-protect ((ptr (list func data)))
-               (space-segment-query space
+               (low:space-segment-query space
                                         layers group
                                         ; cpSegmentQueryFunc has the same form as
                                         ; cpNearestPointQueryFunc so it can be
@@ -553,10 +555,9 @@
                                         ptr)))
 (define (space-bb-query space bb layers group func data)
   (let-protect ((ptr (list func data)))
-               (space-bb-query space bb layers group
+               (low:space-bb-query space bb layers group
                                    #$_bb_query ptr)))
 
 (define (space-shape-query space shape func #!rest data)
   (let-protect ((ptr (list func data)))
-               (space-shape-query space shape #$_shape_query ptr)))
-
+               (low:space-shape-query space shape #$_shape_query ptr)))

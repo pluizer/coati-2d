@@ -20,10 +20,7 @@
 ;-------------------------------------------------------
 
 ; Overwrite this to automatically convert units
-(define cp-scale 1)
-
-
-
+(define low:cp-scale 1)
 
 (define-foreign-type c-shape (c-pointer "cpShape"))
 (define-foreign-type c-body (c-pointer "cpBody"))
@@ -65,17 +62,16 @@
 
 ; Memory Management Functions
 
-
-(define (create-body m i)
+(define (low:create-body m i)
   (print m ", " i)
   ((foreign-lambda c-body "cpBodyNew" double double) m i))
 
-(define (body-free body)
+(define (low:body-free body)
   ((foreign-lambda void "cpBodyFree" c-body) body))
 
 ; Creating Additional Static Bodies
 
-(define create-static-body
+(define low:create-static-body
   (foreign-lambda c-body "cpBodyNewStatic"))
 
 ; Properties
@@ -108,49 +104,49 @@
   (static? ("cpBodyIsStatic" bool))
   (roque? ("cpBodyIsRogue" bool)))
 
-(define (body-activate-static body #!optional filter-shape)
+(define (low:body-activate-static body #!optional filter-shape)
   ((foreign-lambda void "cpBodyActivateStatic" c-body c-shape) body filter-shape))
 
-(define (body-sleep-with-group body #!optional group)
+(define (low:body-sleep-with-group body #!optional group)
   ((foreign-lambda void "cpBodySleepWithGroup" c-body c-body) body group))
 
 ; Iterators
 
 
-(define body-each-shape
+(define low:body-each-shape
   (foreign-safe-lambda void "cpBodyEachShape" c-body c-body-shape-iter-func c-pointer))
 
 
-(define body-each-constraint
+(define low:body-each-constraint
   (foreign-safe-lambda void "cpBodyEachConstraint" c-body c-body-constraint-iter-func c-pointer))
 
 
-(define body-each-arbiter
+(define low:body-each-arbiter
   (foreign-safe-lambda void "cpBodyEachArbiter" c-body c-body-arbiter-iter-func c-pointer))
 
 ; Moment of Inertia and Area Helper Functions
 
-(define moment-for-circle (%cm-lambda double "cpMomentForCircle" double double double vect))
-(define moment-for-seqment (%cm-lambda double "cpMomentForSegment" double vect vect))
-(define moment-for-box (%cm-lambda double "cpMomentForBox" double double double))
+(define low:moment-for-circle (%cm-lambda double "cpMomentForCircle" double double double vect))
+(define low:moment-for-seqment (%cm-lambda double "cpMomentForSegment" double vect vect))
+(define low:moment-for-box (%cm-lambda double "cpMomentForBox" double double double))
 
-(define (moment-for-polygon mass vertices offset)
+(define (low:moment-for-polygon mass vertices offset)
   ((foreign-lambda* double ((double m) (int numVerts) (f32vector vertices) (f32vector offset)) "
 	C_return(cpMomentForPoly(m, numVerts, (cpVect*)vertices, *(cpVect*)offset));")
    mass (length vertices) (vect-list->f32vector vertices) offset))
 
-(define area-for-circle (foreign-lambda double "cpAreaForCircle" double double))
-(define area-for-seqment (%cm-lambda double "cpAreaForSegment" vect vect double))
+(define low:area-for-circle (foreign-lambda double "cpAreaForCircle" double double))
+(define low:area-for-seqment (%cm-lambda double "cpAreaForSegment" vect vect double))
 
-(define (area-for-polygon vertices)
+(define (low:area-for-polygon vertices)
   ((foreign-lambda* double ((int numVerts) (f32vector vertices)) "
 	C_return(cpAreaForPoly(numVerts, (cpVect*)vertices));")
    (length vertices) (vect-list->f32vector vertices)))
 
 ; Coordinate Conversion Functions
 
-(define body-local->world (%cm-lambda vect "cpBodyLocal2World" c-body vect))
-(define body-world->local (%cm-lambda vect "cpBodyWorld2Local" c-body vect))
+(define low:body-local->world (%cm-lambda vect "cpBodyLocal2World" c-body vect))
+(define low:body-world->local (%cm-lambda vect "cpBodyWorld2Local" c-body vect))
 
 ;-------------------------------------------------------
 ; cpCollisionType
@@ -161,13 +157,13 @@
 ; cpGroup
 ;-------------------------------------------------------
 
-(define no-group (foreign-value "CP_NO_GROUP" integer))
+(define low:no-group (foreign-value "CP_NO_GROUP" integer))
 
 ;-------------------------------------------------------
 ; cpLayers
 ;-------------------------------------------------------
 
-(define all-layers (foreign-value "CP_ALL_LAYERS" integer))
+(define low:all-layers (foreign-value "CP_ALL_LAYERS" integer))
 
 ;-------------------------------------------------------
 ; cpShape
@@ -189,7 +185,7 @@
   
 ; Memory Management Functions
 
-(define shape-free
+(define low:shape-free
   (foreign-lambda void "cpShapeFree" c-shape))
 
 ; Misc Functions
@@ -197,14 +193,14 @@
   (cache-bb ("cpShapeCacheBB" bb))
   (update ("cpShapeUpdate" bb vect vect)))
 
-(define reset-id-counter (%cm-lambda void "cpResetShapeIdCounter"))
+(define low:reset-id-counter (%cm-lambda void "cpResetShapeIdCounter"))
 
 ;-------------------------------------------------------
 ; cpCircleShape
 ;-------------------------------------------------------
 
 
-(define create-circle-shape (%cm-lambda c-shape "cpCircleShapeNew" c-body double vect))
+(define low:create-circle-shape (%cm-lambda c-shape "cpCircleShapeNew" c-body double vect))
 
 (%define-chipmunk-foreign-methods (cicle-shape c-shape)
   (offset ("cpCircleShapeGetOffset" vect))
@@ -215,7 +211,7 @@
 ;-------------------------------------------------------
 
 
-(define create-segment-shape (%cm-lambda c-shape "cpSegmentShapeNew" c-body vect vect double))
+(define low:create-segment-shape (%cm-lambda c-shape "cpSegmentShapeNew" c-body vect vect double))
 
 (%define-chipmunk-foreign-methods (segment-shape c-shape)
   (a ("cpSegmentShapeGetA" vect))
@@ -223,26 +219,25 @@
   (normal ("cpSegmentShapeGetNormal" vect))
   (radius ("cpSegmentShapeGetRadius" double)))
 
-(define segment-shape-set-neighbors! (%cm-lambda void "cpSegmentShapeSetNeighbors" c-shape vect vect))
+(define low:segment-shape-set-neighbors! (%cm-lambda void "cpSegmentShapeSetNeighbors" c-shape vect vect))
 
 ;-------------------------------------------------------
 ; cpPolygonShape
 ;-------------------------------------------------------
 
 
-;; (define %create-polygon-shape
+;; (define low:%create-polygon-shape
 ;;   (%cm-lambda c-pointer "cpPolygonShapeNew" c-body integer vects vect))
 
-(define (create-polygon-shape body vertices offset #!optional radius)
-  (let ((vertices-vector (vect-list->f32vector vertices)))
-    ((if radius
-         (foreign-lambda* c-shape ((c-body body) (integer numVerts)
-                                   (f32vector verts) (f32vector offset) (double radius)) "
+(define (low:create-polygon-shape body vertices offset #!optional radius)
+  ((if radius
+       (foreign-lambda* c-shape ((c-body body) (integer numVerts)
+                                 (f32vector verts) (f32vector offset) (double radius)) "
 	C_return(cpPolyShapeNew2(body, numVerts/2, (cpVect*)verts, *(cpVect*)offset, radius));")
-         (foreign-lambda* c-shape ((c-body body) (integer numVerts)
-                                   (f32vector verts) (f32vector offset) (c-pointer radius)) "
+       (foreign-lambda* c-shape ((c-body body) (integer numVerts)
+                                 (f32vector verts) (f32vector offset) (c-pointer radius)) "
 	C_return(cpPolyShapeNew(body, numVerts/2, (cpVect*)verts, *(cpVect*)offset));"))
-     body (f32vector-length vertices-vector) vertices-vector offset radius)))
+   body (f32vector-length vertices) vertices offset radius))
 
 (%define-chipmunk-foreign-methods (polygon-shape c-shape)
   (vertex-count ("cpPolyShapeGetNumVerts" integer))
@@ -255,19 +250,19 @@
 (define %create-box-shape-with-radius (%cm-lambda c-shape "cpBoxShapeNew3" c-body bb double))
 (define %create-box-shape (%cm-lambda c-shape "cpBoxShapeNew2" c-body bb))
 
-(define (create-box-shape body bb #!optional radius)
+(define (low:create-box-shape body bb #!optional radius)
   (if radius
       (%create-box-shape-with-radius body bb radius)
       (%create-box-shape body bb)))
 
 ; Poly Shape Helper Functions
 
-(define (valid-polygon? vertices)
+(define (low:valid-polygon? vertices)
   ((foreign-lambda* bool ((f32vector verts) (integer length)) "
 	C_return(cpPolyValidate((cpVect*)verts, length));")
    (vect-list->f32vector vertices) (length vertices)))
 
-(define (centroid-for-polygon vertices)
+(define (low:centroid-for-polygon vertices)
   (let ((ret (make-f32vector 2)))
    ((foreign-lambda* void ((f32vector verts) (integer length) (f32vector ret)) "
 	cpVect r = cpCentroidForPoly(length, (cpVect*)verts);
@@ -275,7 +270,7 @@
     (vect-list->f32vector vertices) (length vertices) ret)
    ret))
 
-(define (centroid-for-polygon vertices)
+(define (low:centroid-for-polygon vertices)
   ((foreign-lambda* void ((f32vector verts) (integer length)) "
 	cpRecenterPoly(length, (cpVect*)verts);")
    (vect-list->f32vector vertices) (length vertices)))
@@ -286,10 +281,10 @@
 ;-------------------------------------------------------
 
 
-(define create-space
+(define low:create-space
   (foreign-lambda c-space "cpSpaceNew"))
 
-(define space-free
+(define low:space-free
   (foreign-lambda void "cpSpaceFree" c-space))
 
 ; Properties
@@ -327,31 +322,31 @@
 ; Iterators
 
 
-(define space-each-body
+(define low:space-each-body
   (foreign-safe-lambda void "cpSpaceEachBody" c-space space-body-iter-func c-pointer))
 
 
-(define space-each-shape
+(define low:space-each-shape
   (foreign-safe-lambda void "cpSpaceEachShape" c-space space-shape-iter-func c-pointer))
 
 
-(define space-each-constraint
+(define low:space-each-constraint
   (foreign-safe-lambda void "cpSpaceEachConstraint" c-space space-constraint-iter-func c-pointer))
 
 ; Simulating the Space
 
-(define space-step
+(define low:space-step
   (foreign-safe-lambda void "cpSpaceStep" c-space double))
 
 ; Enabling and Tuning the Spatial Hash
 
-(define space-use-spatital-hash
+(define low:space-use-spatital-hash
   (foreign-lambda void "cpSpaceUseSpatialHash" c-space double integer))
 
 ; Collision Handler API
 
 
-(define %space-add-collision-handler
+(define low:%space-add-collision-handler
   (foreign-lambda void "cpSpaceAddCollisionHandler"
                   c-space
                   c-collision-type c-collision-type
@@ -361,12 +356,12 @@
                   c-collision-seperate-func
                   c-pointer))
 
-(define %space-remove-collision-handler
+(define low:%space-remove-collision-handler
   (foreign-lambda void "cpSpaceRemoveCollisionHandler"
                   c-space
                   c-collision-type c-collision-type))
 
-(define %space-default-collision-handler-set!
+(define low:%space-default-collision-handler-set!
   (foreign-lambda void "cpSpaceSetDefaultCollisionHandler"
                   c-space
                   c-collision-begin-func
@@ -378,7 +373,7 @@
 ; Post-Step Callbacks
 
 
-(define space-add-poststep-callback
+(define low:space-add-poststep-callback
   (foreign-lambda bool "cpSpaceAddPostStepCallback"
                   c-space
                   c-post-step-func
@@ -389,7 +384,7 @@
 ;-------------------------------------------------------
 
 
-(define constraint-free
+(define low:constraint-free
   (foreign-lambda void "cpConstraintFree" c-constraint))
 
 (%define-chipmunk-foreign-properties (constraint c-constraint)
@@ -405,7 +400,7 @@
 ; cpPinJoint
 ;-------------------------------------------------------
 
-(define create-pin-joint
+(define low:create-pin-joint
   (%cm-lambda c-constraint "cpPinJointNew" c-body c-body vect vect))
 
 (%define-chipmunk-foreign-properties (pin-joint c-constraint)
@@ -417,7 +412,7 @@
 ; cpSlideJoint
 ;-------------------------------------------------------
 
-(define create-slide-joint
+(define low:create-slide-joint
   (%cm-lambda c-constraint "cpSlideJointNew" c-body c-body vect vect double double))
 
 (%define-chipmunk-foreign-properties (slide-joint c-constraint)
@@ -430,10 +425,10 @@
 ; cpPivotJoint
 ;-------------------------------------------------------
 
-(define create-pivot-joint-with-pivot
+(define low:create-pivot-joint-with-pivot
   (%cm-lambda c-constraint "cpPivotJointNew" c-body c-body vect))
 
-(define create-pivot-joint-with-anchors
+(define low:create-pivot-joint-with-anchors
   (%cm-lambda c-constraint "cpPivotJointNew2" c-body c-body vect vect))
 
 (%define-chipmunk-foreign-properties (pivot-joint c-constraint)
@@ -444,7 +439,7 @@
 ; cpGrooveJoint
 ;-------------------------------------------------------
 
-(define create-groove-joint
+(define low:create-groove-joint
   (%cm-lambda c-constraint "cpGrooveJointNew" c-body c-body vect vect vect))
 
 (%define-chipmunk-foreign-properties (groove-joint c-constraint)
@@ -456,7 +451,7 @@
 ; cpDampedSpring
 ;-------------------------------------------------------
 
-(define create-damped-spring
+(define low:create-damped-spring
   (%cm-lambda c-constraint "cpDampedSpringNew"
               c-body c-body
               vect vect
@@ -473,7 +468,7 @@
 ; cpDampedRotarySpring
 ;-------------------------------------------------------
 
-(define create-damped-rotary-spring
+(define low:create-damped-rotary-spring
   (%cm-lambda c-constraint "cpDampedRotarySpringNew"
               c-body c-body
               double double double))
@@ -487,7 +482,7 @@
 ; cpRotaryLimitJoint
 ;-------------------------------------------------------
 
-(define create-rotary-limit-joint
+(define low:create-rotary-limit-joint
   (%cm-lambda c-constraint "cpRotaryLimitJointNew" c-body c-body double double))
 
 (%define-chipmunk-foreign-properties (rotary-limit-joint c-constraint)
@@ -498,7 +493,7 @@
 ; cpRatchetJoint
 ;-------------------------------------------------------
 
-(define create-ratchet-joint
+(define low:create-ratchet-joint
   (%cm-lambda c-constraint "cpRatchetJointNew" c-body c-body double double))
 
 (%define-chipmunk-foreign-properties (ratchet-joint c-constraint)
@@ -510,7 +505,7 @@
 ; cpGearJoint
 ;-------------------------------------------------------
 
-(define create-gear-joint
+(define low:create-gear-joint
   (%cm-lambda c-constraint "cpGearJointNew" c-body c-body double double))
 
 (%define-chipmunk-foreign-properties (gear-joint c-constraint)
@@ -521,7 +516,7 @@
 ; cpSimpleMotor
 ;-------------------------------------------------------
 
-(define create-simple-motor
+(define low:create-simple-motor
   (%cm-lambda c-constraint "cpSimpleMotorNew" c-body c-body double))
 
 (%define-chipmunk-foreign-properties (simple-motor c-constraint)
@@ -544,7 +539,7 @@
   (depth ("cpArbiterGetDepth" double integer))
   (first-contact? ("cpArbiterIsFirstContact" bool)))
 
-(define (arbiter-get-shapes arbiter)
+(define (low:arbiter-get-shapes arbiter)
   (let ((ret (make-pointer-vector 2)))
     ((foreign-lambda* void ((c-arbiter arbiter) (pointer-vector ret)) "
 	cpArbiterGetShapes(arbiter, &((cpShape**)ret)[0], &((cpShape**)ret)[1]);")
@@ -552,7 +547,7 @@
     (list (pointer-vector-ref ret 0)
           (pointer-vector-ref ret 1))))
 
-(define (arbiter-get-bodies arbiter)
+(define (low:arbiter-get-bodies arbiter)
   (let ((ret (make-pointer-vector 2)))
     ((foreign-lambda* void ((c-arbiter arbiter) (pointer-vector ret)) "
 	cpArbiterGetBodies(arbiter, &((cpBody**)ret)[0], &((cpBody**)ret)[1]);")
@@ -565,37 +560,37 @@
 ;; TODO: setting points, and cpArbiterContactPointSet
 ;; I don't know any clean way of doing this yet.
 
-(define (contact-point-set-length set)
+(define (low:contact-point-set-length set)
   ((foreign-lambda* integer ((c-contact-point-set set)) "
 	C_return(set->count);") set))
 
-(define (contact-point-set-point-ref set index)
+(define (low:contact-point-set-point-ref set index)
   (let ((ret (make-f32vector 2)))
     ((foreign-lambda* void ((c-contact-point-set set) (integer index) (f32vector ret)) "
 	cpVect r = set->points[index].point;
 	memcpy(ret, &r, sizeof(cpVect));") set index ret)
     ret))
 
-(define (contact-point-set-normal-ref set index)
+(define (low:contact-point-set-normal-ref set index)
   (let ((ret (make-f32vector 2)))
     ((foreign-lambda* void ((c-contact-point-set set) (integer index) (f32vector ret)) "
 	cpVect r = set->points[index].normal;
 	memcpy(ret, &r, sizeof(cpVect));") set index ret)
     ret))
 
-(define (contact-point-set-distance-ref set index)
+(define (low:contact-point-set-distance-ref set index)
   ((foreign-lambda* double ((c-contact-point-set set) (integer index)) "
 	C_return(set->points[index].dist);") set index))
 
 ; Helper functions
 
-(define arbiter-total-impuse-with-friction
+(define low:arbiter-total-impuse-with-friction
   (%cm-lambda vect "cpArbiterTotalImpulseWithFriction" c-arbiter))
 
-(define arbiter-total-impuse
+(define low:arbiter-total-impuse
   (%cm-lambda vect "cpArbiterTotalImpulse" c-arbiter))
 
-(define arbiter-total-kinetic-energy
+(define low:arbiter-total-kinetic-energy
   (foreign-lambda double "cpArbiterTotalKE" c-arbiter))
 
 ;-------------------------------------------------------
@@ -606,27 +601,27 @@
 
 
 
-(define nearest-point-query-info-shape
+(define low:nearest-point-query-info-shape
   (foreign-lambda* c-shape ((c-nearest-point-query-info info)) "
 	C_return(info->shape);"))
 
-(define (nearest-point-query-info-closest-point info)
+(define (low:nearest-point-query-info-closest-point info)
   (let ((ret (make-f32vector 2)))
    ((foreign-lambda* void ((c-nearest-point-query-info info) (f32vector ret)) "
 	memcpy(ret, &info->p, sizeof(cpVect));") info ret)
    ret))
 
-(define (nearest-point-query-info-distance info)
+(define (low:nearest-point-query-info-distance info)
   ((foreign-lambda* double ((c-nearest-point-query-info info)) "
 	C_return(info->d);") info))
 
-(define (nearest-point-query-info-closest-gradient-distance info)
+(define (low:nearest-point-query-info-closest-gradient-distance info)
   (let ((ret (make-f32vector 2)))
    ((foreign-lambda* void ((c-nearest-point-query-info info) (f32vector ret)) "
 	memcpy(ret, &info->g, sizeof(cpVect));") info ret)
    ret))
 
-(define (shape-nearest-point-query shape point)
+(define (low:shape-nearest-point-query shape point)
   (let ((ret ((set-finalizer!
                (allocate (foreign-type-size c-nearest-point-query-info))
                free))))
@@ -635,7 +630,7 @@
 	cpShapeNearestPointQuery(shape, *(cpVect*)point, ret);") shape point ret)
     ret))
 
-(define (space-nearest-point-query space
+(define (low:space-nearest-point-query space
 				   point max-distance
 				   layers group
 				   func data)
@@ -646,7 +641,7 @@
 	_SpaceNearestPointQuery(space, *(cpVect*)point, md, layers, group, func, data);")
    space point max-distance layers group func data))
 
-(define (space-nearest-point-query-nearest space point
+(define (low:space-nearest-point-query-nearest space point
                                            max-distance
                                            layers group)
   (let ((ret (set-finalizer!
@@ -664,21 +659,21 @@
 
 
 
-(define segment-query-info-shape
+(define low:segment-query-info-shape
   (foreign-lambda* c-shape ((c-segment-query-info info)) "
 	C_return(info->shape);"))
 
-(define (segment-query-info-normalized-distance info)
+(define (low:segment-query-info-normalized-distance info)
   ((foreign-lambda* double ((c-segment-query-info info)) "
 	C_return(info->t);") info))
 
-(define (seqment-query-info-normal info)
+(define (low:seqment-query-info-normal info)
   (let ((ret (make-f32vector 2)))
    ((foreign-lambda* void ((c-segment-query-info info) (f32vector ret)) "
 	memcpy(ret, &info->n, sizeof(cpVect));") info ret)
    ret))
 
-(define (shape-segment-query shape vect-a vect-b)
+(define (low:shape-segment-query shape vect-a vect-b)
   (let ((ret (set-finalizer!
               (allocate (foreign-type-size c-segment-query-info))
               free)))
@@ -689,7 +684,7 @@
      shape vect-a vect-b ret)
     ret))
 
-(define (space-segment-query space
+(define (low:space-segment-query space
                              vect-start vect-end
                              layers group
                              func data)
@@ -701,7 +696,7 @@
 	_SpaceSegmentQuery(space, *(cpVect*)start, *(cpVect*)end, layers, group, func, data);")
    space vect-start vect-end layers group func data))
 
-(define (segment-query-hit-point start end info)
+(define (low:segment-query-hit-point start end info)
   (let ((ret (make-f32vector 2)))
    ((foreign-lambda* void ((f32vector start) (f32vector end)
                            (c-segment-query-info info)
@@ -713,7 +708,7 @@
 ; AABB Queries
 
 
-(define (space-bb-query space bb
+(define (low:space-bb-query space bb
                         layers group
                         func data)
   ((foreign-lambda* void ((c-space space) (f32vector bb)
@@ -725,7 +720,7 @@
 ; Shape Queries
 
 
-(define space-shape-query
+(define low:space-shape-query
   (foreign-safe-lambda bool cpSpaceShapeQuery
                        c-space c-shape c-space-shape-query-func c-pointer))
 
@@ -733,4 +728,4 @@
 ; Misc
 ;-------------------------------------------------------
 
-(define infinity (foreign-value "INFINITY" double))
+(define low:infinity (foreign-value "INFINITY" double))

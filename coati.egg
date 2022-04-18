@@ -4,8 +4,28 @@
 (license "MIT")
 (category graphics)
 (dependencies symbol-utils srfi-1 srfi-4 srfi-18 srfi-128 srfi-113 sdl2 sdl2-ttf gl-utils gl-math soil matchable ssax nrepl vector-lib queues)
-(component-options (csc-options "-c++" "-C" "-Wno-pointer-arith -Wno-write-strings -Wno-narrowing -Wno-int-to-pointer-cast" "-I./src"))
+(component-options (csc-options "-c++" "-C" "-Wno-pointer-arith -Wno-write-strings -Wno-narrowing -Wno-int-to-pointer-cast" "-I./src/deps/chipmunk/include" "-I./src"))
 (components
+ ;; Chipmunk
+ (c-object chipmunkc        (source "src/deps/chipmunk/chipmunk.c"))
+ (c-object cpArbiter        (source "src/deps/chipmunk/cpArbiter.c"))
+ (c-object cpArray          (source "src/deps/chipmunk/cpArray.c"))
+ (c-object cpBB             (source "src/deps/chipmunk/cpBB.c"))
+ (c-object cpBBTree         (source "src/deps/chipmunk/cpBBTree.c"))
+ (c-object cpBody           (source "src/deps/chipmunk/cpBody.c"))
+ (c-object cpCollision      (source "src/deps/chipmunk/cpCollision.c"))
+ (c-object cpHashSet        (source "src/deps/chipmunk/cpHashSet.c"))
+ (c-object cpPolyShape      (source "src/deps/chipmunk/cpPolyShape.c"))
+ (c-object cpShape          (source "src/deps/chipmunk/cpShape.c"))
+ (c-object cpSpace          (source "src/deps/chipmunk/cpSpace.c"))
+ (c-object cpSpaceComponent (source "src/deps/chipmunk/cpSpaceComponent.c"))
+ (c-object cpSpaceHash      (source "src/deps/chipmunk/cpSpaceHash.c"))
+ (c-object cpSpaceQuery     (source "src/deps/chipmunk/cpSpaceQuery.c"))
+ (c-object cpSpaceStep      (source "src/deps/chipmunk/cpSpaceStep.c"))
+ (c-object cpSpatialIndex   (source "src/deps/chipmunk/cpSpatialIndex.c"))
+ (c-object cpSweep1D        (source "src/deps/chipmunk/cpSweep1D.c"))
+ (c-object cpVect           (source "src/deps/chipmunk/cpVect.c"))
+ ;;
  (c-object algorithms	   (source "src/algorithms.scm"))
  (c-object animators       (source "src/animators.scm"))
  (c-object batcher         (source "src/batcher.scm"))
@@ -42,6 +62,26 @@
  (extension coati
             (source "src/coati.scm")
             (objects
+	     ;; Chipmunk
+	     chipmunkc
+             cpArbiter
+             cpArray
+             cpBB
+             cpBBTree
+             cpBody
+             cpCollision
+             cpHashSet
+             cpPolyShape
+             cpShape
+             cpSpace
+             cpSpaceComponent
+             cpSpaceHash
+             cpSpaceQuery
+             cpSpaceStep
+             cpSpatialIndex
+             cpSweep1D
+             cpVect
+	     ;;
 	     algorithms
              animators
              batcher

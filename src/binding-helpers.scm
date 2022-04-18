@@ -88,7 +88,7 @@
                                   (ret-type (cadr (cadr form)))
                                   (arg-types (cons (cadr class-type-pair)
                                                    (cddr (cadr form)))))
-                              `(,(r 'define) ,(symbol-append class '- name)
+                              `(,(r 'define) ,(symbol-append '|low:|  class '- name)
                                 (,(r '%cm-lambda) ,ret-type ,c-name ,@arg-types))))
                           forms))))
 
@@ -108,7 +108,7 @@
                                   (c-getter (cadr (cadr form)))
                                   (c-setter (if (null? (cddr (cadr form))) #f
                                                 (caddr (cadr form)))))
-                              `(define ,(symbol-append class '- name)
+                              `(define ,(symbol-append '|low:| class '- name)
                                  (getter-with-setter
                                   (%cm-lambda ,value-type ,c-getter ,type)
                                   ,(if c-setter
