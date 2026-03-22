@@ -1,0 +1,9 @@
+((synopsis "A small gamedev-oriented math library")
+ (author "Alex Charlton")
+ (maintainer "Adrien (Kooda) Ramos")
+ (category math)
+ (license "BSD")
+ (dependencies srfi-1 matchable)
+ (components
+   (extension gl-math
+     (csc-options "-d0" "-O3" "-C" "-Ihypermath/include -O3"))))
