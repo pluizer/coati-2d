@@ -19,7 +19,11 @@ A simple to use fast 2D game programming library for Chicken Scheme.
 : # Install Coati
 : git clone https://github.com/pluizer/coati-2d.git
 : cd coati-2d
-: chicken-install -s
+: chicken-install -s -l vendor/
+: # -l vendor/ is required: vendor/gl-math contains a patched version of the gl-math egg
+: # that fixes an incompatible pointer type error (u8vector vs float*) in GCC 14+.
+: # On GCC 14+ the epoxy egg may also fail to compile. If so, use:
+: CFLAGS="-Wno-error=incompatible-pointer-types" chicken-install -s -l vendor/
 : # Check out the examples
 : cd examples/
 : csi 01.scm
