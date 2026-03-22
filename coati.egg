@@ -24,7 +24,18 @@
  (c-object cpSpaceStep      (source "src/deps/chipmunk/cpSpaceStep.c"))
  (c-object cpSpatialIndex   (source "src/deps/chipmunk/cpSpatialIndex.c"))
  (c-object cpSweep1D        (source "src/deps/chipmunk/cpSweep1D.c"))
- (c-object cpVect           (source "src/deps/chipmunk/cpVect.c"))
+ (c-object cpVect                (source "src/deps/chipmunk/cpVect.c"))
+ (c-object cpConstraint          (source "src/deps/chipmunk/constraints/cpConstraint.c"))
+ (c-object cpDampedRotarySpring  (source "src/deps/chipmunk/constraints/cpDampedRotarySpring.c"))
+ (c-object cpDampedSpring        (source "src/deps/chipmunk/constraints/cpDampedSpring.c"))
+ (c-object cpGearJoint           (source "src/deps/chipmunk/constraints/cpGearJoint.c"))
+ (c-object cpGrooveJoint         (source "src/deps/chipmunk/constraints/cpGrooveJoint.c"))
+ (c-object cpPinJoint            (source "src/deps/chipmunk/constraints/cpPinJoint.c"))
+ (c-object cpPivotJoint          (source "src/deps/chipmunk/constraints/cpPivotJoint.c"))
+ (c-object cpRatchetJoint        (source "src/deps/chipmunk/constraints/cpRatchetJoint.c"))
+ (c-object cpRotaryLimitJoint    (source "src/deps/chipmunk/constraints/cpRotaryLimitJoint.c"))
+ (c-object cpSimpleMotor         (source "src/deps/chipmunk/constraints/cpSimpleMotor.c"))
+ (c-object cpSlideJoint          (source "src/deps/chipmunk/constraints/cpSlideJoint.c"))
  ;;
  (c-object algorithms	   (source "src/algorithms.scm"))
  (c-object animators       (source "src/animators.scm"))
@@ -61,6 +72,7 @@
 
  (extension coati
             (source "src/coati.scm")
+            (link-options "-L" "-lSDL2_mixer")
             (objects
 	     ;; Chipmunk
 	     chipmunkc
@@ -81,6 +93,17 @@
              cpSpatialIndex
              cpSweep1D
              cpVect
+             cpConstraint
+             cpDampedRotarySpring
+             cpDampedSpring
+             cpGearJoint
+             cpGrooveJoint
+             cpPinJoint
+             cpPivotJoint
+             cpRatchetJoint
+             cpRotaryLimitJoint
+             cpSimpleMotor
+             cpSlideJoint
 	     ;;
 	     algorithms
              animators
