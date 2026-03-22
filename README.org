@@ -6,6 +6,7 @@ A simple to use fast 2D game programming library for Chicken Scheme.
 - License: [[https://www.gnu.org/licenses/gpl-3.0.en.html][GPL-3]]
 
 * Updates
+- [22-03-2026] Basic sound support
 - [18-04-2022] Integrated Chipmunk physics
 - [11-04-2022] Gamemap support
 - [24-10-2021] Optimised text rendering
@@ -40,5 +41,4 @@ A REPL is automatically started on port 1234 to connect to it use:
 * todo
 - Delta time
 - Particle system
-- Sound
 - Animators
