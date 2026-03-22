@@ -1,6 +1,7 @@
 (declare (unit window)
          (uses primitives
-	       textbuffer))
+	       textbuffer
+	       sound))
 
 (import (prefix epoxy gl::)
         (prefix gl-utils gl::)
@@ -34,6 +35,7 @@
   (unless (sdl-init!)
     (error "Could not initialise SDL." (sdl-get-error)))
   (sdl-gl-attribute-set! 'doublebuffer 1)
+  (sdl-gl-attribute-set! 'context-profile-mask 'compatibility)
                                         ;(sdl-gl-attribute-set! 'swap-control 1)
   (let ((window (sdl-create-window! title 0 0 w h '(opengl resizable))))
     (unless window
@@ -44,7 +46,8 @@
     (gl::enable gl::+blend+)
     (gl::disable gl::+depth-test+)
     (gl::check-error))
-  (set! %window-size (vect:create w h)))
+  (set! %window-size (vect:create w h))
+  (%sound:init))
 
 
 ;; Opens a windows a starts a ''game''.
