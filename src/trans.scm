@@ -61,7 +61,7 @@
 			     (flip-v? %not-set)
 			     (flip-h? %not-set)
 			     colour)
-  (make-trans-change position origin rotation scale flip-h? flip-v? colour))
+  (make-trans-change position origin rotation scale flip-v? flip-h? colour))
 
 ;; Returns a new trans from an old one using the slots specified in the given
 ;; trans-change.

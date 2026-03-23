@@ -36,11 +36,11 @@
     (error "Could not initialise SDL." (sdl-get-error)))
   (sdl-gl-attribute-set! 'doublebuffer 1)
   (sdl-gl-attribute-set! 'context-profile-mask 'compatibility)
-                                        ;(sdl-gl-attribute-set! 'swap-control 1)
   (let ((window (sdl-create-window! title 0 0 w h '(opengl resizable))))
     (unless window
       (error (sprintf "Could not set video mode (~sx~s:~s):" w h 32) (sdl-get-error)))
     (set! %context (sdl-gl-create-context! window))
+    (sdl-gl-swap-interval-set! -1)
     (set! %window window)
     (gl::enable gl::+texture-2d+)
     (gl::enable gl::+blend+)

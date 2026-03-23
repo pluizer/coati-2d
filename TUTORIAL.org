@@ -195,7 +195,7 @@ A tilemap calls a tile function per visible coordinate each frame.
                       (if (even? (coord:x coord)) sprite-a sprite-b)))))
   (with-texture texture
     (with-camera camera
-      (tilemap:render tilemap #f tile-func))))
+      (tilemap:render tilemap #f #f tile-func))))
 #+END_SRC
 
 The tile function is a thunk returning ~(coord -> sprite | #f | (sprite: s colour: c))~.

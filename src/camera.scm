@@ -32,6 +32,13 @@
                              (car %camera-stack)))
 
 
+(define (camera:snap pos world-size)
+  (let* ((win (window:size))
+         (sx (/ (vect:x win) (vect:x world-size)))
+         (sy (/ (vect:y win) (vect:y world-size))))
+    (vect:create (/ (round (* (vect:x pos) sx)) sx)
+                 (/ (round (* (vect:y pos) sy)) sy))))
+
 (define (with-camera/proc camera thunk)
   (set! %camera-stack (cons camera %camera-stack))
   (thunk)

@@ -23,7 +23,7 @@
 ;; Creates a new tile map that can be rendered using tilemap:render
 ;; ``new-coords-callback`` will be called with the coords to be removed
 ;; and the coords that are being added (optional).
-(define (tilemap:create #!key isometric? new-coords-callback (shader default-shader))
+(define (tilemap:create #!key isometric? new-coords-callback (shader default-shader) (overscan 0))
   (let ((batcher (sprite-batcher:create shader))
 	;; Rememer the last added coordinate and the width and height
 	;; so that the sprite-batch does not have to be repopulated
@@ -54,30 +54,24 @@
 					      (+ (floor (/ x width))
 						 (coord:y coord))))
 			      (iota (* width height)))))
-		   ;; Check which coords will be newly added and which are the
-		   ;; ones too keep
-                   ;;
-		   (let-values (((keep new)
-				 (partition (lambda (x)
-					      (member x active-coords)) coords)))
-		     (when (or
-			    repopulate?
-			    (not (null? new))
-			    (not (= (length active-coords)
-				       (length coords))))
-		       ;; Call the optional callback with the coords to be removed
-		       ;; and the coords that are being added.
- 		       (when new-coords-callback
-			 (new-coords-callback
-                          coord 
-                          (filter (lambda (x) (not (member x coords))) active-coords)
-                          new))
-		       ;; Clear the previously added sprites and add the new ones
-		       ;; (Dumbly clearing everything an reading is often
-		       ;; faster than keeping track of and deleting all unneeded
-		       ;; handles one by one.)
-		       (sprite-batcher:clear! batcher)
-		       (for-each
+		   ;; Call the optional callback with the coords to be removed
+		   ;; and the coords that are being added.
+		   (when new-coords-callback
+		     ;; Check which coords will be newly added and which are the
+		     ;; ones to keep
+		     (let-values (((keep new)
+				   (partition (lambda (x)
+						(member x active-coords)) coords)))
+		       (new-coords-callback
+			coord
+			(filter (lambda (x) (not (member x coords))) active-coords)
+			new)))
+		   ;; Clear the previously added sprites and add the new ones
+		   ;; (Dumbly clearing everything an reading is often
+		   ;; faster than keeping track of and deleting all unneeded
+		   ;; handles one by one.)
+		   (sprite-batcher:clear! batcher)
+		   (for-each
 			(lambda (tile-coord)
 
 			  (let ((sprite ((apply tile-func tile-args) tile-coord)))
@@ -97,7 +91,7 @@
 								  ))
 						  (vect:create x y))
 					      ))))
-				;; Push the tile to the batcher.
+			        ;; Push the tile to the batcher.
 				(match sprite
 				 ;; sprite with no special colour
 				 ((? sprite? sprite)
@@ -105,7 +99,7 @@
 				 ((sprite: sprite colour: colour)
 				  (sprite-batcher:push! batcher sprite trans colour)))))))
 			coords)
-		       (set! active-coords coords))))))
+		   (set! active-coords coords))))
 	     ;; Render the sprite-batch
 	     (sprite-batcher:render* batcher projection view))))
       ;; Function returned by ``tilemap:create``. Renders the map from
@@ -156,47 +150,53 @@
 	       (fy (floor y))
                )
 	  (if isometric?
-              (raw
-               ;; For isometric maps the top-left side of the screen/texture
-               ;; is coordinate (0, 0) of the map. (When the position of the
-               ;; camera is also (0, 0)
-               (coord:create
-		(inexact->exact (floor (+ fx (/ width 2))))
-                (inexact->exact (floor (+ fy (/ height 2)))))
-               ;; We must extend the size of the tiles to render
-               ;; so also the coners of screen are filled.
-               ;;
-               ;;    /\  /\
-               ;;   /  \/  \
-               ;;  /+--/\--+\
-               ;; / |X/  \X| \
-               ;; \ |/    \| /
-               ;;  \/      \/
-               ;;  /\      /\
-               ;; / |\    /| \
-               ;; \ |X\  /X| /
-               ;;  \+--\/--+/
-               ;;   \  /\  /
-               ;;    \/  \/
-               (+ (* width 2) 2)
-	       (+ (* height 4) 2)
-               tile-func
-               tile-args
-	       dirty?
-               projection
-               (maybe trans-func (matrix:translate (vect:create fx (+ fy height)) (subf32vector view 0 16))))
+              (let* ((cx0 (inexact->exact (floor (+ fx (/ width 2)))))
+                     (cy0 (inexact->exact (floor (+ fy (/ height 2)))))
+                     (cx (if (> overscan 0) (* overscan (inexact->exact (floor (/ cx0 overscan)))) cx0))
+                     (cy (if (> overscan 0) (* overscan (inexact->exact (floor (/ cy0 overscan)))) cy0)))
+                (raw
+                 ;; For isometric maps the top-left side of the screen/texture
+                 ;; is coordinate (0, 0) of the map. (When the position of the
+                 ;; camera is also (0, 0)
+                 (coord:create (+ cx overscan) (+ cy overscan))
+                 ;; We must extend the size of the tiles to render
+                 ;; so also the coners of screen are filled.
+                 ;;
+                 ;;    /\  /\
+                 ;;   /  \/  \
+                 ;;  /+--/\--+\
+                 ;; / |X/  \X| \
+                 ;; \ |/    \| /
+                 ;;  \/      \/
+                 ;;  /\      /\
+                 ;; / |\    /| \
+                 ;; \ |X\  /X| /
+                 ;;  \+--\/--+/
+                 ;;   \  /\  /
+                 ;;    \/  \/
+                 (+ (* width 2) 2 (* 4 overscan))
+                 (+ (* height 4) 2 (* 4 overscan))
+                 tile-func
+                 tile-args
+                 dirty?
+                 projection
+                 (maybe trans-func (matrix:translate (vect:create (exact->inexact (+ fx (- cx cx0) overscan))
+                                                                   (exact->inexact (+ fy height (- cy cy0) overscan)))
+                                                     (subf32vector view 0 16)))))
               (let* ((sx (inexact->exact (floor (- x (/ width 2)))))
-               (sy (inexact->exact (floor (- y (/ height 2))))))
+                     (sy (inexact->exact (floor (- y (/ height 2)))))
+                     (sx (if (> overscan 0) (* overscan (inexact->exact (floor (/ sx overscan)))) sx))
+                     (sy (if (> overscan 0) (* overscan (inexact->exact (floor (/ sy overscan)))) sy)))
          (raw
-               (coord:create sx sy)
-	       (+ width 2)
-	       (+ height 2)
+               (coord:create (- sx overscan) (- sy overscan))
+	       (+ width 2 (* 2 overscan))
+	       (+ height 2 (* 2 overscan))
 	       tile-func
                tile-args
 	       dirty?
 	       projection
-	       (maybe trans-func (matrix:translate (vect:create (exact->inexact sx)
-                                                                (exact->inexact sy)) (subf32vector view 0 16)))))))))))
+	       (maybe trans-func (matrix:translate (vect:create (exact->inexact (- sx overscan))
+                                                                (exact->inexact (- sy overscan))) (subf32vector view 0 16)))))))))))
 
 ;; Renders a procedural generated tilemap from the position of a camera.
 ;; tile-func:
