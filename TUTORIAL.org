@@ -96,12 +96,223 @@ Rendering textures using a renderer might be okay for just a few textures but ge
 
 * Sprite batcher
 
+A sprite-batcher batches all sprites into one draw call. Push sprites into it, then render once per frame.
+
+#+BEGIN_SRC scheme
+(let* ((texture (texture:load "img.png"))
+       (sprite  (sprite:create texture))
+       (batcher (sprite-batcher:create))
+       (id      (sprite-batcher:push! batcher sprite (identity-matrix))))
+  (lambda (#!rest _)
+    (with-texture texture
+      (with-camera (camera:create (vect:create 0 0) (vect:create 10 10))
+        (sprite-batcher:render batcher)))
+    #t))
+#+END_SRC
+
+Use ~sprite-batcher:change!~ to move a sprite each frame, ~sprite-batcher:remove!~ to remove it by id.
+For animated sprites call ~sprite-batcher:update!~ once per frame before rendering.
+~sprite:create-from-indices~ builds a sprite from a grid texture: ~(sprite:create-from-indices texture cols rows (list frame-index ...))~
+
+* Camera
+
+#+BEGIN_SRC scheme
+(camera:create position size)
+; e.g.
+(camera:create (vect:create 5 5) (vect:create 10 10))
+#+END_SRC
+
+~with-camera~ makes a camera active for the enclosed body. Cameras can be nested.
+~(window:size)~ returns the window dimensions as a vect.
+
 * Input
 
-* Nodes
+Two forms: polling and events.
+
+Polling (inside the loop):
+#+BEGIN_SRC scheme
+(key-down? key-left)   ; #t while key is held
+#+END_SRC
+
+Events (registered once, fired on state change):
+#+BEGIN_SRC scheme
+(listen-for-event `(key-down ,key-space) (lambda (key mod) (do-something)))
+(listen-for-event '(mouse-move)          (lambda (pos) (display pos)))
+(listen-for-event '(quit)               (lambda _ (coati:close)))
+#+END_SRC
+
+Return ~#f~ from a listener to unregister it. Remove by id with ~listener:remove!~.
+Key constants: ~key-a~ ... ~key-z~, ~key-0~ ... ~key-9~, ~key-up~, ~key-down~, ~key-left~, ~key-right~, ~key-space~, ~key-escape~, ~key-return~, etc.
+Mouse buttons: ~button_left~, ~button_right~, ~button_wheel-up~, ~button_wheel-down~.
 
 * Transformations
 
+#+BEGIN_SRC scheme
+(trans:create position
+              origin:   (vect:create 0 0)
+              rotation: 0.0
+              scale:    (vect:create 1 1)
+              flip-h?:  #f
+              flip-v?:  #f
+              colour:   (rgb:create 1 1 1))
+#+END_SRC
+
+~origin~ is the anchor point in sprite-space units: the point on the sprite placed at ~position~, and the pivot for rotation. ~(vect:create 0 0)~ anchors at the bottom-left; ~(vect:create .5 .5)~ centers the sprite on ~position~.
+
+~trans-change:create~ takes the same keyword arguments but only updates the ones specified:
+#+BEGIN_SRC scheme
+(node:change! node (trans-change:create rotation: new-rot position: new-pos))
+#+END_SRC
+
+* Nodes
+
+Nodes form a scene graph. Each node has a transformation inherited from its parent.
+
+#+BEGIN_SRC scheme
+(let* ((root    (node:create-root))
+       (batcher (sprite-batcher:create))
+       (sprite  (sprite:create texture))
+       (node    (spawn-node! (sprite-node batcher sprite)
+                             root
+                             (trans:create (vect:create 1 2)
+                                           origin: (vect:create .5 .5)))))
+  (node:change! node (trans-change:create rotation: 1.5))
+  (node:remove! node))
+#+END_SRC
+
+Built-in specialisers: ~sprite-node~, ~node-rect~, ~node-point~, ~node-light~.
+~node:bb-collide?~ and ~node:collide?~ filter a list of nodes by collision with a node.
+~node:descendants~ returns all children recursively.
+
 * Tilemaps
 
+A tilemap calls a tile function per visible coordinate each frame.
+
+#+BEGIN_SRC scheme
+(let* ((tilemap   (tilemap:create))
+       (tile-func (lambda ()
+                    (lambda (coord)
+                      (if (even? (coord:x coord)) sprite-a sprite-b)))))
+  (with-texture texture
+    (with-camera camera
+      (tilemap:render tilemap #f tile-func))))
+#+END_SRC
+
+The tile function is a thunk returning ~(coord -> sprite | #f | (sprite: s colour: c))~.
+Isometric tilemaps: ~(tilemap:create isometric?: #t)~.
+Load a Tiled ~.tmx~ file with ~(open-tile-map "map.tmx")~.
+
+* Static tilemap
+
+Fixed-size tilemap; tiles set explicitly rather than by function.
+
+#+BEGIN_SRC scheme
+(let ((tm (static-tilemap:create)))
+  (static-tilemap:set! tm (coord:create 3 4) sprite)
+  (with-texture texture
+    (with-camera camera
+      (static-tilemap:render tm))))
+#+END_SRC
+
+* Gamemap
+
+Composites multiple regions of a tilemap into cached render targets.
+
+#+BEGIN_SRC scheme
+(let* ((gm       (gamemap:create 3))
+       (renderer (begin
+                   (gamemap:add-region! gm (coord:create 0 0) (coord:create 10 10) mapping-fn)
+                   (gamemap:renderer gm))))
+  (renderer))
+#+END_SRC
+
+Call ~gamemap:make-dirty!~ to force a re-render of the cached regions.
+
 * Polygons
+
+#+BEGIN_SRC scheme
+(let* ((batcher (polygon-batcher:create))
+       (ids     (polygon-batcher:push! batcher
+                                       (polygon:create (vect:create 0 0)
+                                                       (vect:create 0 1)
+                                                       (vect:create 1 0))
+                                       (identity-matrix))))
+  (polygon-batcher:change! batcher ids (matrix:rotate angle (identity-matrix)))
+  (with-camera camera
+    (with-blending trans (rgb:create 1 0 0 .5)
+      (polygon-batcher:render batcher))))
+#+END_SRC
+
+* Blending
+
+#+BEGIN_SRC scheme
+(with-blending trans (rgb:create 1 1 1)   body ...)  ; alpha blended
+(with-blending add   (rgb:create 1 1 1)   body ...)  ; additive
+(with-blending one-one (rgb:create 1 1 1) body ...)  ; screen
+#+END_SRC
+
+* Sprite map
+
+Named directional sprites from a single texture sheet.
+
+#+BEGIN_SRC scheme
+(let* ((sm     (sprite-map:create texture cols rows spec))
+       (sprite (sprite-map:lookup sm 'chair 'north)))
+  ...)
+#+END_SRC
+
+~spec~ is a list of names or ~(name w h)~ tuples for multi-tile sprites.
+Directions: ~'north~, ~'south~, ~'east~, ~'west~.
+
+* Physics
+
+#+BEGIN_SRC scheme
+(let* ((space (create-space))
+       (body  (create-body space mass moment
+                           position: (vect:create 0 0)
+                           velocity: (vect:create 0 0)))
+       (shape (create-circle-shape space body radius)))
+  (space-on-collision-begin space (lambda (arbiter space) #t))
+  (space-step space dt))
+#+END_SRC
+
+Shapes: ~create-circle-shape~, ~create-box-shape~, ~create-polygon-shape~.
+Joints: ~create-pin-joint~, ~create-pivot-joint-with-pivot~, ~create-damped-spring~, etc.
+Queries: ~space-nearest-point-query~, ~space-segment-query~, ~space-bb-query~.
+Store arbitrary data on any object with ~body-userdata~, ~shape-userdata~, ~space-userdata~.
+
+* Sound
+
+#+BEGIN_SRC scheme
+(let* ((sfx (sound:load "beep.wav"))
+       (bgm (music:load "music.ogg")))
+  (music:play! bgm)
+  (sound:play! sfx)
+  (sound:play-at! sfx source-pos listener-pos max-distance: 20.0))
+#+END_SRC
+
+~sound:play!~ and ~sound:play-at!~ accept ~loops:~ (default 0) and ~volume:~ (0.0–1.0, default 1.0).
+~sound:play!~ returns a channel id; pass it to ~sound:stop!~ to stop early.
+Music: ~music:pause!~, ~music:resume!~, ~music:stop!~, ~music:volume!~, ~music:playing?~, ~music:paused?~.
+
+* Pixmap
+
+CPU-side pixel buffer, convertible to a texture.
+
+#+BEGIN_SRC scheme
+(let* ((pm (pixmap:create 64 64)))
+  (pixmap:set! pm 10 10 (rgb:create 1 0 0))
+  (pixmap->texture pm))
+#+END_SRC
+
+* Events
+
+Send custom events and listen for them by prefix match.
+
+#+BEGIN_SRC scheme
+(send-event 'player-hit 42)
+(listen-for-event '(player-hit) (lambda (damage) (display damage)))
+#+END_SRC
+
+Listeners match if the event list starts with the pattern. Return ~#f~ to unregister.
+~send-event-not-double~ skips if the same event is already queued.
