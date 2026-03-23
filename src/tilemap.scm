@@ -184,27 +184,19 @@
                tile-args
 	       dirty?
                projection
-               (maybe trans-func (matrix:translate (vect:create fx (+ fy height)) view)))
-              (raw
-               ;; For orthographic maps the bottom-left side of the screen/texture
-               ;; is coordinate (0, 0) of the map. (When the position of the
-               ;; camera is also (0, 0).
-               ;; Moving the camera by one in a direction will move the map also
-               ;; by one in that direction (depending on zoom level).
-               (coord:create
-		(inexact->exact (floor fx))
-                (inexact->exact (floor fy)))
-               ;; Half of the size of a tile can be offscreen. That is why we
-               ;; must also render a border of 1 tile with so there won't be
-               ;; an empty part on the order edge.
-	       width
-	       height
+               (maybe trans-func (matrix:translate (vect:create fx (+ fy height)) (subf32vector view 0 16))))
+              (let* ((sx (inexact->exact (floor (- x (/ width 2)))))
+               (sy (inexact->exact (floor (- y (/ height 2))))))
+         (raw
+               (coord:create sx sy)
+	       (+ width 2)
+	       (+ height 2)
 	       tile-func
                tile-args
 	       dirty?
 	       projection
-	       (maybe trans-func (matrix:translate (vect:create (- fx (/ width 2))
-                                                                (- fy (/ height 2))) view)))))))))
+	       (maybe trans-func (matrix:translate (vect:create (exact->inexact sx)
+                                                                (exact->inexact sy)) (subf32vector view 0 16)))))))))))
 
 ;; Renders a procedural generated tilemap from the position of a camera.
 ;; tile-func:

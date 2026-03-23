@@ -187,14 +187,14 @@
 (define (vect:normalize v)
   (vect* v (/ 1.0 (+ (vect:length v) float-min))))
 
-;; Flip the vector horizontally.
-(define (vect:flip-v v)
-  (vect:create (- (vect:x v))
+ ;; Flip the vector horizontally.
+ (define (vect:flip-v v)
+   (vect:create (- (vect:x v))
 	       (vect:y v)))
 
-;; Flip the vector vertically..
-(define (vect:flip-h v)
-  (vect:create (vect:x v)
+ ;; Flip the vector vertically..
+ (define (vect:flip-h v)
+   (vect:create (vect:x v)
 	       (- (vect:y v))))
 
 ;; Flip a vector.
@@ -522,7 +522,7 @@
 	memcpy(vec.data(), polygon, sizeof(Vector)*(polygonSize/2));
 	std::vector<Triangle> tmp = triangulate(vec);
 	memcpy(res, tmp.data(), returnSize*sizeof(Vector));")
-     polygon res (f32vector-length polygon) return-size)
+     polygon res (f32vector-length polygon) (/ return-size 2))
     res))
 
 ;; Same as polygon-triangulate but returns a list of triangles.

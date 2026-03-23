@@ -101,16 +101,12 @@
     (matrix:translate
      pos
      (matrix:scale (trans-scale trans)
-      (matrix:translate (vect:flip (trans-flip-v? trans)
-				   (trans-flip-h? trans)
-				   origin)
-			(matrix:rotate
-			 (trans-rotation trans)
-			 (matrix:translate
-			  (vect- (vect:flip (trans-flip-v? trans)
-					    (trans-flip-h? trans)
-					    origin))
-			  (matrix:flip (trans-flip-v? trans)
-				       (trans-flip-h? trans)
-				       (identity-matrix)
-				       ))))))))
+      (matrix:rotate
+       (trans-rotation trans)
+       (matrix:translate
+	(vect- (vect:flip (trans-flip-v? trans)
+			  (trans-flip-h? trans)
+			  origin))
+	(matrix:flip (trans-flip-v? trans)
+		     (trans-flip-h? trans)
+		     (identity-matrix))))))))

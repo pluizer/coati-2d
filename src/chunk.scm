@@ -190,6 +190,7 @@ void dv_vector_clear(DV_Vector* dv)
 	   again, but we'll shrink it a little so it doesn't grow
 	   out of bounds */
 	dv->size_hint *= .8;
+	if (dv->size_hint < 4) dv->size_hint = 4;
 	dv->indices = (unsigned*) smalloc(sizeof(unsigned)*dv->size_hint);
 	memset(dv->indices, 0, sizeof(unsigned)*dv->size_hint);
 	dv->available_stack = new_index_stack(dv->size_hint);
