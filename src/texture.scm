@@ -83,7 +83,7 @@
 (define (texture:load filename)
   (let ((id (gl::load-ogl-texture filename 
 				  gl::force-channels/rgba
-				  gl::texture-id/create-new-id 0)))
+				  gl::texture-id/create-new-id gl::texture/invert-y)))
     (unless id (error (sprintf "Could not load ~a, ~a" filename (gl::last-result))))
     (let ((texture
 	   (make-texture* id
@@ -122,7 +122,7 @@
 ;; Returns a texture renderer that takes a projection- and view matrix
 ;; instead of a camera object.
 (define (texture:renderer* texture
-                           #!optional (rect (rect:create 0 1 1 0)))
+                           #!optional (rect (rect:create 0 1 0 1)))
   (let* ((size (texture:size texture))
          (sprite (sprite:create texture (list rect) size))
          (sprite-batcher (sprite-batcher:create)))
@@ -132,16 +132,12 @@
                          (lambda ()
                            (sprite-batcher:render* sprite-batcher projection view))))))
 
-;; Returns a functions that renders a texture.
 (define (texture:renderer texture
-			  #!optional (rect (rect:create 0 1 1 0)))
+			  #!optional (rect (rect:create 0 1 0 1)))
   (let ((func (texture:renderer* texture rect)))
     (lambda ()
       (func (camera:projection (current-camera))
-	    ;; TODO: Figure out why this is needed ...
-            (if %target-is-screen? 
-		(matrix:scale (vect:create 1 -1) (camera:view (current-camera)))
-		(camera:view (current-camera)))))))
+            (camera:view (current-camera))))))
 
 (define (texture:fullscreen-renderer texture)
   (let* ((s (texture:size texture))

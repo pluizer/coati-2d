@@ -18,12 +18,8 @@
 (define camera:view camera-view)
 
 (define (%gui-camera)
-  (let* ((size (window:size))
-         (w (vect:x size))
-         (h (vect:y size))
-         (camera (camera:create (vect:create (/ w 2) (/ h 2)))))
-    (camera-view-set! camera (matrix:scale (vect:create 1 -1) (camera-view camera)))
-    camera))
+  (let ((size (window:size)))
+    (camera:create (vect:create (/ (vect:x size) 2) (/ (vect:y size) 2)))))
 
 (define %camera-stack (list))
 (define (current-camera) (if (null? %camera-stack)

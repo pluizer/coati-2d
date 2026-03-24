@@ -83,10 +83,7 @@
 (define (polygon-batcher:render* polygon-batcher projection view)
   (when (not (null? (polygon-batcher-triangle-ids polygon-batcher)))
     (batcher:render (polygon-batcher-batcher polygon-batcher)
-                    projection (if %target-is-screen?
-                                   view
-                                   ;; Flip the y-axis of all framebuffer targets.
-                                   (matrix:scale (vect:create 1 -1) view))
+                    projection view
                     (%current-colour))))
 
 (define (polygon-batcher:render polygon-batcher)

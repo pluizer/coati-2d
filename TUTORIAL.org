@@ -1,3 +1,9 @@
+* Coordinate system
+
+Y=0 is at the *bottom* of the screen; Y increases upward — everywhere: world space, GUI space, mouse position, tilemap coordinates. X=0 is at the left.
+
+Mouse events deliver positions already flipped to Y-up. The textbuffer cursor also uses Y-up: ~(cursor 1 1)~ places text near the top of the screen because the textbuffer maps cursor row 0 → top of its grid internally.
+
 * Installation
 
 Clone this repo and tell Chicken to install it:
@@ -73,6 +79,29 @@ Let's try:
      (renderer)
      (if (= i 100) #f
          (+ i 1)))))
+#+END_SRC
+
+* Render targets
+
+Render to an off-screen texture, then blit it to screen:
+
+#+BEGIN_SRC scheme
+(define target (texture:create (vect:create 320 180)))
+(define blit   (texture:fullscreen-renderer target))
+
+; each frame:
+(with-target target
+  (texture:clear! (rgb:create 0 0 0))
+  ; ... all rendering here ...)
+(blit)
+#+END_SRC
+
+~with-target~ automatically sets the GL viewport to the texture dimensions and restores it on exit. No Y-flip gymnastics needed — the coordinate system is Y-up inside and outside the target.
+
+Lowres rendering pattern (quarter resolution):
+#+BEGIN_SRC scheme
+(define lowres-tex  (texture:create (vect* (window:size) 0.25)))
+(define lowres-blit (texture:fullscreen-renderer lowres-tex))
 #+END_SRC
 
 * Sprites
@@ -233,7 +262,7 @@ iso:screen->world v  →  world coord of diamond containing v
   (let* ((mouse-rel (vect:create
                       (* (- (vect:x mouse-pixel-pos) (* 0.5 (vect:x window-size)))
                          (/ (vect:x camera-size) (vect:x window-size)))
-                      (* (- (* 0.5 (vect:y window-size)) (vect:y mouse-pixel-pos))
+                      (* (- (vect:y mouse-pixel-pos) (* 0.5 (vect:y window-size)))
                          (/ (vect:y camera-size) (vect:y window-size)))))
          (mouse-world (vect+ camera-pos mouse-rel)))
     (iso:screen->world mouse-world)))
@@ -305,6 +334,56 @@ Multiple extras at different depths work correctly; N extras → N+1 tile batche
 
 Pass the result as ~dirty?~ to ~tilemap:render-sorted~ to force repopulation on state change.
 
+* Pathfinding
+
+A* on a grid, with string-pulling and movement:
+
+#+BEGIN_SRC scheme
+(find-path  start goal solid?)         ; → list of coords, or #f
+(smooth-path path solid?)              ; string-pull (remove redundant waypoints)
+(follow-path pos path speed dt)        ; → (cons new-pos remaining-path)
+#+END_SRC
+
+All coords are ~coord:create~ values. ~solid?~ is a predicate ~coord → bool~.
+
+~follow-path~ advances along the path by ~speed * dt~ world units, consuming waypoints as they are reached. Returns a pair so the remainder can be stored.
+
+#+BEGIN_SRC scheme
+(let* ((follow      (follow-path pos path speed dt))
+       (new-pos     (car follow))
+       (new-path    (cdr follow)))
+  ...)
+#+END_SRC
+
+** Isometric tilemap pathfinding
+
+The tile function receives *iso-space* coords, so the pathfinder must also run in iso-space. Convert before and after:
+
+#+BEGIN_SRC scheme
+(define (vect->iso-coord v)
+  (let* ((px (- (vect:x v) 0.5))
+         (py (- (vect:y v) 0.5)))
+    (coord:create
+     (inexact->exact (floor (+ 0.5 (- px) (* -2.0 py))))
+     (inexact->exact (floor (+ 0.5 px (* -2.0 py)))))))
+
+(define (iso-coord->vect c)
+  (let ((ix (coord:x c)) (iy (coord:y c)))
+    (vect:create (* 0.5 (+ 1 (- ix) iy))
+                 (* 0.25 (+ 3 (- ix) (- iy))))))
+#+END_SRC
+
+#+BEGIN_SRC scheme
+(let* ((start (vect->iso-coord world-pos))
+       (goal  (vect->iso-coord target-pos))
+       (raw   (find-path start goal tile-solid?))
+       (path  (and raw (smooth-path raw tile-solid?))))
+  (when path
+    (set! %path (cdr (map iso-coord->vect path)))))
+#+END_SRC
+
+The ~cdr~ skips the start waypoint (already at that position).
+
 * Static tilemap
 
 Fixed-size tilemap; tiles set explicitly rather than by function.
@@ -344,6 +423,20 @@ Call ~gamemap:make-dirty!~ to force a re-render of the cached regions.
   (with-camera camera
     (with-blending trans (rgb:create 1 0 0 .5)
       (polygon-batcher:render batcher))))
+#+END_SRC
+
+Polygons are triangulated automatically; any convex or concave shape works. Vertices are in world space when using ~(identity-matrix)~.
+
+For per-frame geometry (push, render, discard):
+#+BEGIN_SRC scheme
+(polygon-batcher:push! batcher polygon (identity-matrix))
+(polygon-batcher:render batcher)
+(polygon-batcher:clear! batcher)
+#+END_SRC
+
+~rect->polygon~ converts a ~rect:create~ to a quad polygon:
+#+BEGIN_SRC scheme
+(polygon-batcher:push! batcher (rect->polygon (rect:create left right bottom top)) (identity-matrix))
 #+END_SRC
 
 * Blending

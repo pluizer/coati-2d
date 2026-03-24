@@ -21,9 +21,9 @@
 		     (/ .5 w))
 		  (- (rect:r rectangle)
 		     (/ .5 w))
-		  (+ (rect:t rectangle)
+		  (+ (rect:b rectangle)
 		     (/ .5 h))
-		  (- (rect:b rectangle)
+		  (- (rect:t rectangle)
 		     (/ .5 h))))))
 
 (define-record animation
@@ -114,10 +114,10 @@
 
 (define (sprite:coord-data sprite)
   (let ((rect (sprite:rectangle sprite)))
-    (f32vector (rect:l rect) (rect:b rect)
-	       (rect:l rect) (rect:t rect)
-	       (rect:r rect) (rect:t rect)
-	       (rect:r rect) (rect:b rect))))
+    (f32vector (rect:l rect) (rect:t rect)
+	       (rect:l rect) (rect:b rect)
+	       (rect:r rect) (rect:b rect)
+	       (rect:r rect) (rect:t rect))))
 
 ;; Create a sprite not by specifying the coordinates by rectangles,
 ;; but by indices.
@@ -142,7 +142,7 @@
 	    (let ((x (vect:x coord))
 		  (y (vect:y coord)))
 	      (rect:create (* x w) (+ (* x w) w)
-			   (+ (* y h) h) (* y h))))
+			   (- 1 (+ (* y h) h)) (- 1 (* y h)))))
 	  (map (lambda (index)
 		 (vect:create (modulo index tiles-w)
 			      (floor (/ index tiles-w))))

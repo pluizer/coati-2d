@@ -105,11 +105,7 @@
 (define (sprite-batcher:render* sprite-batcher projection view)
   (when (> (batcher-length (sprite-batcher-batcher sprite-batcher)) 0)
     (batcher:render (sprite-batcher-batcher sprite-batcher)
-                    projection (if %target-is-screen?
-                                   view
-                                   ;; Flip the y-axis of all framebuffer targets.
-                                   (matrix:scale (vect:create 1 -1) view)
-				   )
+                    projection view
                     (%current-colour))))
 
 (define (sprite-batcher:render sprite-batcher)
