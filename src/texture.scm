@@ -143,18 +143,17 @@
 		(matrix:scale (vect:create 1 -1) (camera:view (current-camera)))
 		(camera:view (current-camera)))))))
 
-;; TODO
-;; Returns a function that renders a texture fullscreen.
-;; (define (texture:fullscreen-renderer texture
-;; 				     #!optional (rect (rect:create 0 1 1 0)))
-;;   (let ((renderer (texture:renderer* texture rect))
-;; 	(projection (identity-matrix))
-;; 	(view (f32vector 2 0 0 0
-;; 			 0 2 0 0
-;; 			 0 0 1 0
-;; 			 -1 -1 0 1)))
-;;     (lambda ()
-;;       (renderer projection view))))
+(define (texture:fullscreen-renderer texture)
+  (let* ((s (texture:size texture))
+         (w (vect:x s))
+         (h (vect:y s))
+         (renderer (texture:renderer* texture))
+         (projection (identity-matrix))
+         (view (f32vector (/ 2.0 w) 0.0 0.0 0.0
+                          0.0 (/ 2.0 h) 0.0 0.0
+                          0.0 0.0 1.0 0.0
+                          -1.0 -1.0 0.0 1.0)))
+    (lambda () (renderer projection view))))
 
 (define (with-texture/proc texture thunk)
   (gl::with-texture gl::+texture-2d+ (texture:texture-id texture)
@@ -167,10 +166,20 @@
   %target-is-screen?)
 
 (define (with-target/proc target thunk)
-  (let ((id (texture:framebuffer-id target)))
-    (let ((target-was-screen? %target-is-screen?))
-      (set! %target-is-screen? (= id 0))
-      (gl::with-framebuffer id (begin (thunk)
-                                      (set! %target-is-screen? target-was-screen?))))))
+  (let* ((id (texture:framebuffer-id target))
+         (s  (texture:size target))
+         (tw (inexact->exact (vect:x s)))
+         (th (inexact->exact (vect:y s)))
+         (vp (make-s32vector 4 0))
+         (target-was-screen? %target-is-screen?))
+    (gl::get-integerv gl::+viewport+ vp)
+    (set! %target-is-screen? (= id 0))
+    (gl::with-framebuffer id
+      (begin
+        (gl::viewport 0 0 tw th)
+        (thunk)
+        (gl::viewport (s32vector-ref vp 0) (s32vector-ref vp 1)
+                      (s32vector-ref vp 2) (s32vector-ref vp 3))
+        (set! %target-is-screen? target-was-screen?)))))
 
 ;; TODO: free texture, more testing needed
