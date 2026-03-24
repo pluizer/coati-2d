@@ -41,8 +41,7 @@
 	(changed? (make-change-check))
 	;; Cache all active coords.
 	(active-coords (list))
-        (sorted-batcher-a (sprite-batcher:create shader))
-        (sorted-batcher-b (sprite-batcher:create shader))
+        (sorted-batchers (vector (sprite-batcher:create shader)))
         (sorted-changed? (make-change-check))
         (sorted-tiles (list))
         (sorted-extra-depths #f))
@@ -61,12 +60,13 @@
 	     (let ((repopulate? (or dirty? (changed? coord width height tile-func))))
 	       (when repopulate? 
 		 (let* ((coord (if isometric? (coord->isometric coord) coord))
-			;; List of all coordinates
+			(hw (if isometric? (quotient width 2) 0))
+			(hh (if isometric? (quotient height 2) 0))
 			(coords
 			 (map (lambda (x)
-				(coord:create (+ (modulo x width)
+				(coord:create (+ (- (modulo x width) hw)
 						 (coord:x coord))
-					      (+ (floor (/ x width))
+					      (+ (- (quotient x width) hh)
 						 (coord:y coord))))
 			      (iota (* width height)))))
 		   ;; Call the optional callback with the coords to be removed
@@ -119,14 +119,16 @@
 	     (sprite-batcher:render* batcher projection view)))
 
          (sorted-raw
-          (lambda (coord width height tile-func tile-args dirty? extra-specs tile-texture depth-offset projection view)
+          (lambda (coord width height tile-func tile-args dirty? extra-specs tile-texture projection view)
             (let* ((iso-coord (coord->isometric coord))
+                   (hw (quotient width 2))
+                   (hh (quotient height 2))
                    (repopulate? (or dirty? (sorted-changed? coord width height tile-func))))
               (when repopulate?
                 (let* ((coords (map (lambda (x)
-                                      (coord:create (+ (modulo x width)
+                                      (coord:create (+ (- (modulo x width) hw)
                                                        (coord:x iso-coord))
-                                                    (+ (floor (/ x width))
+                                                    (+ (- (quotient x width) hh)
                                                        (coord:y iso-coord))))
                                     (iota (* width height)))))
                   (set! sorted-tiles
@@ -152,34 +154,44 @@
                                               (if (= (f32vector-length col) 4) (rgb->colour-matrix col) col))))))))
                           coords)
                          (lambda (a b) (< (car a) (car b)))))))
-              (let* ((extra-entries (sort (map (lambda (e) (list (+ (car e) depth-offset) 'extra (cdr e))) extra-specs)
+              (let* ((extra-entries (sort (map (lambda (e) (list (car e) 'extra (cdr e))) extra-specs)
                                           (lambda (a b) (< (car a) (car b)))))
                      (new-depths (map car extra-entries))
+                     (n-segments (+ (length extra-entries) 1))
                      (rebuild? (or repopulate? (not (equal? new-depths sorted-extra-depths)))))
                 (when rebuild?
                   (set! sorted-extra-depths new-depths)
-                  (sprite-batcher:clear! sorted-batcher-a)
-                  (sprite-batcher:clear! sorted-batcher-b)
+                  (when (< (vector-length sorted-batchers) n-segments)
+                    (set! sorted-batchers
+                      (list->vector
+                       (append (vector->list sorted-batchers)
+                               (map (lambda (_) (sprite-batcher:create shader))
+                                    (iota (- n-segments (vector-length sorted-batchers))))))))
+                  (let clear ((i 0))
+                    (when (< i n-segments)
+                      (sprite-batcher:clear! (vector-ref sorted-batchers i))
+                      (clear (+ i 1))))
                   (let loop ((tiles sorted-tiles)
                              (extras extra-entries)
-                             (target sorted-batcher-a))
+                             (bi 0))
                     (when (not (null? tiles))
                       (cond
                         ((or (null? extras) (< (caar tiles) (caar extras)))
                          (let* ((t (car tiles))
                                 (vdata (cadr t)) (cdata (caddr t)) (col (cadddr t)))
-                           (batcher:push! (sprite-batcher-batcher target) vdata cdata (or col %sorted-white)))
-                         (loop (cdr tiles) extras target))
+                           (batcher:push! (sprite-batcher-batcher (vector-ref sorted-batchers bi))
+                                         vdata cdata (or col %sorted-white)))
+                         (loop (cdr tiles) extras bi))
                         (else
-                         (loop tiles (cdr extras) sorted-batcher-b))))))
-                (sprite-batcher:render* sorted-batcher-a projection view)
-                (for-each
-                 (lambda (e)
-                   ((caddr e))
-                   (when tile-texture
-                     (gl::bind-texture gl::+texture-2d+ (texture:texture-id tile-texture))))
-                 extra-entries)
-                (sprite-batcher:render* sorted-batcher-b projection view))))))
+                         (loop tiles (cdr extras) (+ bi 1)))))))
+                (sprite-batcher:render* (vector-ref sorted-batchers 0) projection view)
+                (let render-loop ((extras extra-entries) (bi 1))
+                  (when (not (null? extras))
+                    ((caddr (car extras)))
+                    (when tile-texture
+                      (gl::bind-texture gl::+texture-2d+ (texture:texture-id tile-texture)))
+                    (sprite-batcher:render* (vector-ref sorted-batchers bi) projection view)
+                    (render-loop (cdr extras) (+ bi 1)))))))))
 
       ;; Function returned by ``tilemap:create``. Renders the map from
       ;; the ``bottom-left`` coordinate for orthogonal maps and the top-left
@@ -230,30 +242,12 @@
 	       (fy (floor y))
                )
 	  (if isometric?
-              (let* ((cx0 (inexact->exact (floor (+ fx (/ width 2)))))
-                     (cy0 (inexact->exact (floor (+ fy (/ height 2)))))
+              (let* ((cx0 (inexact->exact fx))
+                     (cy0 (inexact->exact fy))
                      (cx (if (> overscan 0) (* overscan (inexact->exact (floor (/ cx0 overscan)))) cx0))
                      (cy (if (> overscan 0) (* overscan (inexact->exact (floor (/ cy0 overscan)))) cy0)))
                 (raw
-                 ;; For isometric maps the top-left side of the screen/texture
-                 ;; is coordinate (0, 0) of the map. (When the position of the
-                 ;; camera is also (0, 0)
                  (coord:create (+ cx overscan) (+ cy overscan))
-                 ;; We must extend the size of the tiles to render
-                 ;; so also the coners of screen are filled.
-                 ;;
-                 ;;    /\  /\
-                 ;;   /  \/  \
-                 ;;  /+--/\--+\
-                 ;; / |X/  \X| \
-                 ;; \ |/    \| /
-                 ;;  \/      \/
-                 ;;  /\      /\
-                 ;; / |\    /| \
-                 ;; \ |X\  /X| /
-                 ;;  \+--\/--+/
-                 ;;   \  /\  /
-                 ;;    \/  \/
                  (+ (* width 2) 2 (* 4 overscan))
                  (+ (* height 4) 2 (* 4 overscan))
                  tile-func
@@ -261,7 +255,7 @@
                  dirty?
                  projection
                  (maybe trans-func (matrix:translate (vect:create (exact->inexact (+ fx (- cx cx0) overscan))
-                                                                   (exact->inexact (+ fy height (- cy cy0) overscan)))
+                                                                   (exact->inexact (+ fy (- cy cy0) overscan)))
                                                      (subf32vector view 0 16)))))
               (let* ((sx (inexact->exact (floor (- x (/ width 2)))))
                      (sy (inexact->exact (floor (- y (/ height 2)))))
@@ -284,20 +278,18 @@
                  (y (vect:y top-left))
                  (fx (floor x))
                  (fy (floor y))
-                 (cx0 (inexact->exact (floor (+ fx (/ width 2)))))
-                 (cy0 (inexact->exact (floor (+ fy (/ height 2)))))
+                 (cx0 (inexact->exact fx))
+                 (cy0 (inexact->exact fy))
                  (cx (if (> overscan 0) (* overscan (inexact->exact (floor (/ cx0 overscan)))) cx0))
                  (cy (if (> overscan 0) (* overscan (inexact->exact (floor (/ cy0 overscan)))) cy0))
                  (world-coord (coord:create (+ cx overscan) (+ cy overscan)))
-                 (iso-coord (coord->isometric world-coord))
                  (tx (exact->inexact (+ fx (- cx cx0) overscan)))
-                 (ty (exact->inexact (+ fy height (- cy cy0) overscan)))
-                 (depth-offset (+ (coord:x iso-coord) (coord:y iso-coord) (* 4.0 ty))))
+                 (ty (exact->inexact (+ fy (- cy cy0) overscan))))
             (sorted-raw
              world-coord
              (+ (* width 2) 2 (* 4 overscan))
              (+ (* height 4) 2 (* 4 overscan))
-             tile-func tile-args dirty? extra-specs tile-texture depth-offset projection
+             tile-func tile-args dirty? extra-specs tile-texture projection
              (maybe trans-func (matrix:translate (vect:create tx ty)
                                                  (subf32vector view 0 16)))))))
 

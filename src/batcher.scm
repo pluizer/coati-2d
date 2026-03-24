@@ -16,7 +16,7 @@
   (let ((value (u16vector))
 	(old-size 0))
     (lambda (size)
-      (unless (= size old-size)
+      (when (> size old-size)
 	(set! old-size size)
 	(set! value
 	      (apply u16vector 
