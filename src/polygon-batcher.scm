@@ -82,12 +82,12 @@
 ;; Render with matrices instead of camera
 (define (polygon-batcher:render* polygon-batcher projection view)
   (when (not (null? (polygon-batcher-triangle-ids polygon-batcher)))
-    (batcher:render (polygon-batcher-batcher polygon-batcher)
-                    projection (if %target-is-screen?
-                                   view
-                                   ;; Flip the y-axis of all framebuffer targets.
-                                   (matrix:scale (vect:create 1 -1) view))
-                    (%current-colour))))
+    (let ((view (if (target-is-screen?)
+	 	    (matrix:scale (vect:create 1 -1) view)
+		    view)))
+      (batcher:render (polygon-batcher-batcher polygon-batcher)
+                      projection view
+                      (%current-colour)))))
 
 (define (polygon-batcher:render polygon-batcher)
   (polygon-batcher:render* polygon-batcher

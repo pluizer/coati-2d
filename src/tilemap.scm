@@ -68,7 +68,7 @@
 						 (coord:x coord))
 					      (+ (- (quotient x width) hh)
 						 (coord:y coord))))
-			      (iota (* width height)))))
+			      ((if isometric? reverse (lambda (x) x)) (iota (* width height))))))
 		   ;; Call the optional callback with the coords to be removed
 		   ;; and the coords that are being added.
 		   (when new-coords-callback
@@ -145,7 +145,7 @@
                                                 (trans:create
                                                  (vect:create (+ (* x -.5) (* y .5))
                                                               (+ (* x -.25) (* y -.25))))))
-                                          (depth (+ (coord:x tile-coord) (coord:y tile-coord))))
+                                           (depth (if isometric? (- (+ (coord:x tile-coord) (coord:y tile-coord))) (+ (coord:x tile-coord) (coord:y tile-coord)))))
                                      (match sprite
                                        ((? sprite? spr)
                                         (list depth (sprite:vertex-data spr mat) (sprite:coord-data spr) #f))
@@ -154,8 +154,9 @@
                                               (if (= (f32vector-length col) 4) (rgb->colour-matrix col) col))))))))
                           coords)
                          (lambda (a b) (< (car a) (car b)))))))
-              (let* ((extra-entries (sort (map (lambda (e) (list (car e) 'extra (cdr e))) extra-specs)
-                                          (lambda (a b) (< (car a) (car b)))))
+               (let* ((depth-transform (if isometric? - (lambda (x) x)))
+                      (extra-entries (sort (map (lambda (e) (list (depth-transform (car e)) 'extra (cdr e))) extra-specs)
+                                           (lambda (a b) (< (car a) (car b)))))
                      (new-depths (map car extra-entries))
                      (n-segments (+ (length extra-entries) 1))
                      (rebuild? (or repopulate? (not (equal? new-depths sorted-extra-depths)))))

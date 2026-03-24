@@ -2,7 +2,8 @@
          (uses primitives
                texture))
 
-(import srfi-4)
+(import srfi-4
+        (chicken locative))
 
 (define-record pixmap
   width
@@ -17,10 +18,10 @@
 (define rgb->u8
   (foreign-lambda* unsigned-integer ((f32vector rgb)) "
 	unsigned int ret = 0;
-	unsigned char r = (unsigned char)rgb[0]*255;
-	unsigned char g = (unsigned char)rgb[1]*255;
-	unsigned char b = (unsigned char)rgb[2]*255;
-	unsigned char a = (unsigned char)rgb[3]*255;
+	unsigned char r = (unsigned char)(rgb[0]*255);
+	unsigned char g = (unsigned char)(rgb[1]*255);
+	unsigned char b = (unsigned char)(rgb[2]*255);
+	unsigned char a = (unsigned char)(rgb[3]*255);
 	ret = (a<<24)|(r<<16)|(g<< 8)|b;
 	C_return(ret);"))
 
@@ -34,6 +35,7 @@
 
 ;; Converts a pixmap to a texture.
 (define (pixmap->texture pixmap)
-  (texture:create (vect:create (pixmap-width  pixmap)
-			       (pixmap-height pixmap))
-		  (make-locative (pixmap-data pixmap))))
+  (let ((vec (pixmap-data pixmap)))
+    (texture:create (vect:create (pixmap-width  pixmap)
+			         (pixmap-height pixmap))
+		    (make-locative vec))))

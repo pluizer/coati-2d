@@ -1,6 +1,8 @@
 (declare (unit primitives))
 
-(import gl-math
+(import (chicken base)
+        (chicken sort)
+        gl-math
         srfi-1
         srfi-4)
 
@@ -41,7 +43,7 @@
 
 (define 2pi 6.283185307)
 
-(define pi (- 3.14159265))
+(define -pi (- 3.14159265))
 
 (define 360/2pi 57.29577951)
 
@@ -309,6 +311,21 @@
          (iy (floor (+ 0.5 px (* -2.0 py)))))
     (vect:create (* 0.5 (- iy ix))
                  (* -0.25 (+ ix iy)))))
+
+(define (iso:world->coord v)
+  (let* ((px (- (vect:x v) 0.5))
+         (py (- (vect:y v) 0.5)))
+    (coord:create
+      (inexact->exact (floor (+ 0.5 (- px) (* -2.0 py))))
+      (inexact->exact (floor (+ 0.5 px   (* -2.0 py)))))))
+
+(define (iso:coord->world c)
+  (let ((ix (coord:x c)) (iy (coord:y c)))
+    (vect:create (* 0.5 (+ 1 (- ix) iy))
+                 (* 0.25 (+ 3 (- ix) (- iy))))))
+
+(define (iso:sprite-depth world-pos #!optional (origin-y 0))
+  (* -4.0 (- (vect:y world-pos) origin-y)))
 
 (define (coord->vect c)
   (vect:create (coord:x c)

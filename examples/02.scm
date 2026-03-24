@@ -3,7 +3,7 @@
 (import coati)
 
 (define (game-1)
-  (let* ((texture (texture:load "../share/arrow.png"))
+  (let* ((texture (texture:load "./share/arrow.png"))
          (batcher (sprite-batcher:create))
          (sprite  (sprite:create texture))
          (root    (node:create-root))
@@ -22,7 +22,7 @@
      1)))
 
 (define (game-2)
-  (let* ((texture-map    (texture:load "../share/grid.png"))
+  (let* ((texture-map    (texture:load "./share/grid.png"))
          (dirt-sprite    (sprite:create-from-indices texture-map 3 2 (list 0)))
          (grass-sprite   (sprite:create-from-indices texture-map 3 2 (list 4)))
          (flower-sprite  (sprite:create-from-indices texture-map 3 2 (list 5)))
@@ -44,7 +44,7 @@
          (position       (vect:create 0 0))
 
          ;; Sprite
-         (cat-texture    (texture:load "../share/cat.png"))
+         (cat-texture    (texture:load "./share/cat.png"))
          (cat-sprite     (sprite:create-from-indices cat-texture 4 13 (list 0 4 8 12)))
          (cat-size	 (texture:size cat-texture))
          ;;

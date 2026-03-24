@@ -363,10 +363,9 @@ void* dv_vector_data(DV_Vector* dv)
 		   f32chunk-vector-clear!))
 	    ((double: float64:)
 	     (list make-f64chunk-vector f64chunk-vector-push!
-		   f64chunk-vector-remove! f64chunk-vector-set! 
+		   f64chunk-vector-remove! f64chunk-vector-set!
 		   f64chunk-vector-ref f64chunk-vector-length
 		   f64chunk-vector->pointer f64chunk-vector-chunk-size
-		   f64chunk-vector-chunk-size
 		   f64chunk-vector-clear!))))
 	 (vector ((car funcs) chunk-length size-hint)))
     (apply (lambda (_ push! remove! set! ref length pointer chunk-size clear)

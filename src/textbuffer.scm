@@ -44,7 +44,10 @@
      charmap-texture
      camera
      text-texture
-     (texture:renderer text-texture))))
+      (let ((func (texture:renderer* text-texture)))
+        (lambda ()
+          (func (camera:projection (current-camera))
+                (camera:view (current-camera))))))))
 
 (define (textbuffer:render textbuffer)
   (let* ((dirty? (textbuffer-dirty? textbuffer))

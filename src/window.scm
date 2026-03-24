@@ -50,7 +50,8 @@
     (gl::enable gl::+blend+)
     (gl::disable gl::+depth-test+)
     (gl::check-error))
-  (set! %window-size (vect:create w h))
+  (receive (aw ah) (sdl-gl-get-drawable-size %window)
+    (set! %window-size (vect:create aw ah)))
   (%sound:init))
 
 

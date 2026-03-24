@@ -75,6 +75,29 @@ Let's try:
          (+ i 1)))))
 #+END_SRC
 
+* Render targets
+
+Render to an off-screen texture, then blit it to screen:
+
+#+BEGIN_SRC scheme
+(define target (texture:create (vect:create 320 180)))
+(define blit   (texture:fullscreen-renderer target))
+
+; each frame:
+(with-target target
+  (texture:clear! (rgb:create 0 0 0))
+  ; ... all rendering here ...)
+(blit)
+#+END_SRC
+
+~with-target~ automatically sets the GL viewport to the texture dimensions and restores it on exit.
+
+Lowres rendering pattern (quarter resolution):
+#+BEGIN_SRC scheme
+(define lowres-tex  (texture:create (vect* (window:size) 0.25)))
+(define lowres-blit (texture:fullscreen-renderer lowres-tex))
+#+END_SRC
+
 * Sprites
 
 Rendering textures using a renderer might be okay for just a few textures but gets terribly inefficient after I while. To render many textures to screen it is best to use a /sprites/ in combination with a /sprite-batcher/. A /sprite-batcher/ collects multiple /sprites/ and renders them all in one go. To create a sprite-batcher use the function ~(sprite-batcher:create)~, to create a sprite use the function ~(sprite:create texture)~
@@ -124,6 +147,21 @@ For animated sprites call ~sprite-batcher:update!~ once per frame before renderi
 
 ~with-camera~ makes a camera active for the enclosed body. Cameras can be nested.
 ~(window:size)~ returns the window dimensions as a vect.
+
+** Coordinate conversion
+
+#+BEGIN_SRC scheme
+(camera:screen->world cam win-size screen-pos)
+(camera:world->screen cam win-size world-pos)
+(camera:screen->world/viewport cam viewport-origin viewport-size screen-pos)
+#+END_SRC
+
+~screen-pos~ and the return of ~camera:screen->world~ are vects in screen pixels.
+~camera:screen->world/viewport~ handles a sub-region of the screen: subtract ~viewport-origin~ first, then treat ~viewport-size~ as the full window.
+
+#+BEGIN_SRC scheme
+(define mouse-world (camera:screen->world cam (window:size) %mouse-pos))
+#+END_SRC
 
 * Input
 
@@ -229,17 +267,12 @@ iso:screen->world v  →  world coord of diamond containing v
 ** Mouse picking
 
 #+BEGIN_SRC scheme
-(define (screen-pos->world-tile camera-pos camera-size window-size mouse-pixel-pos)
-  (let* ((mouse-rel (vect:create
-                      (* (- (vect:x mouse-pixel-pos) (* 0.5 (vect:x window-size)))
-                         (/ (vect:x camera-size) (vect:x window-size)))
-                      (* (- (* 0.5 (vect:y window-size)) (vect:y mouse-pixel-pos))
-                         (/ (vect:y camera-size) (vect:y window-size)))))
-         (mouse-world (vect+ camera-pos mouse-rel)))
-    (iso:screen->world mouse-world)))
+(let* ((mouse-world (camera:screen->world cam (window:size) %mouse-pos))
+       (tile        (iso:screen->world mouse-world)))
+  ...)
 #+END_SRC
 
-~iso:screen->world~ returns the anchor position (= world coord) of the tile whose diamond contains the point.
+~iso:screen->world~ returns the world coord (anchor) of the isometric tile diamond containing the point.
 
 ** Depth sorting
 
@@ -305,6 +338,44 @@ Multiple extras at different depths work correctly; N extras → N+1 tile batche
 
 Pass the result as ~dirty?~ to ~tilemap:render-sorted~ to force repopulation on state change.
 
+* Pathfinding
+
+A* on a grid, with string-pulling and movement:
+
+#+BEGIN_SRC scheme
+(find-path  start goal solid?)         ; → list of coords, or #f
+(smooth-path path solid?)              ; string-pull (remove redundant waypoints)
+(follow-path pos path speed dt)        ; → (cons new-pos remaining-path)
+#+END_SRC
+
+All coords are ~coord:create~ values. ~solid?~ is a predicate ~coord → bool~.
+
+~follow-path~ advances along the path by ~speed * dt~ world units, consuming waypoints as they are reached. Returns a pair so the remainder can be stored.
+
+#+BEGIN_SRC scheme
+(let* ((follow      (follow-path pos path speed dt))
+       (new-pos     (car follow))
+       (new-path    (cdr follow)))
+  ...)
+#+END_SRC
+
+** Isometric tilemap pathfinding
+
+#+BEGIN_SRC scheme
+(iso:find-path start goal solid?)    ; start/goal: world vects; solid?: coord → bool
+#+END_SRC
+
+Returns a list of world vects (the smoothed path), or ~#f~ if no path exists. ~solid?~ receives iso-space coords — the same type passed to the tile function.
+
+#+BEGIN_SRC scheme
+(let ((path (iso:find-path world-pos target-pos tile-solid?)))
+  (when path (set! %path (cdr path))))
+#+END_SRC
+
+The ~cdr~ skips the start waypoint.
+
+For lower-level access: ~iso:world->coord~ converts a world vect to an iso-space coord; ~iso:coord->world~ is the inverse.
+
 * Static tilemap
 
 Fixed-size tilemap; tiles set explicitly rather than by function.
@@ -344,6 +415,20 @@ Call ~gamemap:make-dirty!~ to force a re-render of the cached regions.
   (with-camera camera
     (with-blending trans (rgb:create 1 0 0 .5)
       (polygon-batcher:render batcher))))
+#+END_SRC
+
+Polygons are triangulated automatically; any convex or concave shape works. Vertices are in world space when using ~(identity-matrix)~.
+
+For per-frame geometry (push, render, discard):
+#+BEGIN_SRC scheme
+(polygon-batcher:push! batcher polygon (identity-matrix))
+(polygon-batcher:render batcher)
+(polygon-batcher:clear! batcher)
+#+END_SRC
+
+~rect->polygon~ converts a ~rect:create~ to a quad polygon:
+#+BEGIN_SRC scheme
+(polygon-batcher:push! batcher (rect->polygon (rect:create left right bottom top)) (identity-matrix))
 #+END_SRC
 
 * Blending

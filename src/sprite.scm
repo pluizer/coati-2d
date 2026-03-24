@@ -142,7 +142,7 @@
 	    (let ((x (vect:x coord))
 		  (y (vect:y coord)))
 	      (rect:create (* x w) (+ (* x w) w)
-			   (+ (* y h) h) (* y h))))
+			   (* y h) (+ (* y h) h))))
 	  (map (lambda (index)
 		 (vect:create (modulo index tiles-w)
 			      (floor (/ index tiles-w))))
