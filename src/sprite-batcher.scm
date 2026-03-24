@@ -13,7 +13,8 @@
 
 (define-record sprite-batcher
   batcher
-  sprite-ids)
+  sprite-ids
+  animated-ids)
 
 (define-record sprite-batch-id
   batch-id
@@ -22,10 +23,11 @@
 
 
 (define (sprite-batcher:create #!optional (shader default-shader))
-  (make-sprite-batcher 
+  (make-sprite-batcher
    (batcher:create shader
 		   *triangle-rect-mode*
 		   4)
+   (list)
    (list)))
 
 ;; assuming colour/matrix is a colour or a colour-matrix, always
@@ -49,9 +51,13 @@
 			  (%maybe-colour->matrix colour/matrix)
 			  (make-f32vector 16 1)))
 		     matrix sprite)))
-    (sprite-batcher-sprite-ids-set! 
-     sprite-batcher 
+    (sprite-batcher-sprite-ids-set!
+     sprite-batcher
      (cons sprite-id (sprite-batcher-sprite-ids sprite-batcher)))
+    (when (sprite:animated? sprite)
+      (sprite-batcher-animated-ids-set!
+       sprite-batcher
+       (cons sprite-id (sprite-batcher-animated-ids sprite-batcher))))
     sprite-id))
 
 (define (sprite-batcher:change! sprite-batcher s-b-id matrix
@@ -77,27 +83,28 @@
    (lambda (sprite-id)
      (match-let ((($ sprite-batch-id batch-id matrix sprite)
 		  sprite-id))
-		;; TODO polls sprites too much.
-		(when (sprite:animated? sprite)
-		 (batcher:change! (sprite-batcher-batcher sprite-batcher)
-				  batch-id
-				  coord: (sprite:coord-data sprite)))))
-   (sprite-batcher-sprite-ids sprite-batcher)))
+       (batcher:change! (sprite-batcher-batcher sprite-batcher)
+			batch-id
+			coord: (sprite:coord-data sprite))))
+   (sprite-batcher-animated-ids sprite-batcher)))
 
 (define (sprite-batcher:remove! sprite-batcher id)
   (batcher:remove! (sprite-batcher-batcher sprite-batcher)
 		   (sprite-batch-id-batch-id id))
   (sprite-batcher-sprite-ids-set! sprite-batcher
-   (remove (=? id) (sprite-batcher-sprite-ids sprite-batcher))))
+   (remove (=? id) (sprite-batcher-sprite-ids sprite-batcher)))
+  (sprite-batcher-animated-ids-set! sprite-batcher
+   (remove (=? id) (sprite-batcher-animated-ids sprite-batcher))))
 
 (define (sprite-batcher:clear! sprite-batcher)
   (batcher:clear! (sprite-batcher-batcher sprite-batcher))
-  (sprite-batcher-sprite-ids-set! sprite-batcher (list)))
+  (sprite-batcher-sprite-ids-set! sprite-batcher (list))
+  (sprite-batcher-animated-ids-set! sprite-batcher (list)))
 
 ;; Render with matrices instead of camera
 (define (sprite-batcher:render* sprite-batcher projection view)
-  (when (not (null? (sprite-batcher-sprite-ids sprite-batcher)))
-    (batcher:render (sprite-batcher-batcher sprite-batcher) 
+  (when (> (batcher-length (sprite-batcher-batcher sprite-batcher)) 0)
+    (batcher:render (sprite-batcher-batcher sprite-batcher)
                     projection (if %target-is-screen?
                                    view
                                    ;; Flip the y-axis of all framebuffer targets.

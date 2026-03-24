@@ -300,6 +300,14 @@
                 (- (* (coord:y c) 2)))))
     (coord:create cx cy)))
 
+(define (iso:world->screen v)
+  (vect:create (+ (* (vect:x v) -.5) (* (vect:y v)  .5))
+               (+ (* (vect:x v) -.25) (* (vect:y v) -.25))))
+
+(define (iso:screen->world v)
+  (vect:create (+ (- (vect:x v)) (* (vect:y v) -2.0))
+               (+    (vect:x v)  (* (vect:y v) -2.0))))
+
 (define (coord->vect c)
   (vect:create (coord:x c)
 	       (coord:y c)))

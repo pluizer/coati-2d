@@ -21,14 +21,18 @@
 (define (window:size) %window-size)
 
 (define (game-loop iter-func prev-ret)
-  (poll-input-events)
-  (poll-events!)
-  (sdl-gl-swap-window! %window)
-  (let ((ret (apply iter-func (if (list? prev-ret) prev-ret
-                                  (list prev-ret)))))
-    (when (and ret (not %window-should-close?))
-      (textbuffer '(%render))
-      (game-loop iter-func ret))))
+  (let ((frame-start (current-milliseconds)))
+    (poll-input-events)
+    (poll-events!)
+    (sdl-gl-swap-window! %window)
+    (let ((ret (apply iter-func (if (list? prev-ret) prev-ret
+                                    (list prev-ret)))))
+      (when (and ret (not %window-should-close?))
+        (textbuffer '(%render))
+        (let ((remaining (- 16 (- (current-milliseconds) frame-start))))
+          (when (> remaining 0)
+            (sdl-delay! (inexact->exact (floor remaining)))))
+        (game-loop iter-func ret)))))
 
 (define (coati:init w h title fullscreen?)
   (sdl-set-main-ready!)
@@ -40,7 +44,7 @@
     (unless window
       (error (sprintf "Could not set video mode (~sx~s:~s):" w h 32) (sdl-get-error)))
     (set! %context (sdl-gl-create-context! window))
-    (sdl-gl-swap-interval-set! -1)
+    (sdl-gl-swap-interval-set! 1)
     (set! %window window)
     (gl::enable gl::+texture-2d+)
     (gl::enable gl::+blend+)
