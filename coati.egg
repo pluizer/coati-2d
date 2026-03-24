@@ -53,6 +53,7 @@
  (c-object node-pers       (source "src/node-pers.scm"))
  (c-object node            (source "src/node.scm"))
  (c-object particles       (source "src/particles.scm"))
+ (c-object pathfinding     (source "src/pathfinding.scm"))
  (c-object physics         (source "src/physics.scm"))
  (c-object pixmap          (source "src/pixmap.scm"))
  (c-object polygon-batcher (source "src/polygon-batcher.scm"))
@@ -121,6 +122,7 @@
              node-pers
              node
              particles
+             pathfinding
 	     physics
              pixmap
              polygon-batcher

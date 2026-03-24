@@ -18,6 +18,7 @@
                  node-pers
                  pixmap
                  particles
+                 pathfinding
                  polygon-batcher
 		 physics
                  shader

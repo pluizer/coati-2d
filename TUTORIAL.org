@@ -202,6 +202,109 @@ The tile function is a thunk returning ~(coord -> sprite | #f | (sprite: s colou
 Isometric tilemaps: ~(tilemap:create isometric?: #t)~.
 Load a Tiled ~.tmx~ file with ~(open-tile-map "map.tmx")~.
 
+Do NOT pass an anonymous lambda as tile-func — it is compared by identity to detect changes. Store it in a named variable.
+
+~dirty? = #t~ forces repopulation. ~trans-func~ is an optional function to modify the view matrix.
+
+* Isometric tilemaps
+
+** Coordinate system
+
+- Tile function receives *ISO-space* coordinates, not game-grid coordinates.
+- ~coord->isometric(gx, gy) = (-gx - 2*gy, gx - 2*gy)~
+- Tile at iso ~(ix, iy)~ is placed at screen anchor ~(ix*-0.5 + iy*0.5, ix*-0.25 + iy*-0.25)~
+- Composition with ~coord->isometric~ is identity: game-grid ~(gx, gy)~ → screen anchor ~(gx, gy)~
+
+#+BEGIN_SRC
+iso:world->screen v  →  v           (identity)
+iso:screen->world v  →  world coord of diamond containing v
+#+END_SRC
+
+** Diamond geometry (within a 1×1 sprite, anchor at bottom-left)
+
+- Center: ~(0.5, 0.5)~
+- Half-width: ~0.5~, half-height: ~0.25~
+- Vertices: top ~(0.5, 0.75)~, right ~(1.0, 0.5)~, bottom ~(0.5, 0.25)~, left ~(0.0, 0.5)~
+
+** Mouse picking
+
+#+BEGIN_SRC scheme
+(define (screen-pos->world-tile camera-pos camera-size window-size mouse-pixel-pos)
+  (let* ((mouse-rel (vect:create
+                      (* (- (vect:x mouse-pixel-pos) (* 0.5 (vect:x window-size)))
+                         (/ (vect:x camera-size) (vect:x window-size)))
+                      (* (- (* 0.5 (vect:y window-size)) (vect:y mouse-pixel-pos))
+                         (/ (vect:y camera-size) (vect:y window-size)))))
+         (mouse-world (vect+ camera-pos mouse-rel)))
+    (iso:screen->world mouse-world)))
+#+END_SRC
+
+~iso:screen->world~ returns the anchor position (= world coord) of the tile whose diamond contains the point.
+
+** Depth sorting
+
+Tile depth = ~ix + iy = -4 * wy~ (cancellation of x-components in ~coord->isometric~).
+
+For sprites rendered as extras alongside tiles, the correct depth is:
+: depth = -4 * (pos_y - origin_y)
+where ~origin_y~ is the sprite's ~trans:create~ y-origin (default 0). A centered sprite with ~origin: (vect:create 0.5 0.5)~ uses ~-4 * (pos_y - 0.5)~.
+
+** Sorted tilemap with depth-interleaved objects
+
+~tilemap:render-sorted~ depth-sorts tiles and extra sprites together:
+
+#+BEGIN_SRC scheme
+(tilemap:render-sorted tilemap
+                       trans-func         ; #f or view modifier
+                       dirty?
+                       tile-func
+                       tile-texture       ; texture to rebind after each extra renders
+                       extra-specs        ; list of (cons depth thunk)
+                       #!rest tile-func-args)
+#+END_SRC
+
+Each ~extra-spec~ is a ~(cons depth render-thunk)~. Thunks are called in depth order, interleaved with tile batches. Tiles with lower depth than an extra render before it; tiles with higher depth render after.
+
+#+BEGIN_SRC scheme
+(tilemap:render-sorted tilemap #f dirty? tile-fn tex-atlas
+  (list
+    (cons (* -4.0 (- (vect:y cat-pos) 0.5))   ; depth: foot y
+          (lambda ()
+            (with-blending trans (rgb:create 1 1 1)
+              (with-texture cat-tex
+                (sprite-batcher:update! batcher)
+                (sprite-batcher:render  batcher)))))
+    (cons (* -4.0 (vect:y chair-pos))          ; depth: anchor y (no origin offset)
+          (lambda ()
+            (with-blending trans (rgb:create 1 1 1)
+              (with-texture tex-atlas
+                (sprite-batcher:push! obj-batcher chair-sprite
+                                      (trans->matrix (trans:create chair-pos)))
+                (sprite-batcher:update! obj-batcher)
+                (sprite-batcher:render  obj-batcher)
+                (sprite-batcher:clear!  obj-batcher))))))
+  tile-func-arg)
+#+END_SRC
+
+Multiple extras at different depths work correctly; N extras → N+1 tile batches.
+
+** Overscan
+
+~(tilemap:create isometric?: #t overscan: N)~ snaps the start coord to a coarser grid to reduce repopulation when the camera moves by small amounts. ~N = 4~ is typical.
+
+** make-change-check
+
+~(make-change-check)~ returns a stateful predicate. Returns ~#t~ when its argument changes value, ~#f~ otherwise. Used to detect when expensive operations need to re-run:
+
+#+BEGIN_SRC scheme
+(define door-changed? (make-change-check))
+(when (door-changed? door-open?)
+  ; repopulate or mark dirty
+  ...)
+#+END_SRC
+
+Pass the result as ~dirty?~ to ~tilemap:render-sorted~ to force repopulation on state change.
+
 * Static tilemap
 
 Fixed-size tilemap; tiles set explicitly rather than by function.

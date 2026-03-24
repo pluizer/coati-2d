@@ -98,7 +98,7 @@
 ;; Check if two vectors are equal.
 (define (vect=? a b #!optional (epsilon .001))
   (and (< (abs (- (vect:x a) (vect:x b))) epsilon)
-       (< (abs (- (vect:x a) (vect:y b))) epsilon)))
+       (< (abs (- (vect:y a) (vect:y b))) epsilon)))
 
 ;; Add two vectors.
 (define (vect+ a b)
@@ -211,7 +211,7 @@
 
 ;; Linearly interpolate between v1 towards v2 by distance d.
 (define (vect:lerp-const v1 v2 dist)
-  (vect+ v1 (vect+ (vect:clamp v2 v1) dist)))
+  (vect+ v1 (vect:clamp (vect- v2 v1) dist)))
 
 ;; Returns the distance between v1 and v2.
 (define (vect:dist v1 v2)
@@ -256,8 +256,8 @@
     (vect:vreate vx vy)))
 
 (define (vect->coord v)
-  (coord:create (inexact->exact (round (vect:x v)))
-		(inexact->exact (round (vect:y v)))))
+  (coord:create (inexact->exact (floor (vect:x v)))
+		(inexact->exact (floor (vect:y v)))))
 
 ;;-------------------------------------------------------
 ;; Coords
@@ -279,7 +279,7 @@
 ;; Check if two coords are equal.
 (define (coord=? a b #!optional (epsilon .001))
   (and (< (abs (- (coord:x a) (coord:x b))) epsilon)
-       (< (abs (- (coord:x a) (coord:y b))) epsilon)))
+       (< (abs (- (coord:y a) (coord:y b))) epsilon)))
 
 ;; Add two coords.
 (define (coord+ a b)
@@ -303,9 +303,10 @@
 (define (iso:world->screen v) v)
 
 (define (iso:screen->world v)
-  (let* ((wx (vect:x v)) (wy (vect:y v))
-         (ix (floor (+ 1.0 (- wx) (* -2.0 wy))))
-         (iy (floor (+ wx (* -2.0 wy)))))
+  (let* ((px (- (vect:x v) 0.5))
+         (py (- (vect:y v) 0.5))
+         (ix (floor (+ 0.5 (- px) (* -2.0 py))))
+         (iy (floor (+ 0.5 px (* -2.0 py)))))
     (vect:create (* 0.5 (- iy ix))
                  (* -0.25 (+ ix iy)))))
 
