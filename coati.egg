@@ -71,6 +71,73 @@
  (c-object trans           (source "src/trans.scm"))
  (c-object window          (source "src/window.scm"))
 
+ (program coati
+          (source "src/coati-main.scm")
+          (link-options "-L" "-lSDL2_mixer")
+          (objects
+	   chipmunkc
+           cpArbiter
+           cpArray
+           cpBB
+           cpBBTree
+           cpBody
+           cpCollision
+           cpHashSet
+           cpPolyShape
+           cpShape
+           cpSpace
+           cpSpaceComponent
+           cpSpaceHash
+           cpSpaceQuery
+           cpSpaceStep
+           cpSpatialIndex
+           cpSweep1D
+           cpVect
+           cpConstraint
+           cpDampedRotarySpring
+           cpDampedSpring
+           cpGearJoint
+           cpGrooveJoint
+           cpPinJoint
+           cpPivotJoint
+           cpRatchetJoint
+           cpRotaryLimitJoint
+           cpSimpleMotor
+           cpSlideJoint
+	   algorithms
+           animators
+           batcher
+           blend
+           camera
+	   chipmunk
+           chunk
+           drawing
+           events
+           font
+	   gamemap
+           input
+           misc
+           node-pers
+           node
+           particles
+           pathfinding
+	   physics
+           pixmap
+           polygon-batcher
+           primitives
+           shader
+           sound
+           sprite-batcher
+           sprite
+           sprite-map
+	   static-tilemap
+	   textbuffer
+           texture
+           tilemap
+           triangulate
+           trans
+           window))
+
  (extension coati
             (source "src/coati.scm")
             (link-options "-L" "-lSDL2_mixer")
